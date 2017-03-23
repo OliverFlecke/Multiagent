@@ -9,7 +9,6 @@ import eis.AgentListener;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
-import eis.iilang.Identifier;
 import eis.iilang.Percept;
 
 public class EIArtifact extends Artifact implements AgentListener {
@@ -18,7 +17,8 @@ public class EIArtifact extends Artifact implements AgentListener {
     
     private EnvironmentInterfaceStandard ei;
     
-    void init() {		
+    void init() {
+		logger.info("init");		
 		try {
 			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
 			ei.start();
@@ -28,7 +28,10 @@ public class EIArtifact extends Artifact implements AgentListener {
     }
 	
 	@OPERATION
-	void register(String entity)  {
+	void register(String entity)  
+	{
+		logger.info("register " + entity);
+		
 		try {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
@@ -39,11 +42,13 @@ public class EIArtifact extends Artifact implements AgentListener {
 	}	
 
 	@OPERATION
-	void action(String action) {
-		try {
-			String agent = getOpUserName();
-			System.out.println(agent + " doing: " + action);
-			
+	void action(String action) 
+	{
+		String agent = getOpUserName();
+		
+		logger.info(agent + " doing: " + action);
+		
+		try {	
 			Action ac = Translator.stringToAction(action);
 			ei.performAction(agent, ac);
 		} catch (Exception e) {
