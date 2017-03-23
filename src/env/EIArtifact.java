@@ -8,6 +8,8 @@ import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
+import eis.iilang.Action;
+import eis.iilang.Identifier;
 import eis.iilang.Percept;
 
 public class EIArtifact extends Artifact implements AgentListener {
@@ -40,7 +42,10 @@ public class EIArtifact extends Artifact implements AgentListener {
 	void action(String action) {
 		try {
 			String agent = getOpUserName();
-			logger.info(agent + " doing: " + action);
+			System.out.println(agent + " doing: " + action);
+			
+			Action ac = Translator.stringToAction(action);
+			ei.performAction(agent, ac);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
