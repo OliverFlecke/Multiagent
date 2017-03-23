@@ -33,6 +33,7 @@ public class EIArtifact extends Artifact implements AgentListener {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
+			ei.attachAgentListener(agent, this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -53,6 +54,10 @@ public class EIArtifact extends Artifact implements AgentListener {
 
 
 	public void handlePercept(String agentName, Percept percept) {
-		logger.info(agentName + " percieved: " + percept.getName());
+
+		if (percept.getName() == "pricedJob")
+		{
+//			logger.info(agentName + " percieved: " + percept.toString());
+		}
 	}
 }
