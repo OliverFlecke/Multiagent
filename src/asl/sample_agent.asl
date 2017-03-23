@@ -1,7 +1,7 @@
 !register.
 
 +!register : true <-
-	makeArtifact("a", "env.MultiAgentEnvironment", [], Id);
+	makeArtifact("a", "env.EIArtifact", [], Id);
 	register("connectionA1").
 
   
