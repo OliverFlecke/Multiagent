@@ -1,3 +1,4 @@
+package mas;
 import jason.JasonException;
 import jason.infra.centralised.RunCentralisedMAS;
 import massim.competition2015.monitor.GraphMonitor;
@@ -23,6 +24,6 @@ public class Runner {
 			}
 		}).start();
 		
-		RunCentralisedMAS.main(new String[] { "multiagent_jason.mas2j" });
+		RunCentralisedMAS.main(new String[] { "src/mas/multiagent_jason.mas2j" });
 	}
 }

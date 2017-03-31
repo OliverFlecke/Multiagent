@@ -1,29 +1,36 @@
 package env;
 // Environment code for project multiagent_jason
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.OPERATION;
-import eis.AgentListener;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
-import eis.iilang.Percept;
 
-public class EIArtifact extends Artifact implements AgentListener {
+public class EIArtifact extends Artifact {
 
     private static final Logger logger = Logger.getLogger(EIArtifact.class.getName());
     
     private EnvironmentInterfaceStandard ei;
     
-    void init() {
-		logger.info("init");		
+    /**
+     * Instantiates and starts the environment interface.
+     */
+    void init() 
+    {
+		logger.info("init");
+		
 		try {
 			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
+			
 			ei.start();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in init: " + e.getMessage(), e);
 		}
     }
 	
@@ -36,9 +43,11 @@ public class EIArtifact extends Artifact implements AgentListener {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
-			ei.attachAgentListener(agent, this);
-		} catch (Exception e) {
-			e.printStackTrace();
+//			ei.attachAgentListener(agent, this);
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in register: " + e.getMessage(), e);
 		}
 	}	
 
@@ -51,18 +60,12 @@ public class EIArtifact extends Artifact implements AgentListener {
 		
 		try {	
 			Action ac = Translator.stringToAction(action);
+			
 			ei.performAction(agent, ac);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	public void handlePercept(String agentName, Percept percept) {
-
-		if (percept.getName() == "pricedJob")
+		} 
+		catch (Throwable e) 
 		{
-//			logger.info(agentName + " percieved: " + percept.toString());
+			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
 		}
 	}
 }

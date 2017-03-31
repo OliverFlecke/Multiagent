@@ -4,8 +4,10 @@
 	makeArtifact("a", "env.EIArtifact", [], Id);
 	register("connectionA1");
 	.wait(1000);
-	action(goto(shop1)).
+	!start.
 
-//+start : true <- 
-//	action(goto(shop1));
-//	-+start.
++!start : true <- 
+	action(goto(shop0));
+	-+start.
+	
++shop(ShopId, Lat, Lng, Items) <- .print("Shop", ShopId).
