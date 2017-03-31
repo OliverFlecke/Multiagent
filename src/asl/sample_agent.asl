@@ -28,4 +28,10 @@
 // Test plans
 +inFacility(X) <- .print("I am at: ", X).
 +inFacility : true <- .print("Hello world").
+
++!start : true <- 
+	action(goto(shop0));
+	-+start.
 	
++shop(ShopId, Lat, Lng, Items) <- .print("Shop", ShopId).
+

@@ -1,8 +1,11 @@
 package env;
 // Environment code for project multiagent_jason
 
+
 import java.util.*;
 import java.util.Map.Entry;
+
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.batik.ext.awt.image.rendered.TranslateRed;
@@ -12,7 +15,6 @@ import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import eis.AgentListener;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
 import eis.exceptions.NoEnvironmentException;
@@ -24,39 +26,58 @@ import eis.iilang.Percept;
 import jade.tools.logging.ontology.GetAllLoggers;
 import jason.asSyntax.Literal;
 
+
 public class EIArtifact extends Artifact {
 
     private static final Logger logger = Logger.getLogger(EIArtifact.class.getName());
     
     private EnvironmentInterfaceStandard ei;
     
-    void init() {		
+    /**
+     * Instantiates and starts the environment interface.
+     */
+    void init() 
+    {
+		logger.info("init");
+		
 		try {
 			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
+			
 			ei.start();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in init: " + e.getMessage(), e);
 		}
     }
 	
 	@OPERATION
-	void register(String entity)  {
+	void register(String entity)  
+	{
+		logger.info("register " + entity);
+		
 		try {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
-		} catch (Exception e) {
-			e.printStackTrace();
+		}
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in register: " + e.getMessage(), e);
+
 		}
 	}	
 
 	@OPERATION
-	void action(String action) {
-		try {
-			String agent = getOpUserName();
-			System.out.println(agent + " doing: " + action);
-			signal("inFacility");
+	void action(String action) 
+	{
+		String agent = getOpUserName();
+		
+		logger.info(agent + " doing: " + action);
+		
+		try {	
 			Action ac = Translator.stringToAction(action);
+			
 			ei.performAction(agent, ac);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -77,13 +98,9 @@ public class EIArtifact extends Artifact {
 				signal(percept.getName(), parameters);
 			}
 		} 
-		catch (PerceiveException e) 
+		catch (Throwable e) 
 		{
-			e.printStackTrace();
-		} 
-		catch (NoEnvironmentException e) 
-		{
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
 		}
 	}	
 }
