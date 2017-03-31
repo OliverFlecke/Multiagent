@@ -1,6 +1,4 @@
 MAS multiagent_jason {
-
-	infrastructure: Centralised
 	
     environment: c4jason.CartagoEnvironment
 

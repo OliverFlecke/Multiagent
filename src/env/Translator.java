@@ -73,4 +73,17 @@ public class Translator
 			pars[i] = termToParameter(literal.getTerm(i));
 		return new Action(literal.getFunctor(), new Identifier("facility=shop1"));
 	}
+
+	public static Literal perceptToLiteral(Percept percept) {
+		return Literal.parseLiteral(percept.getName());
+	}
+
+	public static Object[] parametersToArguments(List<Parameter> parameters) {
+		Object[] out = new Object[parameters.size()];
+		for (int i = 0; i < parameters.size(); i++)
+		{
+			out[i] = parameters.get(i).toString();
+		}
+		return out;
+	}
 }

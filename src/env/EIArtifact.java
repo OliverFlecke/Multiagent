@@ -1,18 +1,30 @@
 package env;
 // Environment code for project multiagent_jason
 
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import org.apache.batik.ext.awt.image.rendered.TranslateRed;
+
+import c4jason.CartagoEnvironment;
+import cartago.AgentId;
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
+import eis.exceptions.NoEnvironmentException;
+import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Identifier;
+import eis.iilang.Parameter;
 import eis.iilang.Percept;
+import jade.tools.logging.ontology.GetAllLoggers;
+import jason.asSyntax.Literal;
 
-public class EIArtifact extends Artifact implements AgentListener {
+public class EIArtifact extends Artifact {
 
     private static final Logger logger = Logger.getLogger(EIArtifact.class.getName());
     
@@ -33,7 +45,6 @@ public class EIArtifact extends Artifact implements AgentListener {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
-			ei.attachAgentListener(agent, this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -44,20 +55,35 @@ public class EIArtifact extends Artifact implements AgentListener {
 		try {
 			String agent = getOpUserName();
 			System.out.println(agent + " doing: " + action);
-			
+			signal("inFacility");
 			Action ac = Translator.stringToAction(action);
 			ei.performAction(agent, ac);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-
-	public void handlePercept(String agentName, Percept percept) {
-
-		if (percept.getName() == "pricedJob")
+	
+	
+	@INTERNAL_OPERATION
+	public void getPercepts(String connection) 
+	{
+		String agentName = getOpUserName();	
+		try 
 		{
-//			logger.info(agentName + " percieved: " + percept.toString());
+			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(connection);
+			for (Percept percept : percepts)
+			{		
+				Object[] parameters = Translator.parametersToArguments(percept.getParameters());
+				signal(percept.getName(), parameters);
+			}
+		} 
+		catch (PerceiveException e) 
+		{
+			e.printStackTrace();
+		} 
+		catch (NoEnvironmentException e) 
+		{
+			e.printStackTrace();
 		}
-	}
+	}	
 }
