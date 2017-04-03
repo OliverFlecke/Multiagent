@@ -3,28 +3,18 @@ package env;
 
 
 import java.util.*;
-import java.util.Map.Entry;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.batik.ext.awt.image.rendered.TranslateRed;
+//import org.apache.batik.ext.awt.image.rendered.TranslateRed;
 
-import c4jason.CartagoEnvironment;
-import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
-import eis.exceptions.NoEnvironmentException;
-import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
-import eis.iilang.Identifier;
-import eis.iilang.Parameter;
 import eis.iilang.Percept;
-import jade.tools.logging.ontology.GetAllLoggers;
-import jason.asSyntax.Literal;
 
 
 public class EIArtifact extends Artifact {

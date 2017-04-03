@@ -1,16 +1,6 @@
 package RunProgram;
 
-import java.util.Collection;
-import java.util.Map;
-
-import eis.AgentListener;
-import eis.EILoader;
-import eis.EnvironmentInterfaceStandard;
-import eis.iilang.Action;
-import eis.iilang.Identifier;
-import eis.iilang.Percept;
 import jason.infra.centralised.RunCentralisedMAS;
-import massim.eismassim.EnvironmentInterface;
 
 public class ConnectToServer extends RunCentralisedMAS {
 
