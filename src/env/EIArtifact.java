@@ -82,10 +82,14 @@ public class EIArtifact extends Artifact {
 		try 
 		{
 			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(connection);
+			// TODO It is WAY to slow to run through all the percepts, as far as I can see
 			for (Percept percept : percepts)
 			{		
-				Object[] parameters = Translator.parametersToArguments(percept.getParameters());
-				signal(percept.getName(), parameters);
+				if (percept.getName() == "step")
+				{
+					Object[] parameters = Translator.parametersToArguments(percept.getParameters());
+					signal(percept.getName(), parameters);					
+				}
 			}
 		} 
 		catch (Throwable e) 

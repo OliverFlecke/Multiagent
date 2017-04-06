@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<javaAgentsConfig verbose="no">
-  <agents>
-    <agent name="agentA1" entity="connectionA1" class="TestAgent" team="A"/>
-
-  </agents>
-</javaAgentsConfig>

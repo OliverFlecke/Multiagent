@@ -16,7 +16,9 @@ public class Translator
 	{
 		if (term.isString())
 		{
-			return new Identifier(((StringTerm) term).getString());
+			String string = ((StringTerm) term).getString();
+			System.out.println(string);
+			return new Identifier(string);
 		}
 		else if (term.isNumeric()) 
 		{
@@ -68,10 +70,11 @@ public class Translator
 	 */
 	public static Action literalToAction(Literal literal)
 	{	
+		// TODO Implement correctly
 		Parameter[] pars = new Parameter[literal.getArity()];
 		for (int i = 0; i < pars.length; i++)
 			pars[i] = termToParameter(literal.getTerm(i));
-		return new Action(literal.getFunctor(), new Identifier("facility=shop1"));
+		return new Action(literal.getFunctor(), new Identifier("shop1"));
 	}
 
 	public static Literal perceptToLiteral(Percept percept) {

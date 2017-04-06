@@ -17,7 +17,6 @@
 	
 +updatePercepts : connection(C) <- 
 	getPercepts(C);
-	.wait(1000);
 	-+updatePercepts.
 	
 // Power related plans
@@ -32,6 +31,10 @@
 +!start : true <- 
 	action(goto(shop0));
 	-+start.
+	
++step(X) <- .print("This is step: ", X);
+	action(goto(storage4));
+	-step(X).
 	
 +shop(ShopId, Lat, Lng, Items) <- .print("Shop", ShopId).
 

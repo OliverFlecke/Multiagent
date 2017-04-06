@@ -29,3 +29,5 @@ backup/
 cache/
 graphs/
 xmls/
+replays/
+.metadata/
