@@ -31,3 +31,5 @@ graphs/
 xmls/
 replays/
 .metadata/
+.settings/
+cache/
