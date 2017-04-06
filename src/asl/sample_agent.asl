@@ -19,6 +19,13 @@
 	getPercepts(C);
 	-+updatePercepts.
 	
+// This is called in every step. Should therefore always make sure an action is returned
++step(X) <- 
+	.print("This is step: ", X);
+	action(goto(storage4));
+	-step(X).
+	
+
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
 
@@ -27,14 +34,6 @@
 // Test plans
 +inFacility(X) <- .print("I am at: ", X).
 +inFacility : true <- .print("Hello world").
-
-+!start : true <- 
-	action(goto(shop0));
-	-+start.
-	
-+step(X) <- .print("This is step: ", X);
-	action(goto(storage4));
-	-step(X).
 	
 +shop(ShopId, Lat, Lng, Items) <- .print("Shop", ShopId).
 

@@ -1,6 +1,8 @@
 package env;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import eis.iilang.*;
 import jason.NoValueException;
 import jason.asSyntax.*;
@@ -64,29 +66,33 @@ public class Translator
 	}
 	
 	/**
-	 * 
-	 * @param literal
-	 * @return
+	 * Converts a literal into a do-able action
+	 * @param literal to convert
+	 * @return The action which the literal was describing
 	 */
 	public static Action literalToAction(Literal literal)
 	{	
-		// TODO Implement correctly
-		Parameter[] pars = new Parameter[literal.getArity()];
-		for (int i = 0; i < pars.length; i++)
-			pars[i] = termToParameter(literal.getTerm(i));
-		return new Action(literal.getFunctor(), new Identifier("shop1"));
+		Parameter[] parameters = new Parameter[literal.getArity()];
+		for (int i = 0; i < parameters.length; i++)
+			parameters[i] = termToParameter(literal.getTerm(i));
+		return new Action(literal.getFunctor(), parameters);
 	}
 
+	/**
+	 * 
+	 * @param percept
+	 * @return
+	 */
 	public static Literal perceptToLiteral(Percept percept) {
 		return Literal.parseLiteral(percept.getName());
 	}
 
+	/**
+	 * Convert a list of parameters into an array of object
+	 * @param parameters to convert
+	 * @return An array of objects, containing the parameters
+	 */
 	public static Object[] parametersToArguments(List<Parameter> parameters) {
-		Object[] out = new Object[parameters.size()];
-		for (int i = 0; i < parameters.size(); i++)
-		{
-			out[i] = parameters.get(i).toString();
-		}
-		return out;
+		return Arrays.stream(parameters.toArray()).map(x -> x.toString()).toArray(String[]::new);
 	}
 }
