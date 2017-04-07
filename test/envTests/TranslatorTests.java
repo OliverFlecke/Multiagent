@@ -36,15 +36,21 @@ public class TranslatorTests {
 	@Test
 	public void parametersToArgumentTest()
 	{
+		// Direct known subclass of Parameter:
+		// Function, Identifier, Numeral, ParameterList, TruthValue
 		List<Parameter> parameters = new ArrayList<Parameter>();
 		parameters.add(new Identifier("shop0"));
 		parameters.add(new Numeral(10));
+		parameters.add(new Function("fun1", new Numeral(10)));
+		parameters.add(new TruthValue(true));
 		
 		Object[] arguments = Translator.parametersToArguments(parameters);
 		
-		assertEquals(2, arguments.length);
+		assertEquals(4, arguments.length);
 		assertEquals("shop0", arguments[0]);
 		assertEquals(10, arguments[1]);
+		assertEquals("fun1(10)", arguments[2]);
+		assertEquals("true", arguments[3]);
 	}
 	
 	@Test
@@ -52,7 +58,6 @@ public class TranslatorTests {
 	{
 		Percept percept = new Percept("charge", new Numeral(100));
 		Literal literal = Translator.perceptToLiteral(percept);	
-		System.out.println(PrologVisitor.staticVisit(percept));
 		
 		assertEquals(1, literal.getArity());
 		assertEquals("charge", literal.getFunctor());
