@@ -15,12 +15,15 @@ import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import massim.scenario.city.data.facilities.Shop;
 
 public class EIArtifact extends Artifact {
 
     private static final Logger logger = Logger.getLogger(EIArtifact.class.getName());
     
     private EnvironmentInterfaceStandard ei;
+    
+    private boolean shouldInitShops;
     
     /**
      * Instantiates and starts the environment interface.
@@ -50,10 +53,14 @@ public class EIArtifact extends Artifact {
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
 			
-			Collection<Percept> percepts = ei.getAllPercepts(agent).get(entity);
 			
-			for (Percept p : percepts)
-				System.out.println(p + " ");
+			if (shouldInitShops)
+			{
+				Collection<Percept> percepts = ei.getAllPercepts(agent).get(entity);
+				
+//				for (Percept p : percepts)
+//					System.out.println(p + " ");
+			}
 		}
 		catch (Throwable e) 
 		{
