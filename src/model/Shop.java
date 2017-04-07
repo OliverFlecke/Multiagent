@@ -3,8 +3,6 @@ package model;
 import java.util.HashMap;
 import java.util.Map;
 
-import cartago.Tuple;
-
 // Note: 
 
 public class Shop extends Facility {
@@ -12,10 +10,11 @@ public class Shop extends Facility {
 	// How often the shop restocks
 	private int restock;
 	// Tuple contains price and quantity
-	private Map<Item, Tuple> items;
+	private Map<Item, Tuple<Integer>> items;
 	
 	/**
-	 * 
+	 * Constructs a shop containing a map of the items sold, where
+	 * each item has a price and a quantity.
 	 * @param name - Name
 	 * @param lon - Longtitude
 	 * @param lat - Latitude
@@ -28,19 +27,35 @@ public class Shop extends Facility {
 	{
 		super(name, lon, lat);
 		this.restock = restock;
-		this.items = new HashMap<Item, Tuple>();
+		this.items = new HashMap<Item, Tuple<Integer>>();
 	}
 	
-	public void addItem(Item item, int price, int quantity)
-	{
-		Tuple t = new Tuple("asdf", price, quantity);
+	public void addItem(Item item, int price, int quantity) {
+		items.put(item, new Tuple<Integer>(price, quantity));
+	}
+	
+	public int getPrice(Item item) {
+		return items.get(item).getContent(0);
+	}
+	
+	public void setPrice(Item item, int price) {
+		items.get(item).setContent(0, price);
+	}
+	
+	public int getQuantity(Item item) {
+		return items.get(item).getContent(1);
+	}
+	
+	public void setQuantity(Item item, int quantity) {
+		items.get(item).setContent(1, quantity);
 	}
 	
 	public int getRestock() {
 		return restock;
 	}
 	
-	public Map<Item, Tuple> getItems() {
-		return items;
-	}
+	// Shouldn't be necessary
+//	public Map<Item, Tuple<Integer>> getItems() {
+//		return items;
+//	}
 }
