@@ -9,6 +9,8 @@ import org.junit.Test;
 import java.util.*;
 import eis.iilang.*;
 import env.Translator;
+import jason.asSyntax.Literal;
+import jason.asSyntax.NumberTermImpl;
 
 /**
  *
@@ -41,7 +43,27 @@ public class TranslatorTests {
 		Object[] arguments = Translator.parametersToArguments(parameters);
 		
 		assertEquals(2, arguments.length);
-		assertEquals(new Identifier("shop0").toString(), arguments[0]);
-		assertEquals(new Numeral(10).toString(), arguments[1]);
+		assertEquals("shop0", arguments[0]);
+		assertEquals(10, arguments[1]);
+	}
+	
+	@Test
+	public void perceptToLiteralTest()
+	{
+		Percept percept = new Percept("charge", new Numeral(100));
+		Literal literal = Translator.perceptToLiteral(percept);	
+		System.out.println(PrologVisitor.staticVisit(percept));
+		
+		assertEquals(1, literal.getArity());
+		assertEquals("charge", literal.getFunctor());
+		assertEquals(new NumberTermImpl(100), literal.getTerm(0));
+		
+		percept = new Percept("step", new Numeral(15));
+		literal = Translator.perceptToLiteral(percept);
+		
+		assertEquals(1, literal.getArity());
+		assertEquals("step", literal.getFunctor());
+		assertEquals(new NumberTermImpl(15), literal.getTerm(0));
+		
 	}
 }

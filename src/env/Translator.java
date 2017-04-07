@@ -84,7 +84,7 @@ public class Translator
 	 * @return
 	 */
 	public static Literal perceptToLiteral(Percept percept) {
-		return Literal.parseLiteral(percept.getName());
+		return Literal.parseLiteral(PrologVisitor.staticVisit((Percept) percept));
 	}
 
 	/**
@@ -93,6 +93,22 @@ public class Translator
 	 * @return An array of objects, containing the parameters
 	 */
 	public static Object[] parametersToArguments(List<Parameter> parameters) {
-		return Arrays.stream(parameters.toArray()).map(x -> x.toString()).toArray(String[]::new);
+		Object[] arguments = new Object[parameters.size()];
+		for (int i = 0; i < parameters.size(); i++)
+		{
+			Parameter parameter = parameters.get(i);
+			System.out.println(parameter);
+			PrologVisitor visitor = new PrologVisitor();
+			if (parameter instanceof Numeral)
+			{
+				Object obj = new Object();
+				arguments[i] = visitor.visit((Numeral) parameter, obj);
+			}
+			else
+			{
+				arguments[i] = PrologVisitor.staticVisit(parameters.get(i));
+			}
+		}
+		return arguments;
 	}
 }
