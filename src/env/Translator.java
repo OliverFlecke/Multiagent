@@ -97,16 +97,14 @@ public class Translator
 		for (int i = 0; i < parameters.size(); i++)
 		{
 			Parameter parameter = parameters.get(i);
-			System.out.println(parameter);
-			PrologVisitor visitor = new PrologVisitor();
 			if (parameter instanceof Numeral)
 			{
-				Object obj = new Object();
-				arguments[i] = visitor.visit((Numeral) parameter, obj);
+				PrologVisitor visitor = new PrologVisitor();
+				arguments[i] = visitor.visit((Numeral) parameter, new Object());
 			}
 			else
 			{
-				arguments[i] = PrologVisitor.staticVisit(parameters.get(i));
+				arguments[i] = PrologVisitor.staticVisit(parameter);
 			}
 		}
 		return arguments;
