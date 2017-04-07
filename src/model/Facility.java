@@ -14,17 +14,26 @@ public abstract class Facility {
 		this.latitude = latitude;
 	}
 	
+	/**
+	 * @return The name of the facility
+	 */
 	public String getName()
 	{
 		return this.name;
 	}
 	
+	/**
+	 * @return Longitude of the facility
+	 */
 	public double getLongitude()
 	{
 		return this.longitude;
 	}
 	
-	public double getLatitue()
+	/**
+	 * @return The latitude of the facility
+	 */
+	public double getLatitude()
 	{
 		return this.latitude;
 	}
