@@ -15,9 +15,6 @@ import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import jason.asSyntax.Literal;
-import jason.asSyntax.Term;
-
 
 public class EIArtifact extends Artifact {
 
@@ -52,6 +49,11 @@ public class EIArtifact extends Artifact {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
+			
+			Collection<Percept> percepts = ei.getAllPercepts(agent).get(entity);
+			
+			for (Percept p : percepts)
+				System.out.println(p + " ");
 		}
 		catch (Throwable e) 
 		{
@@ -87,13 +89,20 @@ public class EIArtifact extends Artifact {
 			// TODO It is WAY to slow to run through all the percepts, as far as I can see
 			for (Percept percept : percepts)
 			{		
-				Literal literal = Literal.parseLiteral(percept.getName());
-				if (percept.getName() == "step")
+				switch (percept.getName())
 				{
-//					Object[] parameters = Translator.parametersToArguments(percept.getParameters());
-//					signal(percept.getName(), parameters);
-					defineObsProperty(literal.getFunctor(), (Object[]) literal.getTermsArray());
-					
+				case "step":
+					Object[] args = Translator.parametersToArguments(percept.getParameters());
+					defineObsProperty(percept.getName(), args);
+					break;
+				case "shop":
+				default:
+					System.out.print(percept.getName() + " ");
+					Object[] args2 = Translator.parametersToArguments(percept.getParameters());
+					for (Object arg : args2)
+						System.out.print(arg + " ");
+					System.out.println();
+					break;
 				}
 			}
 		} 

@@ -16,11 +16,11 @@
 	+updatePercepts.
 	
 +updatePercepts : connection(C) <- 
-	getPercepts(C);
+//	getPercepts(C);
 	-+updatePercepts.
 	
 // This is called in every step. Should therefore always make sure an action is returned
-+step(X) <- 
++step(X) <-
 	.print("This is step: ", X);
 	action(goto(storage4));
 	-step(X).
