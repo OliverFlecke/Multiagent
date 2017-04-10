@@ -54,7 +54,11 @@ public class EIArtifact extends Artifact {
 			
 			if (shouldInitShops)
 			{
-				ShopArtifact.perceiveInitial(ei.getAllPercepts(agent).get(entity));
+				Collection<Percept> initialPercepts = ei.getAllPercepts(agent).get(entity);
+				
+				// Important to perceive items before facilities
+				ItemArtifact    .perceiveInitial(initialPercepts);
+				FacilityArtifact.perceiveInitial(initialPercepts);
 				
 				shouldInitShops = false;
 			}

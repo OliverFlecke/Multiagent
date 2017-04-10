@@ -11,22 +11,18 @@ import jason.asSyntax.*;
 import massim.scenario.city.data.*;
 import massim.scenario.city.data.facilities.Shop;
 
-public class ShopArtifact extends Artifact {
+public class ItemArtifact extends Artifact {
 	
-	private static final Logger logger = Logger.getLogger(ShopArtifact.class.getName());
+	private static final Logger logger = Logger.getLogger(ItemArtifact.class.getName());
+
+	private static final String ITEM = "item";
 
 	private static Map<String, Item>		items 			= new HashMap<>();
-	private static Map<String, Shop> 		shops 			= new HashMap<>();
 	private static Map<String, Set<Shop>> 	itemLocations 	= new HashMap<>();	
 	
 	@OPERATION
 	void getItems(OpFeedbackParam<Collection<Item>> ret) {
 		ret.set(items.values());
-	}
-	
-	@OPERATION
-	void getShops(OpFeedbackParam<Collection<Shop>> ret) {
-		ret.set(shops.values());
 	}
 	
 	@OPERATION
@@ -36,11 +32,11 @@ public class ShopArtifact extends Artifact {
 	
 	protected static void perceiveInitial(Collection<Percept> percepts)
 	{
-		logger.info("Perceiving initial percepts");
+		logger.info("Perceiving items");
 		
 		Map<Item, Set<List<Term>>> requirements = new HashMap<>();
 		
-		percepts.stream().filter(percept -> percept.getName() == "item")
+		percepts.stream().filter(percept -> percept.getName() == ITEM)
 						 .forEach(item -> perceiveItem(item, requirements));
 		
 		// Item requirements has to be added after all items have been created, 
@@ -59,22 +55,9 @@ public class ShopArtifact extends Artifact {
 			}
 		}
 		
-		logger.info("Items perceived:");
-		
+		logger.info("Items perceived:");		
 		for (Item item : items.values())
-		{
 			logger.info(item.toString());
-		}
-		
-		percepts.stream().filter(percept -> percept.getName() == "shop")
-		 				 .forEach(shop -> perceiveShop(shop));
-		
-		logger.info("Shops perceived:");
-		
-		for (Shop shop : shops.values())
-		{
-			logger.info(shop.toString());
-		}
 	}
 
 	// Literal(String, int, Literal(List<String>), Literal(List<List<String, int>>))
@@ -110,33 +93,14 @@ public class ShopArtifact extends Artifact {
 		requirements.put(item, parts);
 	}
 	
-	// Literal(String, Double, Double, int, List<Literal(String, int, int)>)
-	private static void perceiveShop(Percept percept) 
-	{		
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
-		
-		String name    = Translator.termToString(args[0]);
-		double lon     = Translator.termToDouble(args[1]);
-		double lat     = Translator.termToDouble(args[2]);
-		int    restock = Translator.termToInteger(args[3]);
-		
-		Shop shop = new Shop(name, new Location(lon, lat), restock);
-		
-		for (Term itemLiteral : Translator.termToTermList(args[4])) 
-		{
-			Term[] itemArgs = Translator.termToLiteral(itemLiteral).getTermsArray();
-			
-			String itemId = Translator.termToString(itemArgs[0]);
-			int price 	  = Translator.termToInteger(itemArgs[1]);
-			int quantity  = Translator.termToInteger(itemArgs[2]);
-			
-			shop.addItem(items.get(itemId), quantity, price);	
-			addItemLocation(itemId, shop);
-		}		
-		shops.put(name, shop);
+	// Used by the FacilityArtifact when adding items to shops.
+	protected static Item getItem(String itemId)
+	{
+		return items.get(itemId);
 	}
 	
-	private static void addItemLocation(String itemId, Shop shop)
+	// Used by the FacilityArtifact when adding shops
+	protected static void addItemLocation(String itemId, Shop shop)
 	{
 		if (itemLocations.containsKey(itemId))
 		{
