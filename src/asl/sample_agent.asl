@@ -16,7 +16,8 @@
 	+updatePercepts.
 	
 +updatePercepts : connection(C) <- 
-//	getPercepts(C);
+	.wait(99999);
+	getPercepts(C);
 	-+updatePercepts.
 	
 // This is called in every step. Should therefore always make sure an action is returned
@@ -36,4 +37,6 @@
 +inFacility : true <- .print("Hello world").
 	
 +shop(ShopId, Lat, Lng, Items) <- .print("Shop", ShopId).
+
++role(Role, Speed, Load, Battery, Tools) <- .print("Role: ", Role).
 

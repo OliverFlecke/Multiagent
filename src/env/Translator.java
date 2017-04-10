@@ -1,7 +1,7 @@
 package env;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 import eis.iilang.*;
 import jason.NoValueException;
@@ -9,6 +9,9 @@ import jason.asSyntax.*;
 
 public class Translator 
 {
+	
+	private static final Logger logger = Logger.getLogger(Translator.class.getName());
+
 	/**
 	 * 
 	 * @param term
@@ -108,5 +111,36 @@ public class Translator
 			}
 		}
 		return arguments;
+	}
+	
+	public static String termToString(Term term) {
+		return ((Atom) term).getFunctor();
+	}
+	
+	public static double termToDouble(Term term) {
+		try {
+			return ((NumberTerm) term).solve();
+		}
+		catch (NoValueException e) 
+		{
+			logger.warning("termToDouble: " + e);
+			return 0.0;
+		}		
+	}
+	
+	public static int termToInteger(Term term) {
+		return (int) termToDouble(term);
+	}
+	
+	public static List<Term> termToTermList(Term term) {
+		return ((ListTermImpl) term).getAsList();
+	}
+	
+	public static List<Term> literalToTermList(Term term) {
+		return ((ListTermImpl) ((LiteralImpl) term).getTerm(0)).getAsList();
+	}
+	
+	public static Literal termToLiteral(Term term) {
+		return (LiteralImpl) term;
 	}
 }

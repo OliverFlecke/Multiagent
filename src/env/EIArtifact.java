@@ -49,11 +49,8 @@ public class EIArtifact extends Artifact {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
-			
-			Collection<Percept> percepts = ei.getAllPercepts(agent).get(entity);
-			
-			for (Percept p : percepts)
-				System.out.println(p + " ");
+
+			ShopArtifact.perceiveInitial(ei.getAllPercepts(agent).get(entity));
 		}
 		catch (Throwable e) 
 		{
@@ -76,34 +73,34 @@ public class EIArtifact extends Artifact {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
+	}	
 	
 	@INTERNAL_OPERATION
-	public void getPercepts(String connection) 
+	public void getPercepts(String entity) 
 	{
 		String agentName = getOpUserName();	
 		try 
 		{
-			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(connection);
+			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entity);
 			// TODO It is WAY to slow to run through all the percepts, as far as I can see
 			for (Percept percept : percepts)
 			{		
-				switch (percept.getName())
-				{
-				case "step":
-					Object[] args = Translator.parametersToArguments(percept.getParameters());
-					defineObsProperty(percept.getName(), args);
-					break;
-				case "shop":
-				default:
-					System.out.print(percept.getName() + " ");
-					Object[] args2 = Translator.parametersToArguments(percept.getParameters());
-					for (Object arg : args2)
-						System.out.print(arg + " ");
-					System.out.println();
-					break;
-				}
+				System.out.println(percept);
+//				switch (percept.getName())
+//				{
+//				case "step":
+//					Object[] args = Translator.parametersToArguments(percept.getParameters());
+//					defineObsProperty(percept.getName(), args);
+//					break;
+//				case "shop":
+//				default:
+//					System.out.print(percept.getName() + " ");
+//					Object[] args2 = Translator.parametersToArguments(percept.getParameters());
+//					for (Object arg : args2)
+//						System.out.print(arg + " ");
+//					System.out.println();
+//					break;
+//				}
 			}
 		} 
 		catch (Throwable e) 
