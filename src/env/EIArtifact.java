@@ -22,6 +22,8 @@ public class EIArtifact extends Artifact {
     
     private EnvironmentInterfaceStandard ei;
     
+    private boolean shouldInitShops = true;
+    
     /**
      * Instantiates and starts the environment interface.
      */
@@ -49,8 +51,13 @@ public class EIArtifact extends Artifact {
 			String agent = getOpUserName();
 			ei.registerAgent(agent);
 			ei.associateEntity(agent, entity);
-
-			ShopArtifact.perceiveInitial(ei.getAllPercepts(agent).get(entity));
+			
+			if (shouldInitShops)
+			{
+				ShopArtifact.perceiveInitial(ei.getAllPercepts(agent).get(entity));
+				
+				shouldInitShops = false;
+			}
 		}
 		catch (Throwable e) 
 		{

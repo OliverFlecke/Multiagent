@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.*;
 import eis.iilang.*;
 import env.Translator;
+import jason.asSyntax.Atom;
 import jason.asSyntax.Literal;
 import jason.asSyntax.NumberTermImpl;
 
@@ -43,14 +44,17 @@ public class TranslatorTests {
 		parameters.add(new Numeral(10));
 		parameters.add(new Function("fun1", new Numeral(10)));
 		parameters.add(new TruthValue(true));
+//		item(tool1,155,9),item(tool3,133,13)
+		parameters.add(new ParameterList(new Numeral(10), new Numeral(20)));
 		
 		Object[] arguments = Translator.parametersToArguments(parameters);
 		
-		assertEquals(4, arguments.length);
+		assertEquals(5, arguments.length);
 		assertEquals("shop0", arguments[0]);
 		assertEquals(10, arguments[1]);
 		assertEquals("fun1(10)", arguments[2]);
 		assertEquals("true", arguments[3]);
+		assertEquals("[10,20]", arguments[4]);
 	}
 	
 	@Test
@@ -70,5 +74,14 @@ public class TranslatorTests {
 		assertEquals("step", literal.getFunctor());
 		assertEquals(new NumberTermImpl(15), literal.getTerm(0));
 		
+		percept = new Percept("string", new Identifier("something"), new Identifier("Var"));
+		literal = Translator.perceptToLiteral(percept);
+		
+		assertEquals("string", literal.getFunctor());
+		assertEquals(new Atom("something"), literal.getTerm(0));
+		assertEquals("something", literal.getTerm(0).toString());
+		
+		assertFalse(literal.getTerm(0).isVar());
+		assertTrue(literal.getTerm(1).isVar());
 	}
 }
