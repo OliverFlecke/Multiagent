@@ -113,10 +113,21 @@ public class Translator
 		return arguments;
 	}
 	
+	/**
+	 * Casts a term to an atom and returns the functor.
+	 * @param term
+	 * @return
+	 */
 	public static String termToString(Term term) {
 		return ((Atom) term).getFunctor();
 	}
 	
+	/**
+	 * Casts a term to a number term and returns the solved result.
+	 * Returns 0.0 if the term is not a number term.
+	 * @param term
+	 * @return
+	 */
 	public static double termToDouble(Term term) {
 		try {
 			return ((NumberTerm) term).solve();
@@ -128,18 +139,39 @@ public class Translator
 		}		
 	}
 	
+	/**
+	 * Casts the result of calling termToDouble to an integer.
+	 * @param term
+	 * @return
+	 */
 	public static int termToInteger(Term term) {
 		return (int) termToDouble(term);
 	}
 	
+	/**
+	 * Casts the term to a ListTerm and returns it as a list.
+	 * @param term
+	 * @return
+	 */
 	public static List<Term> termToTermList(Term term) {
 		return ((ListTermImpl) term).getAsList();
 	}
 	
+	/**
+	 * Calls termToLiteral, gets the first term and returns the 
+	 * result of calling termToTermList.
+	 * @param term
+	 * @return
+	 */
 	public static List<Term> literalToTermList(Term term) {
-		return ((ListTermImpl) ((LiteralImpl) term).getTerm(0)).getAsList();
+		return termToTermList(termToLiteral(term).getTerm(0));
 	}
 	
+	/**
+	 * Casts the term to a literal and returns the result.
+	 * @param term
+	 * @return
+	 */
 	public static Literal termToLiteral(Term term) {
 		return (LiteralImpl) term;
 	}

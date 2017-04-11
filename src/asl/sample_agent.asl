@@ -11,13 +11,13 @@
 // Plans 
 +!register : connection(C) <-
 	makeArtifact("a", "env.EIArtifact", [], Id);
-	register(C);
 	focus(Id);
-	+updatePercepts.
+	register(C);
+	getPercepts.
 	
 +updatePercepts : connection(C) <- 
-	.wait(99999);
-	getPercepts(C);
+	.wait(100);
+	getPercepts;
 	-+updatePercepts.
 	
 // This is called in every step. Should therefore always make sure an action is returned

@@ -23,12 +23,18 @@ public class FacilityArtifact extends Artifact {
 	private static final String SHOP 				= "shop";
 	private static final String STORAGE 			= "storage";
 	private static final String WORKSHOP 			= "workshop";
+	private static final String RESOURCE_NODE		= "resourceNode";
+	
+	public static final String[] PERCEPTS = new String[] {
+			CHARGING_STATION, DUMP, SHOP, STORAGE, WORKSHOP, RESOURCE_NODE
+	};
 	
 	private static Map<String, ChargingStation> chargingStations 	= new HashMap<>();
 	private static Map<String, Dump> 			dumps 			 	= new HashMap<>();
 	private static Map<String, Shop> 			shops 				= new HashMap<>();
 	private static Map<String, Storage> 		storages 			= new HashMap<>();
 	private static Map<String, Workshop> 		workshops 			= new HashMap<>();
+	private static Map<String, ResourceNode>	resourceNodes		= new HashMap<>();
 	
 	@OPERATION
 	void getClosestFacility(String facilityType, OpFeedbackParam<String> ret)
@@ -49,7 +55,8 @@ public class FacilityArtifact extends Artifact {
 			case DUMP:				perceiveDump			(percept);  break;             
 			case SHOP:				perceiveShop			(percept);  break;             
 			case STORAGE:			perceiveStorage			(percept);  break;          
-			case WORKSHOP:			perceiveWorkshop		(percept);  break;         
+			case WORKSHOP:			perceiveWorkshop		(percept);  break;
+			case RESOURCE_NODE:		perceiveResourceNode	(percept);	break;
 			}
 		}
 		
@@ -67,6 +74,10 @@ public class FacilityArtifact extends Artifact {
 		
 		logger.info("Storages perceived:");
 		for (Storage facility : storages.values())
+			logger.info(facility.toString());
+		
+		logger.info("Resource nodes perceived:");
+		for (ResourceNode facility : resourceNodes.values())
 			logger.info(facility.toString());
 	}
 	
@@ -132,7 +143,8 @@ public class FacilityArtifact extends Artifact {
 		int capacity = Translator.termToInteger(args[3]);
 		// Set<String> teamNames?
 		
-		storages.put(name, new Storage(name, new Location(lon, lat), capacity, Collections.emptySet()));
+		storages.put(name, 
+				new Storage(name, new Location(lon, lat), capacity, Collections.emptySet()));
 	}
 
 	// Literal(String, double, double)
@@ -147,5 +159,18 @@ public class FacilityArtifact extends Artifact {
 		workshops.put(name, new Workshop(name, new Location(lon, lat)));
 	}
 	
+	// Literal(String, double, double, String)
+	private static void perceiveResourceNode(Percept percept)
+	{
+		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		
+		String name   = Translator.termToString(args[0]);
+		double lon 	  = Translator.termToDouble(args[1]);
+		double lat 	  = Translator.termToDouble(args[2]);
+		String itemId = Translator.termToString(args[3]);
+		
+		resourceNodes.put(name, 
+				new ResourceNode(name, new Location(lon, lat), ItemArtifact.getItem(itemId), 0));
+	}
 
 }

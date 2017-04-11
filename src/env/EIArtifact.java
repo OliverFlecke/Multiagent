@@ -6,10 +6,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//import org.apache.batik.ext.awt.image.rendered.TranslateRed;
-
 import cartago.Artifact;
-import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
@@ -22,7 +19,9 @@ public class EIArtifact extends Artifact {
     
     private EnvironmentInterfaceStandard ei;
     
-    private boolean shouldInitShops = true;
+    private Map<String, String> connections = new HashMap<>();
+    
+    private boolean hasPerceivedInitial = false;
     
     /**
      * Instantiates and starts the environment interface.
@@ -45,54 +44,58 @@ public class EIArtifact extends Artifact {
 	@OPERATION
 	void register(String entity)  
 	{
-		logger.info("register " + entity);
+		String agName = getOpUserName();
 		
-		try {
-			String agent = getOpUserName();
-			ei.registerAgent(agent);
-			ei.associateEntity(agent, entity);
+		logger.info("register " + agName + " on " + entity);
+		
+		try 
+		{			
+			ei.registerAgent(agName);
+			ei.associateEntity(agName, entity);
 			
-			if (shouldInitShops)
+			connections.put(agName, entity);
+			
+			if (!hasPerceivedInitial)
 			{
-				Collection<Percept> initialPercepts = ei.getAllPercepts(agent).get(entity);
+				Collection<Percept> initialPercepts = ei.getAllPercepts(agName).get(entity);
 				
 				// Important to perceive items before facilities
 				ItemArtifact    .perceiveInitial(initialPercepts);
 				FacilityArtifact.perceiveInitial(initialPercepts);
 				
-				shouldInitShops = false;
+				hasPerceivedInitial = true;
 			}
 		}
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in register: " + e.getMessage(), e);
-
 		}
 	}	
 
 	@OPERATION
 	void action(String action) 
 	{
-		String agent = getOpUserName();
+		String agName = getOpUserName();
 		
-		logger.info(agent + " doing: " + action);
+		logger.info(agName + " doing: " + action);
 		
 		try {	
 			Action ac = Translator.stringToAction(action);
 			
-			ei.performAction(agent, ac);
+			ei.performAction(agName, ac);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}	
 	
-	@INTERNAL_OPERATION
-	public void getPercepts(String entity) 
+	@OPERATION
+	void getPercepts() 
 	{
-		String agentName = getOpUserName();	
+		String agName = getOpUserName();	
+		
 		try 
 		{
-			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entity);
+			Collection<Percept> percepts = ei.getAllPercepts(agName).get(connections.get(agName));
 			// TODO It is WAY to slow to run through all the percepts, as far as I can see
 			for (Percept percept : percepts)
 			{		

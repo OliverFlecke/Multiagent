@@ -16,6 +16,10 @@ public class ItemArtifact extends Artifact {
 	private static final Logger logger = Logger.getLogger(ItemArtifact.class.getName());
 
 	private static final String ITEM = "item";
+	
+	public static final String[] PERCEPTS = new String[] {
+			ITEM
+	};
 
 	private static Map<String, Item>		items 			= new HashMap<>();
 	private static Map<String, Set<Shop>> 	itemLocations 	= new HashMap<>();	
