@@ -5,9 +5,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -53,6 +55,10 @@ public class StaticInfoArtifact extends Artifact {
 	protected static void perceiveInitial(Collection<Percept> percepts)
 	{
 		logger.info("Perceiving facilities");
+		
+		// Important to perceive roles first
+		percepts.stream().filter(percept -> percept.getName() == ROLE)
+						 .forEach(role -> perceiveRole(role));
 		
 		for (Percept percept : percepts)
 		{
@@ -106,6 +112,23 @@ public class StaticInfoArtifact extends Artifact {
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
 		map = Translator.termToString(args[0]);
+	}
+
+	// Literal(String,)
+	private static void perceiveRole(Percept percept)
+	{
+		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+
+		String 		name 	= Translator.termToString(args[0]);
+		int 		speed 	= Translator.termToInteger(args[1]);
+		int 		load 	= Translator.termToInteger(args[2]);
+		int 		battery = Translator.termToInteger(args[3]);
+		List<Term> 	tools 	= Translator.termToTermList(args[4]);
+		
+		Set<String> permissions = tools.stream().map(tool -> Translator.termToString(tool))
+									   .collect(Collectors.toSet());
+		
+		roles.put(name, new Role(name, speed, battery, load, permissions));
 	}
 
 	// Literal(int)

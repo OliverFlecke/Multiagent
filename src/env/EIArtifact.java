@@ -3,6 +3,7 @@ package env;
 
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +15,7 @@ import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import jason.asSyntax.Literal;
+import massim.eismassim.EnvironmentInterface;
 import massim.scenario.city.data.Entity;
 
 public class EIArtifact extends Artifact {
@@ -34,6 +36,7 @@ public class EIArtifact extends Artifact {
 		logger.info("init");
 		
 		try {
+//			ei = new EnvironmentInterface("conf/eismassimconfig.json");
 			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
 			
 			ei.start();
@@ -58,13 +61,19 @@ public class EIArtifact extends Artifact {
 			
 			connections.put(agName, entity);
 			
-			if (!hasPerceivedInitial)
+			if (!hasPerceivedInitial && connections.size() == ei.getEntities().size())
 			{
-				Collection<Percept> initialPercepts = ei.getAllPercepts(agName).get(entity);
+				Set<Percept> initialPercepts = new HashSet<>();
+				
+				for (Entry<String, String> entry : connections.entrySet())
+				{
+					initialPercepts.addAll(ei.getAllPercepts(entry.getKey()).get(entry.getValue()));
+				}
 				
 				// Important to perceive items before facilities
-				ItemArtifact    .perceiveInitial(initialPercepts);
-				FacilityArtifact.perceiveInitial(initialPercepts);
+				ItemArtifact      .perceiveInitial(initialPercepts);
+				FacilityArtifact  .perceiveInitial(initialPercepts);
+				StaticInfoArtifact.perceiveInitial(initialPercepts);
 				
 				hasPerceivedInitial = true;
 			}

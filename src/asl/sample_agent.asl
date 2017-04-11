@@ -9,15 +9,26 @@
 
 
 // Plans 
-+!register : connection(C) <-
-	makeArtifact("a", "env.EIArtifact", [], Id);
-	focus(Id);
++!register : connection(C) & .my_name(Me) <-
+	if (Me == agentA1)
+	{
+		makeArtifact("EIArtifact", "env.EIArtifact", [], _);
+		makeArtifact("ItemArtifact", "env.ItemArtifact", [], _);
+		makeArtifact("FacilityArtifact", "env.FacilityArtifact", [], _);
+		makeArtifact("StaticInfoArtifact", "env.StaticInfoArtifact", [], _);
+		makeArtifact("DynamicInfoArtifact", "env.DynamicInfoArtifact", [], _);
+	}
+	.wait(1000);
 	register(C);
-	getPercepts.
+//	getPercepts;
+	getMoney(X);
+	.print("Money:", X).
+	
+-!register <- 
+	!register.
 	
 +updatePercepts : connection(C) <- 
 	.wait(100);
-	getPercepts;
 	-+updatePercepts.
 	
 // This is called in every step. Should therefore always make sure an action is returned
