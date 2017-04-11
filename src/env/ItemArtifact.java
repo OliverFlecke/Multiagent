@@ -16,11 +16,11 @@ public class ItemArtifact extends Artifact {
 	private static final Logger logger = Logger.getLogger(ItemArtifact.class.getName());
 
 	private static final String ITEM = "item";
-	
-	public static final String[] PERCEPTS = new String[] {
-			ITEM
-	};
 
+	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
+		new HashSet<String>(Arrays.asList(ITEM)));
+
+    private static Map<String, Tool> 		tools 			= new HashMap<>();
 	private static Map<String, Item>		items 			= new HashMap<>();
 	private static Map<String, Set<Shop>> 	itemLocations 	= new HashMap<>();	
 	
@@ -78,11 +78,11 @@ public class ItemArtifact extends Artifact {
 		{
 			String toolId = Translator.termToString(toolArg);
 			
-			if (!items.containsKey(toolId))
+			if (!tools.containsKey(toolId))
 			{
-				items.put(toolId, new Tool(toolId, 0, 0));
+				tools.put(toolId, new Tool(toolId, 0, 0));
 			}				
-			item.addRequiredTool((Tool) items.get(toolId));
+			item.addRequiredTool(tools.get(toolId));
 		}
 		
 		Set<List<Term>> parts = new HashSet<>();
@@ -100,7 +100,11 @@ public class ItemArtifact extends Artifact {
 	// Used by the FacilityArtifact when adding items to shops.
 	protected static Item getItem(String itemId)
 	{
-		return items.get(itemId);
+        if (items.containsKey(itemId)) 
+        {
+        	return items.get(itemId);
+        }
+        return tools.get(itemId);
 	}
 	
 	// Used by the FacilityArtifact when adding shops

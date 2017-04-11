@@ -6,12 +6,15 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import c4jason.CartagoEnvironment;
 import cartago.Artifact;
 import cartago.OPERATION;
 import eis.EILoader;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import jason.asSyntax.Literal;
+import massim.scenario.city.data.Entity;
 
 public class EIArtifact extends Artifact {
 
@@ -91,7 +94,7 @@ public class EIArtifact extends Artifact {
 	@OPERATION
 	void getPercepts() 
 	{
-		String agName = getOpUserName();	
+		String agName = getOpUserName();
 		
 		try 
 		{
@@ -100,6 +103,7 @@ public class EIArtifact extends Artifact {
 			for (Percept percept : percepts)
 			{		
 				System.out.println(percept);
+				
 //				switch (percept.getName())
 //				{
 //				case "step":
