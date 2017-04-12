@@ -8,11 +8,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import eis.EILoader;
+import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import massim.eismassim.EnvironmentInterface;
 
 public class EIArtifact extends Artifact {
 
@@ -31,9 +33,10 @@ public class EIArtifact extends Artifact {
     {
 		logger.info("init");
 		
-		try {
-//			ei = new EnvironmentInterface("conf/eismassimconfig.json");
-			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
+		try 
+		{
+			ei = new EnvironmentInterface("conf/eismassimconfig.json");
+//			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
 			
 			ei.start();
 		} 
@@ -43,7 +46,7 @@ public class EIArtifact extends Artifact {
 		}
     }
 	
-	@OPERATION
+	@INTERNAL_OPERATION
 	void register(String entity)  
 	{
 		String agName = getOpUserName();
@@ -53,25 +56,45 @@ public class EIArtifact extends Artifact {
 		try 
 		{			
 			ei.registerAgent(agName);
+			
 			ei.associateEntity(agName, entity);
 			
 			connections.put(agName, entity);
 			
 			if (!hasPerceivedInitial && connections.size() == ei.getEntities().size())
 			{
-				Set<Percept> initialPercepts = new HashSet<>();
 				
+				Set<Percept> initialPercepts = new HashSet<>();
+
 				for (Entry<String, String> entry : connections.entrySet())
 				{
-					initialPercepts.addAll(ei.getAllPercepts(entry.getKey()).get(entry.getValue()));
+					Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
+					
+//					AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+					
+					initialPercepts.addAll(percepts);
 				}
 				
 				// Important to perceive items before facilities
-				ItemArtifact      .perceiveInitial(initialPercepts);
-				FacilityArtifact  .perceiveInitial(initialPercepts);
-				StaticInfoArtifact.perceiveInitial(initialPercepts);
+				ItemArtifact        .perceiveInitial(initialPercepts);
+				FacilityArtifact    .perceiveInitial(initialPercepts);
+				StaticInfoArtifact  .perceiveInitial(initialPercepts);
+				
+				FacilityArtifact	.perceiveUpdate(initialPercepts);
+				DynamicInfoArtifact	.perceiveUpdate(initialPercepts);
 				
 				hasPerceivedInitial = true;
+				
+				// Attach listener for perceiving the following steps
+				ei.attachAgentListener(agName, new AgentListener() 
+				{				
+					@Override
+					public void handlePercept(String agent, Percept percept) 
+					{
+						if (percept.getName().equals("step"))
+							execInternalOp("perceiveUpdate");
+					}
+				});
 			}
 		}
 		catch (Throwable e) 
@@ -87,48 +110,42 @@ public class EIArtifact extends Artifact {
 		
 		logger.info(agName + " doing: " + action);
 		
-		try {	
+		try 
+		{	
 			Action ac = Translator.stringToAction(action);
 			
 			ei.performAction(agName, ac);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-	}	
-	
-	@OPERATION
-	void getPercepts() 
-	{
-		String agName = getOpUserName();
-		
-		try 
-		{
-			Collection<Percept> percepts = ei.getAllPercepts(agName).get(connections.get(agName));
-			// TODO It is WAY to slow to run through all the percepts, as far as I can see
-			for (Percept percept : percepts)
-			{		
-				System.out.println(percept);
-				
-//				switch (percept.getName())
-//				{
-//				case "step":
-//					Object[] args = Translator.parametersToArguments(percept.getParameters());
-//					defineObsProperty(percept.getName(), args);
-//					break;
-//				case "shop":
-//				default:
-//					System.out.print(percept.getName() + " ");
-//					Object[] args2 = Translator.parametersToArguments(percept.getParameters());
-//					for (Object arg : args2)
-//						System.out.print(arg + " ");
-//					System.out.println();
-//					break;
-//				}
-			}
-		} 
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
+		}
+	}	
+	
+	@INTERNAL_OPERATION
+	void perceiveUpdate() 
+	{		
+		logger.info("perceive");
+		
+		try 
+		{
+			Set<Percept> allPercepts = new HashSet<>();
+
+			for (Entry<String, String> entry : connections.entrySet())
+			{
+				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
+				
+//				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				
+				allPercepts.addAll(percepts);
+			}
+			
+			FacilityArtifact	.perceiveUpdate(allPercepts);
+			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
 	}	
 }

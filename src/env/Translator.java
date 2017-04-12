@@ -149,6 +149,15 @@ public class Translator
 	}
 	
 	/**
+	 * Casts the result of calling termToDouble to a long
+	 * @param term
+	 * @return
+	 */
+	public static long termToLong(Term term) {
+		return (long) termToDouble(term);
+	}
+	
+	/**
 	 * Casts the term to a ListTerm and returns it as a list.
 	 * @param term
 	 * @return

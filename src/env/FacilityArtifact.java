@@ -48,9 +48,9 @@ public class FacilityArtifact extends Artifact {
 		// the facility's name
 		
 		Location agLoc = DynamicInfoArtifact.getEntity(getOpUserName()).getLocation();
-		
-		String closestFacility = null;
+
 		double closestDistance = Double.MAX_VALUE;
+		String closestFacility = null;
 		
 		Collection<? extends Facility> facilities = Collections.emptySet();
 		
@@ -66,13 +66,27 @@ public class FacilityArtifact extends Artifact {
 		
 		for (Facility facility : facilities)
 		{
-			// Compare locations
+			double distance = euclideanDistance(agLoc, facility.getLocation());
+			
+			if (distance < closestDistance)
+			{
+				closestDistance = distance;
+				closestFacility = facility.getName();
+			}
 		}
 		
 		if (closestFacility != null)
 			ret.set(closestFacility);
 		
 		// What happens if the feedback parameter is never set?
+	}
+	
+	private static double euclideanDistance(Location l1, Location l2)
+	{
+		double dLon = l1.getLon() - l2.getLon();
+		double dLat = l1.getLat() - l2.getLat();
+		
+		return Math.sqrt(dLon * dLon + dLat * dLat);
 	}
 	
 	protected static void perceiveInitial(Collection<Percept> percepts)
@@ -96,6 +110,12 @@ public class FacilityArtifact extends Artifact {
 		logFacilities("Shops perceived:"			, shops				.values());
 		logFacilities("Storages perceived:"			, storages			.values());
 		logFacilities("Workshops perceived:"		, workshops			.values());
+	}
+	
+	protected static void perceiveUpdate(Collection<Percept> percepts)
+	{
+		percepts.stream().filter(percept -> percept.getName() == RESOURCE_NODE)
+						 .forEach(resourceNode -> perceiveResourceNode(resourceNode));
 	}
 	
 	private static void logFacilities(String msg, Collection<? extends Facility> facilities)

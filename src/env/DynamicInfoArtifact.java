@@ -1,11 +1,6 @@
 package env;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
@@ -14,35 +9,25 @@ import cartago.OpFeedbackParam;
 import data.CEntity;
 import eis.iilang.Percept;
 import jason.asSyntax.Term;
-import massim.scenario.city.data.Entity;
 import massim.scenario.city.data.Location;
 
 public class DynamicInfoArtifact extends Artifact {
 	
 	private static final Logger logger = Logger.getLogger(DynamicInfoArtifact.class.getName());
 
-	private static final String ACTION_ID			= "actionID";
-	private static final String CHARGE 				= "charge";
 	private static final String DEADLINE			= "deadline";
-	private static final String LAST_ACTION 		= "lastAction";
-	private static final String LAST_ACTION_PARAMS 	= "lastActionParams";
-	private static final String LAST_ACTION_RESULT 	= "lastActionResult";
-	private static final String LAT 				= "lat";
-	private static final String LON 				= "lon";
-	private static final String LOAD				= "load";
 	private static final String MONEY 				= "money";
-	private static final String ROUTE 				= "route";
-	private static final String ROUTE_LENGTH 		= "routeLength";
 	private static final String STEP 				= "step";
 	private static final String TIMESTAMP 			= "timestamp";
 	
-	public static final Set<String>	DYNAMIC_PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, DEADLINE, LAST_ACTION, LAST_ACTION_PARAMS, 
-				LAST_ACTION_RESULT, LAT, LON, LOAD, MONEY, ROUTE, ROUTE_LENGTH, STEP, TIMESTAMP)));
+	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
+		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, STEP, TIMESTAMP)));
 
 	private static Map<String, CEntity> entities = new HashMap<>();
+	private static long					deadline;
 	private static int					money;
 	private static int					step;
+	private static long					timestamp;
 
 	@OPERATION
 	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
@@ -51,15 +36,68 @@ public class DynamicInfoArtifact extends Artifact {
 		
 		lon.set(l.getLon());
 		lat.set(l.getLat());
+	}	
+
+	@OPERATION
+	void getDeadline(OpFeedbackParam<Long> ret)
+	{
+		ret.set(deadline);
 	}
 	
 	@OPERATION
-	void getMoney(OpFeedbackParam<Integer> money)
+	void getMoney(OpFeedbackParam<Integer> ret)
 	{
-		money.set(DynamicInfoArtifact.money);
+		ret.set(money);
 	}
 	
+	@OPERATION
+	void getStep(OpFeedbackParam<Integer> ret)
+	{
+		ret.set(step);
+	}
 	
+	@OPERATION
+	void getTimestamp(OpFeedbackParam<Long> ret)
+	{
+		ret.set(timestamp);
+	}
+	
+	protected static void perceiveUpdate(Collection<Percept> percepts)
+	{
+		logger.info("Perceiving dynamic info");
+		
+		for (Percept percept : percepts)
+		{
+			switch (percept.getName())
+			{
+			case DEADLINE:   perceiveDeadline	(percept);	break;
+			case MONEY:      perceiveMoney		(percept);  break;
+			case STEP:       perceiveStep		(percept);  break;
+			case TIMESTAMP:  perceiveTimestamp	(percept);  break;
+			}
+		}
+		
+		logger.info("Perceived deadline:\t" + deadline);
+		logger.info("Perceived money:\t" + money);
+		logger.info("Perceived step:\t" + step);
+		logger.info("Perceived timestamp:\t" + timestamp);
+	}
+	
+	// Literal(long)
+	private static void perceiveDeadline(Percept percept)
+	{
+		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		
+		deadline = Translator.termToLong(args[0]);
+	}
+
+	// Literal(int)
+	private static void perceiveMoney(Percept percept)
+	{
+		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		
+		money = Translator.termToInteger(args[0]);
+	}
 
 	// Literal(int)
 	private static void perceiveStep(Percept percept)
@@ -69,12 +107,12 @@ public class DynamicInfoArtifact extends Artifact {
 		step = Translator.termToInteger(args[0]);
 	}
 
-	// Literal(int)
-	private static void perceiveMoney(Percept percept)
+	// Literal(long)
+	private static void perceiveTimestamp(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
-		money = Translator.termToInteger(args[0]);
+		timestamp = Translator.termToLong(args[0]);
 	}
 	
 	protected static void addEntity(String name, CEntity entity)

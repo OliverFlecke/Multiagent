@@ -70,6 +70,21 @@ public class StaticInfoArtifact extends Artifact {
 			case STEPS:			perceiveSteps		(percept);  break;
 			}
 		}
+		
+		logger.info("Perceived roles: " + roles.keySet());
+//		for (String role : )
+//			logger.info(role);
+
+//		logger.info("Perceived entities:");
+//		for (Role role : .values())
+//			logger.info(role.toString());
+		
+		logger.info("Perceived team:\t" 		+ team);
+		logger.info("Perceived id:\t\t" 		+ id);
+		logger.info("Perceived map:\t" 			+ map);
+		logger.info("Perceived seedCapital:\t" 	+ seedCapital);
+		logger.info("Perceived steps:\t" 		+ steps);
+		
 	}
 	
 	// Literal(String, String, double, double, String)
