@@ -35,6 +35,16 @@ public class ItemArtifact extends Artifact {
 		ret.set(itemLocations.get(item));
 	}
 	
+	@OPERATION
+	void getClosestFacilitySelling(String item, OpFeedbackParam<String> ret)
+	{
+		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
+		
+		Collection<Shop> shops = itemLocations.get(item);
+		
+		ret.set(FacilityArtifact.getClosestFacility(agLoc, shops));
+	}
+	
 	public static void perceiveInitial(Collection<Percept> percepts)
 	{
 		logger.info("Perceiving items");

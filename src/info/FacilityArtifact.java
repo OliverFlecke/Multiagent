@@ -44,14 +44,8 @@ public class FacilityArtifact extends Artifact {
 	
 	@OPERATION
 	void getClosestFacility(String facilityType, OpFeedbackParam<String> ret)
-	{
-		// Get agent location, compute closest facility and return 
-		// the facility's name
-		
+	{		
 		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
-
-		double closestDistance = Double.MAX_VALUE;
-		String closestFacility = null;
 		
 		Collection<? extends Facility> facilities = Collections.emptySet();
 		
@@ -65,9 +59,18 @@ public class FacilityArtifact extends Artifact {
 		case RESOURCE_NODE:		facilities = resourceNodes		.values();  break;
 		}
 		
+		// What happens if the feedback parameter is null?
+		ret.set(getClosestFacility(agLoc, facilities));
+	}
+	
+	public static String getClosestFacility(Location loc, Collection<? extends Facility> facilities)
+	{		
+		double closestDistance = Double.MAX_VALUE;
+		String closestFacility = null;
+		
 		for (Facility facility : facilities)
 		{
-			double distance = euclideanDistance(agLoc, facility.getLocation());
+			double distance = euclideanDistance(loc, facility.getLocation());
 			
 			if (distance < closestDistance)
 			{
@@ -75,12 +78,9 @@ public class FacilityArtifact extends Artifact {
 				closestFacility = facility.getName();
 			}
 		}
-		
-		if (closestFacility != null)
-			ret.set(closestFacility);
-		
-		// What happens if the feedback parameter is never set?
+		return closestFacility;
 	}
+	
 	
 	private static double euclideanDistance(Location l1, Location l2)
 	{
