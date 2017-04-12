@@ -10,8 +10,10 @@ import massim.scenario.city.data.*;
 public class CEntity {
 
     private Role role;
-    private Location location;
+    private double lat; 
+    private double lon;
     private Route route;
+    private int routeLength;
 
     private int currentBattery;
     private CBoundedItemBox items;
@@ -22,12 +24,18 @@ public class CEntity {
     public CEntity(Role role, Location location){
         this.role = role;
         items = new CBoundedItemBox(role.getMaxLoad());
-        this.location = location;
+        this.lat = location.getLat();
+        this.lon = location.getLon();
         currentBattery = role.getMaxBattery();
     }
 
     public int getCurrentBattery(){
         return currentBattery;
+    }
+    
+    public void setCurrentBattery(int battery)
+    {
+    	this.currentBattery = battery;
     }
 
     public int getCurrentLoad(){
@@ -39,7 +47,16 @@ public class CEntity {
     }
 
     public Location getLocation(){
-        return location;
+        return new Location(this.lon, this.lat);
+    }
+    
+    public void setLat(double lat) {
+    	this.lat = lat;
+    }
+    
+    public void setLon(double lon)
+    {
+    	this.lon = lon;
     }
 
     public void setLastActionResult(String lastActionResult){
@@ -59,6 +76,22 @@ public class CEntity {
     public void setRoute(Route route){
         this.route = route;
     }
+    
+    /**
+     * @param length of the current route
+     */
+    public void setRouteLength(int length)
+    {
+    	this.routeLength = length;
+    }
+    
+    /**
+     * @return The length of the current route
+     */
+    public int getRouteLength()
+    {
+    	return this.routeLength;
+    }
 
     /**
      * Moves this entity along the route.
@@ -76,7 +109,11 @@ public class CEntity {
         }
         currentBattery -= cost;
         Location newLoc = this.route.advance(role.getSpeed());
-        if (newLoc != null) location = newLoc;
+        if (newLoc != null) 
+    	{
+        	this.lat = newLoc.getLat();
+        	this.lon = newLoc.getLon();
+    	}
         if (route.isCompleted()) route = null;
         return true;
     }
@@ -173,10 +210,11 @@ public class CEntity {
 
     /**
      * "Moves" this entity to a new location.
-     * @param newLoc the location to move the entity to
+     * @param location the location to move the entity to
      */
-    public void setLocation(Location newLoc){
-        location = newLoc;
+    public void setLocation(Location location){
+        this.lat = location.getLat();
+        this.lon = location.getLon();
     }
 
     /**
