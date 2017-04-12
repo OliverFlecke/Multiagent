@@ -14,7 +14,6 @@ import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import jason.asSyntax.Term;
-import massim.scenario.city.data.Entity;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.facilities.*;
 

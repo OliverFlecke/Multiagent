@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -17,6 +18,8 @@ import massim.scenario.city.data.Entity;
 import massim.scenario.city.data.Location;
 
 public class DynamicInfoArtifact extends Artifact {
+	
+	private static final Logger logger = Logger.getLogger(DynamicInfoArtifact.class.getName());
 
 	private static final String ACTION_ID			= "actionID";
 	private static final String CHARGE 				= "charge";
@@ -32,14 +35,14 @@ public class DynamicInfoArtifact extends Artifact {
 	private static final String ROUTE_LENGTH 		= "routeLength";
 	private static final String STEP 				= "step";
 	private static final String TIMESTAMP 			= "timestamp";
-
-	private static Map<String, CEntity> entities = new HashMap<>();
-	private static int					money;
-	private static int					step;
 	
 	public static final Set<String>	DYNAMIC_PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, DEADLINE, LAST_ACTION, LAST_ACTION_PARAMS, 
 				LAST_ACTION_RESULT, LAT, LON, LOAD, MONEY, ROUTE, ROUTE_LENGTH, STEP, TIMESTAMP)));
+
+	private static Map<String, CEntity> entities = new HashMap<>();
+	private static int					money;
+	private static int					step;
 
 	@OPERATION
 	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
@@ -55,6 +58,8 @@ public class DynamicInfoArtifact extends Artifact {
 	{
 		money.set(DynamicInfoArtifact.money);
 	}
+	
+	
 
 	// Literal(int)
 	private static void perceiveStep(Percept percept)

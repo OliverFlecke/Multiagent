@@ -9,22 +9,14 @@
 
 
 // Plans 
-+!register : connection(C) & .my_name(Me) <-
-	if (Me == agentA1)
-	{
-		makeArtifact("EIArtifact", "env.EIArtifact", [], _);
-		makeArtifact("ItemArtifact", "env.ItemArtifact", [], _);
-		makeArtifact("FacilityArtifact", "env.FacilityArtifact", [], _);
-		makeArtifact("StaticInfoArtifact", "env.StaticInfoArtifact", [], _);
-		makeArtifact("DynamicInfoArtifact", "env.DynamicInfoArtifact", [], _);
-	}
-	.wait(1000);
++!register : connection(C) <-
 	register(C);
 //	getPercepts;
 	getMoney(X);
 	.print("Money:", X).
 	
 -!register <- 
+	.wait(100);
 	!register.
 	
 +updatePercepts : connection(C) <- 

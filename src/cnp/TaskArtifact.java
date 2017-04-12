@@ -14,16 +14,6 @@ public class TaskArtifact extends Artifact {
 	private static final Logger logger = Logger.getLogger(TaskArtifact.class.getName());
 	
 	private static int taskId;
-
-	/**
-	 * Instantiates taskId.
-	 */
-	void init()
-	{
-		logger.info("init");
-		
-		taskId = 0;
-	}
 	
 	/**
 	 * Announces a task by creating a CNPArtifact and defining it as an observable property.
@@ -35,7 +25,7 @@ public class TaskArtifact extends Artifact {
 	void announceTask(String task, int duration, OpFeedbackParam<String> id)
 	{
 		try {
-			String artifactName = "cnp_" + (++taskId);
+			String artifactName = "CNPArtifact" + (++taskId);
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(duration));
 			

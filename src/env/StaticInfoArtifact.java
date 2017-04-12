@@ -1,13 +1,6 @@
 package env;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -32,9 +25,10 @@ public class StaticInfoArtifact extends Artifact {
 	private static final String STEPS 				= "steps";
 	private static final String TEAM 				= "team";
 	
-	public static final Set<String>	STATIC_PERCEPTS = Collections.unmodifiableSet(
+	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(ENTITY, ID, MAP, ROLE, SEED_CAPITAL, STEPS, TEAM)));
 	
+	// Entities are stored in DynamicInfoArtifact
 	private static String 				id;
 	private static String 				map;
 	private static Map<String, Role>	roles = new HashMap<>();
@@ -44,21 +38,26 @@ public class StaticInfoArtifact extends Artifact {
 	
 	@OPERATION
 	void getSimulationData(OpFeedbackParam<String> id, OpFeedbackParam<String> map,
-			OpFeedbackParam<Integer> seedCapital, OpFeedbackParam<String> team)
+			OpFeedbackParam<Integer> seedCapital, OpFeedbackParam<Integer> steps, 
+			OpFeedbackParam<String> team)
 	{
 		id			.set(StaticInfoArtifact.id);
 		map			.set(StaticInfoArtifact.map);
 		seedCapital	.set(StaticInfoArtifact.seedCapital);
+		steps		.set(StaticInfoArtifact.steps);
 		team		.set(StaticInfoArtifact.team);
 	}
 
 	protected static void perceiveInitial(Collection<Percept> percepts)
 	{
-		logger.info("Perceiving facilities");
+		logger.info("Perceiving static info");
 		
-		// Important to perceive roles first
+		// Roles and team are used when perceiving entities
 		percepts.stream().filter(percept -> percept.getName() == ROLE)
 						 .forEach(role -> perceiveRole(role));
+		
+		percepts.stream().filter(percept -> percept.getName() == TEAM)
+						 .forEach(team -> perceiveTeam(team));
 		
 		for (Percept percept : percepts)
 		{
@@ -69,15 +68,8 @@ public class StaticInfoArtifact extends Artifact {
 			case MAP:			perceiveMap			(percept);  break;
 			case SEED_CAPITAL:	perceiveSeedCapital	(percept);  break;
 			case STEPS:			perceiveSteps		(percept);  break;
-			case TEAM:			perceiveTeam		(percept);  break;
 			}
 		}
-	}
-	
-	protected static void perceiveUpdate(Collection<Percept> percepts)
-	{
-		// Perceive and update dynamic data such as money and step
-		// Dynamic data should probably be defined as observable properties
 	}
 	
 	// Literal(String, String, double, double, String)
@@ -126,7 +118,7 @@ public class StaticInfoArtifact extends Artifact {
 		List<Term> 	tools 	= Translator.termToTermList(args[4]);
 		
 		Set<String> permissions = tools.stream().map(tool -> Translator.termToString(tool))
-									   .collect(Collectors.toSet());
+									   			.collect(Collectors.toSet());
 		
 		roles.put(name, new Role(name, speed, battery, load, permissions));
 	}
