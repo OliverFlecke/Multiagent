@@ -9,6 +9,7 @@ import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
 import eis.iilang.Percept;
+import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
@@ -50,9 +51,7 @@ public class StaticInfoArtifact extends Artifact {
 	}
 
 	public static void perceiveInitial(Collection<Percept> percepts)
-	{
-		logger.info("Perceiving static info");
-		
+	{		
 		// Roles and team are used when perceiving entities
 		percepts.stream().filter(percept -> percept.getName() == ROLE)
 						 .forEach(role -> perceiveRole(role));
@@ -71,21 +70,17 @@ public class StaticInfoArtifact extends Artifact {
 			case STEPS:			perceiveSteps		(percept);  break;
 			}
 		}
-		
-		logger.info("Perceived roles: " + roles.keySet());
-//		for (String role : )
-//			logger.info(role);
 
-//		logger.info("Perceived entities:");
-//		for (Role role : .values())
-//			logger.info(role.toString());
-//		
-//		logger.info("Perceived team:\t" 		+ team);
-//		logger.info("Perceived id:\t\t" 		+ id);
-//		logger.info("Perceived map:\t" 			+ map);
-//		logger.info("Perceived seedCapital:\t" 	+ seedCapital);
-//		logger.info("Perceived steps:\t" 		+ steps);
-		
+		if (EIArtifact.LOGGING_ENABLED)
+		{
+			logger.info("Perceived static info");
+			logger.info("Perceived roles: " 		+ roles.keySet());
+			logger.info("Perceived team:\t" 		+ team);
+			logger.info("Perceived id:\t\t" 		+ id);
+			logger.info("Perceived map:\t" 			+ map);
+			logger.info("Perceived seedCapital:\t" 	+ seedCapital);
+			logger.info("Perceived steps:\t" 		+ steps);
+		}		
 	}
 	
 	// Literal(String, String, double, double, String)

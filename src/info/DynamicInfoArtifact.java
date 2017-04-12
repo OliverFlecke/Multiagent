@@ -7,6 +7,7 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
+import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 
@@ -52,9 +53,7 @@ public class DynamicInfoArtifact extends Artifact {
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
-	{
-		logger.info("Perceiving dynamic info");
-		
+	{		
 		for (Percept percept : percepts)
 		{
 			switch (percept.getName())
@@ -65,11 +64,15 @@ public class DynamicInfoArtifact extends Artifact {
 			case TIMESTAMP:  perceiveTimestamp	(percept);  break;
 			}
 		}
-		
-//		logger.info("Perceived deadline:\t" + deadline);
-//		logger.info("Perceived money:\t" + money);
-//		logger.info("Perceived step:\t" + step);
-//		logger.info("Perceived timestamp:\t" + timestamp);
+
+		if (EIArtifact.LOGGING_ENABLED)
+		{
+			logger.info("Perceived dynamic info");
+			logger.info("Perceived deadline:\t" + deadline);
+			logger.info("Perceived money:\t" + money);
+			logger.info("Perceived step:\t" + step);
+			logger.info("Perceived timestamp:\t" + timestamp);
+		}
 	}
 	
 	// Literal(long)

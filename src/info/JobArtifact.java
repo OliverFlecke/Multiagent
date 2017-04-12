@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cnp.TaskArtifact;
 import eis.iilang.Percept;
+import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.*;
@@ -30,6 +31,7 @@ public class JobArtifact extends Artifact {
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
 	{
+		
 		for (Percept percept : percepts)
 		{
 			switch (percept.getName())
@@ -40,12 +42,15 @@ public class JobArtifact extends Artifact {
 			case POSTED:  perceivePosted	(percept); break;
 			}
 		}
-		
-		logJobs("Auctions perceived:"	, auctions	.values());
-		logJobs("Jobs perceived:"		, jobs		.values());
-		logJobs("Missions perceived:"	, missions	.values());
-		logJobs("Posted jobs perceived:", postedJobs.values());
-		
+
+		if (EIArtifact.LOGGING_ENABLED)
+		{
+			logger.info("Perceived jobs");
+			logJobs("Auctions perceived:"	, auctions	.values());
+			logJobs("Jobs perceived:"		, jobs		.values());
+			logJobs("Missions perceived:"	, missions	.values());
+			logJobs("Posted jobs perceived:", postedJobs.values());
+		}		
 	}
 	
 	private static void logJobs(String msg, Collection<? extends Job> jobs)

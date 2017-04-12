@@ -12,6 +12,8 @@ import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
+import eis.exceptions.NoEnvironmentException;
+import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import info.*;
@@ -21,12 +23,12 @@ public class EIArtifact extends Artifact {
 
     private static final Logger logger = Logger.getLogger(EIArtifact.class.getName());
     
+    public static final boolean LOGGING_ENABLED = false;
+    
     private EnvironmentInterfaceStandard ei;
     
     private Map<String, String> connections = new HashMap<>();
-    
-    private boolean hasPerceivedInitial = false;
-    
+
     /**
      * Instantiates and starts the environment interface.
      */
@@ -47,7 +49,7 @@ public class EIArtifact extends Artifact {
 		}
     }
 	
-	@INTERNAL_OPERATION
+	@OPERATION
 	void register(String entity)  
 	{
 		String agName = getOpUserName();
@@ -62,38 +64,9 @@ public class EIArtifact extends Artifact {
 			
 			connections.put(agName, entity);
 			
-			if (!hasPerceivedInitial && connections.size() == ei.getEntities().size())
+			if (connections.size() == ei.getEntities().size())
 			{
-				logger.info("Perceiving initial percepts");
-				
-				Set<Percept> initialPercepts = new HashSet<>();
-				
-				Map<String, Collection<Percept>> agentPercepts = new HashMap<>();
-
-				for (Entry<String, String> entry : connections.entrySet())
-				{
-					Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
-					
-					agentPercepts.put(entry.getKey(), percepts);
-					
-					initialPercepts.addAll(percepts);
-				}
-				
-				// Important to perceive items before facilities
-				ItemArtifact        .perceiveInitial(initialPercepts);
-				FacilityArtifact    .perceiveInitial(initialPercepts);
-				StaticInfoArtifact  .perceiveInitial(initialPercepts);
-				
-				FacilityArtifact	.perceiveUpdate(initialPercepts);
-				DynamicInfoArtifact	.perceiveUpdate(initialPercepts);
-				JobArtifact			.perceiveUpdate(initialPercepts);
-
-				for (String agentName : connections.keySet())
-				{					
-					AgentArtifact.perceiveUpdate(agentName, agentPercepts.get(agentName));
-				}
-				
-				hasPerceivedInitial = true;
+				execInternalOp("perceiveInitial");
 				
 				// Attach listener for perceiving the following steps
 				ei.attachAgentListener(agName, new AgentListener() 
@@ -111,7 +84,7 @@ public class EIArtifact extends Artifact {
 		{
 			logger.log(Level.SEVERE, "Failure in register: " + e.getMessage(), e);
 		}
-	}	
+	}
 
 	@OPERATION
 	void action(String action) 
@@ -133,9 +106,42 @@ public class EIArtifact extends Artifact {
 	}	
 	
 	@INTERNAL_OPERATION
+	void perceiveInitial() throws PerceiveException, NoEnvironmentException
+	{
+		logger.info("perceiveInitial");
+		
+		Set<Percept> initialPercepts = new HashSet<>();
+		
+		Map<String, Collection<Percept>> agentPercepts = new HashMap<>();
+
+		for (Entry<String, String> entry : connections.entrySet())
+		{
+			Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
+			
+			agentPercepts.put(entry.getKey(), percepts);
+			
+			initialPercepts.addAll(percepts);
+		}
+		
+		// Important to perceive items before facilities
+		ItemArtifact        .perceiveInitial(initialPercepts);
+		FacilityArtifact    .perceiveInitial(initialPercepts);
+		StaticInfoArtifact  .perceiveInitial(initialPercepts);
+		
+		FacilityArtifact	.perceiveUpdate(initialPercepts);
+		DynamicInfoArtifact	.perceiveUpdate(initialPercepts);
+		JobArtifact			.perceiveUpdate(initialPercepts);
+
+		for (String agentName : connections.keySet())
+		{					
+			AgentArtifact.perceiveUpdate(agentName, agentPercepts.get(agentName));
+		}
+	}
+	
+	@INTERNAL_OPERATION
 	void perceiveUpdate() 
 	{		
-		logger.info("perceive");
+		logger.info("perceiveUpdate");
 		
 		try 
 		{
