@@ -2,8 +2,8 @@
 
 +!announce <- 
 	!setupTaskArtifact(Id);
-	announceTask("description", 5000, CNPName)[artifact_id(Id)];
-	.print("Announced task: ", CNPName).
+	announce("description", 5000)[artifact_id(Id)];
+	.print("Announced task").
 	
 +!setupTaskArtifact(A) <-
 	makeArtifact("TaskArtifact", "cnp.TaskArtifact", [], A).

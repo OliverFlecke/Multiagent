@@ -8,5 +8,5 @@ MAS cnp_test {
    	 	task_announcer agentArchClass c4jason.CAgentArch #1;
    	 	bidder agentArchClass c4jason.CAgentArch #1;
 
-	aslSourcePath: "src/asl";
+	aslSourcePath: "test/cnp";
 }
