@@ -112,7 +112,7 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-			TaskArtifact.getInstance().announce(id, 1000000);
+			TaskArtifact.announce(id, 1000000);
 		jobs.put(id, job); 
 	}
 	

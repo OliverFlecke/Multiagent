@@ -5,9 +5,8 @@ import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
+import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import cartago.OpFeedbackParam;
-import jason.asSyntax.Literal;
 
 public class TaskArtifact extends Artifact {
 
@@ -22,29 +21,31 @@ public class TaskArtifact extends Artifact {
 		instance = this;
 	}
 	
-	public static TaskArtifact getInstance() {
-		return instance;
-	}
-	
 	/**
 	 * Announces a task by creating a CNPArtifact and defining it as an observable property.
 	 * This will commence the bidding between agents.
 	 * @param duration - Duration of the task.
 	 * @param id - Name of the created CNPArtifact as feedback parameter.
 	 */
-	public void announce(String task, int duration)
+	@INTERNAL_OPERATION
+	void announce(String task, int duration)
 	{
 		try {
 			String artifactName = "CNPArtifact" + (++taskId);
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(duration));
 			
-			defineObsProperty("task", Literal.parseLiteral(task), artifactName);
+			defineObsProperty("task", task, artifactName);
 		} 
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in announceTask: " + e.getMessage(), e);
 		}		
+	}
+	
+	public static void announce(Object... args)
+	{
+		instance.execInternalOp("announce", args);
 	}
 	
 	/**

@@ -9,7 +9,9 @@
 
 
 // Plans 
-+!register : connection(C) <- register(C).	
++!register : connection(C) <- register(C); 
+	lookupArtifact("TaskArtifact", Id); focus(Id).
+	
 -!register <- .wait(100); !register.
 	
 +task(Id, ArtifactName) <- .print("Got task: ", Id, " and artifact ", ArtifactName).
