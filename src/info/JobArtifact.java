@@ -4,9 +4,12 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
+import cartago.OPERATION;
+import cartago.OpFeedbackParam;
 import cnp.TaskArtifact;
 import eis.iilang.Percept;
 import env.Translator;
+import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.*;
 import massim.scenario.city.data.facilities.Storage;
@@ -27,6 +30,22 @@ public class JobArtifact extends Artifact {
 	private static Map<String, Job> 		jobs 		= new HashMap<>();
 	private static Map<String, Mission> 	missions 	= new HashMap<>();
 	private static Map<String, Job> 		postedJobs 	= new HashMap<>();
+	
+	@OPERATION
+	void getJob(String jobId, OpFeedbackParam<String> storage, 
+			OpFeedbackParam<String[]> items)
+	{
+		Job job = jobs.get(jobId);
+		
+		storage.set(job.getStorage().getName());
+		String[] itemNames = new String[job.getRequiredItems().getStoredTypes().size()];
+		int i = 0;
+		for (Item item : job.getRequiredItems().getStoredTypes())
+		{
+			itemNames[i++] = item.getName();
+		}
+		items.set(itemNames);
+	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
 	{
@@ -50,9 +69,10 @@ public class JobArtifact extends Artifact {
 	
 	private static void logJobs(String msg, Collection<? extends Job> jobs)
 	{
-		logger.info(msg);
-		for (Job job : jobs)
-			logger.info(job.toString());
+		if (jobs.size() != 0)
+			logger.info(msg);
+			for (Job job : jobs)
+				logger.info(job.toString());
 	}
 	
 	private static void perceiveAuction(Percept percept)

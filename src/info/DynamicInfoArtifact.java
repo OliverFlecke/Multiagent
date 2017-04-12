@@ -53,7 +53,7 @@ public class DynamicInfoArtifact extends Artifact {
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
 	{
-		logger.info("Perceiving dynamic info");
+//		logger.info("Perceiving dynamic info");
 		
 		for (Percept percept : percepts)
 		{

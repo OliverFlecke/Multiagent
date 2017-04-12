@@ -2,6 +2,7 @@
 // Initial beliefs
 
 // Rules
+getBaseItems(Items, BaseItems) :- BaseItems = [].
 
 
 // Initial goals
@@ -9,12 +10,15 @@
 
 
 // Plans 
-+!register : connection(C) <- register(C); 
++!register : connection(C) <- register(C);
 	lookupArtifact("TaskArtifact", Id); focus(Id).
-	
 -!register <- .wait(100); !register.
 	
-+task(Id, ArtifactName) <- .print("Got task: ", Id, " and artifact ", ArtifactName).
++task(Id, ArtifactName) <- 
+	lookupArtifact("JobArtifact", JobArtifactId);
+	getJob(Id, Storage, Items)[artifact_id(JobArtifactId)];
+	.print(Storage);
+	.print(Items).
 
 // This is called in every step. Should therefore always make sure an action is returned
 +step(X) <-
