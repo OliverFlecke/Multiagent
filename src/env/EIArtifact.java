@@ -14,12 +14,7 @@ import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import info.AgentArtifact;
-import info.DynamicInfoArtifact;
-import info.FacilityArtifact;
-import info.ItemArtifact;
-import info.JobArtifact;
-import info.StaticInfoArtifact;
+import info.*;
 import massim.eismassim.EnvironmentInterface;
 
 public class EIArtifact extends Artifact {
@@ -154,9 +149,6 @@ public class EIArtifact extends Artifact {
 				
 				allPercepts.addAll(percepts);
 			}
-			
-//			allPercepts.stream().filter(percept -> JobArtifact.PERCEPTS.contains(percept.getName()))
-//								.forEach(percept -> logger.info(percept.toString()));
 			
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);

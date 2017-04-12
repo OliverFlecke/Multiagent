@@ -1,8 +1,0 @@
-pricedJob(job_id2979765501649851708, storage3, 1, 134, 10018, [item(item3, 1), item(item7, 1), item(item9, 1)])
-pricedJob(job_id1899673104367683596, storage5, 9, 84, 12297, [item(item13, 1), item(item16, 1), item(item17, 1), item(item4, 1), item(item6, 1)])
-pricedJob(job_id816182523967006658, storage5, 6, 110, 10218, [item(item11, 1), item(item2, 1), item(item8, 1)])
-pricedJob(job_id1647151377912839138, storage5, 2, 284, 16378, [item(item2, 1), item(item3, 1), item(item7, 1), item(item8, 1)])
-pricedJob(job_id2979765501649851708, storage3, 1, 134, 10018, [item(item3, 1), item(item7, 1), item(item9, 1)])
-pricedJob(job_id1899673104367683596, storage5, 9, 84, 12297, [item(item13, 1), item(item16, 1), item(item17, 1), item(item4, 1), item(item6, 1)])
-pricedJob(job_id816182523967006658, storage5, 6, 110, 10218, [item(item11, 1), item(item2, 1), item(item8, 1)])
-pricedJob(job_id1647151377912839138, storage5, 2, 284, 16378, [item(item2, 1), item(item3, 1), item(item7, 1), item(item8, 1)])

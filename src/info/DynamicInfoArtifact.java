@@ -66,10 +66,10 @@ public class DynamicInfoArtifact extends Artifact {
 			}
 		}
 		
-		logger.info("Perceived deadline:\t" + deadline);
-		logger.info("Perceived money:\t" + money);
-		logger.info("Perceived step:\t" + step);
-		logger.info("Perceived timestamp:\t" + timestamp);
+//		logger.info("Perceived deadline:\t" + deadline);
+//		logger.info("Perceived money:\t" + money);
+//		logger.info("Perceived step:\t" + step);
+//		logger.info("Perceived timestamp:\t" + timestamp);
 	}
 	
 	// Literal(long)

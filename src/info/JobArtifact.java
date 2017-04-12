@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
+import cnp.TaskArtifact;
 import eis.iilang.Percept;
 import env.Translator;
 import jason.asSyntax.Term;
@@ -110,7 +111,9 @@ public class JobArtifact extends Artifact {
 			job.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
 		
-		jobs.put(id, job);
+		if (!jobs.containsKey(id))
+			TaskArtifact.getInstance().announce(id, 1000000);
+		jobs.put(id, job); 
 	}
 	
 	private static void perceiveMission(Percept percept)

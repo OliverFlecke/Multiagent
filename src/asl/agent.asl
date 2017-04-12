@@ -12,6 +12,8 @@
 +!register : connection(C) <- register(C).	
 -!register <- .wait(100); !register.
 	
++task(Id, ArtifactName) <- .print("Got task: ", Id, " and artifact ", ArtifactName).
+
 // This is called in every step. Should therefore always make sure an action is returned
 +step(X) <-
 	.print("This is step: ", X);

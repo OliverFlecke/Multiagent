@@ -53,7 +53,7 @@ public class AgentArtifact extends Artifact {
 	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
 	{
-		logger.info("Perceiving agent info: " + agentName);
+//		logger.info("Perceiving agent info: " + agentName);
 		
 		for (Percept percept : percepts)
 		{

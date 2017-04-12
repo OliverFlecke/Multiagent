@@ -79,12 +79,12 @@ public class StaticInfoArtifact extends Artifact {
 //		logger.info("Perceived entities:");
 //		for (Role role : .values())
 //			logger.info(role.toString());
-		
-		logger.info("Perceived team:\t" 		+ team);
-		logger.info("Perceived id:\t\t" 		+ id);
-		logger.info("Perceived map:\t" 			+ map);
-		logger.info("Perceived seedCapital:\t" 	+ seedCapital);
-		logger.info("Perceived steps:\t" 		+ steps);
+//		
+//		logger.info("Perceived team:\t" 		+ team);
+//		logger.info("Perceived id:\t\t" 		+ id);
+//		logger.info("Perceived map:\t" 			+ map);
+//		logger.info("Perceived seedCapital:\t" 	+ seedCapital);
+//		logger.info("Perceived steps:\t" 		+ steps);
 		
 	}
 	
