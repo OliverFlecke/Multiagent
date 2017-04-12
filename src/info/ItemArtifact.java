@@ -7,6 +7,7 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
+import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.*;
 import massim.scenario.city.data.*;
@@ -59,9 +60,7 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
-	{
-		logger.info("Perceiving items");
-		
+	{		
 		Map<Item, Set<List<Term>>> requirements = new HashMap<>();
 		
 		percepts.stream().filter(percept -> percept.getName() == ITEM)
@@ -82,10 +81,13 @@ public class ItemArtifact extends Artifact {
 				item.addRequirement(items.get(itemId), quantity);
 			}
 		}
-		
-		logger.info("Items perceived:");		
-		for (Item item : items.values())
-			logger.info(item.toString());
+
+		if (EIArtifact.LOGGING_ENABLED)
+		{
+			logger.info("Perceived items:");		
+			for (Item item : items.values())
+				logger.info(item.toString());
+		}
 	}
 
 	// Literal(String, int, Literal(List<String>), Literal(List<List<String, int>>))

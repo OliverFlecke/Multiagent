@@ -92,7 +92,6 @@ public class FacilityArtifact extends Artifact {
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
 	{
-		logger.info("Perceiving facilities");
 		
 		for (Percept percept : percepts)
 		{
@@ -106,11 +105,12 @@ public class FacilityArtifact extends Artifact {
 			}
 		}
 
-		logFacilities("Charging station perceived:"	, chargingStations	.values());
-		logFacilities("Dumps perceived:"			, dumps				.values());
-		logFacilities("Shops perceived:"			, shops				.values());
-		logFacilities("Storages perceived:"			, storages			.values());
-		logFacilities("Workshops perceived:"		, workshops			.values());
+//		logger.info("Perceived facilities");
+//		logFacilities("Charging station perceived:"	, chargingStations	.values());
+//		logFacilities("Dumps perceived:"			, dumps				.values());
+//		logFacilities("Shops perceived:"			, shops				.values());
+//		logFacilities("Storages perceived:"			, storages			.values());
+//		logFacilities("Workshops perceived:"		, workshops			.values());
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)

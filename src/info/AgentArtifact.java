@@ -14,6 +14,7 @@ import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
 import eis.iilang.Percept;
+import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
@@ -23,7 +24,6 @@ import massim.scenario.city.data.Route;
 public class AgentArtifact extends Artifact {
 	
 	private static final Logger logger = Logger.getLogger(AgentArtifact.class.getName());
-
 	
 	private static final String ACTION_ID			= "actionID";
 	private static final String CHARGE 				= "charge";
@@ -53,7 +53,6 @@ public class AgentArtifact extends Artifact {
 	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
 	{
-//		logger.info("Perceiving agent info: " + agentName);
 		
 		for (Percept percept : percepts)
 		{
@@ -70,6 +69,11 @@ public class AgentArtifact extends Artifact {
 //			case ROUTE: 				perceiveRoute(agentName, percept); break;
 			case ROUTE_LENGTH: 			perceiveRouteLength(agentName, percept); break;
 			}
+		}
+		
+		if (EIArtifact.LOGGING_ENABLED)
+		{
+			logger.info(agentName + " perceived");
 		}
 	}
 	
