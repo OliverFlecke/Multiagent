@@ -1,4 +1,4 @@
-package env;
+package info;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -7,6 +7,7 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
+import env.Translator;
 import jason.asSyntax.*;
 import massim.scenario.city.data.*;
 import massim.scenario.city.data.facilities.Shop;
@@ -34,7 +35,7 @@ public class ItemArtifact extends Artifact {
 		ret.set(itemLocations.get(item));
 	}
 	
-	protected static void perceiveInitial(Collection<Percept> percepts)
+	public static void perceiveInitial(Collection<Percept> percepts)
 	{
 		logger.info("Perceiving items");
 		
@@ -74,7 +75,7 @@ public class ItemArtifact extends Artifact {
 		
 		Item item = new Item(id, volume, 0, Collections.emptySet());
 
-		for (Term toolArg : Translator.literalToTermList(args[2]))
+		for (Term toolArg : Translator.literalToTermToTermList(args[2]))
 		{
 			String toolId = Translator.termToString(toolArg);
 			
@@ -87,7 +88,7 @@ public class ItemArtifact extends Artifact {
 		
 		Set<List<Term>> parts = new HashSet<>();
 
-		for (Term partArg : Translator.literalToTermList(args[3]))
+		for (Term partArg : Translator.literalToTermToTermList(args[3]))
 		{
 			List<Term> partTuple = Translator.termToTermList(partArg);
 			

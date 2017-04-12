@@ -9,19 +9,8 @@
 
 
 // Plans 
-+!register : connection(C) <-
-	register(C);
-//	getPercepts;
-	getMoney(X);
-	.print("Money:", X).
-	
--!register <- 
-	.wait(100);
-	!register.
-	
-+updatePercepts : connection(C) <- 
-	.wait(100);
-	-+updatePercepts.
++!register : connection(C) <- register(C).	
+-!register <- .wait(100); !register.
 	
 // This is called in every step. Should therefore always make sure an action is returned
 +step(X) <-
@@ -38,8 +27,4 @@
 // Test plans
 +inFacility(X) <- .print("I am at: ", X).
 +inFacility : true <- .print("Hello world").
-	
-+shop(ShopId, Lat, Lng, Items) <- .print("Shop", ShopId).
-
-+role(Role, Speed, Load, Battery, Tools) <- .print("Role: ", Role).
 

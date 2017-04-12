@@ -14,6 +14,12 @@ import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import info.AgentArtifact;
+import info.DynamicInfoArtifact;
+import info.FacilityArtifact;
+import info.ItemArtifact;
+import info.JobArtifact;
+import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
 
 public class EIArtifact extends Artifact {
@@ -63,14 +69,17 @@ public class EIArtifact extends Artifact {
 			
 			if (!hasPerceivedInitial && connections.size() == ei.getEntities().size())
 			{
+				logger.info("Perceiving initial percepts");
 				
 				Set<Percept> initialPercepts = new HashSet<>();
+				
+				Map<String, Collection<Percept>> agentPercepts = new HashMap<>();
 
 				for (Entry<String, String> entry : connections.entrySet())
 				{
 					Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 					
-//					AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+					agentPercepts.put(entry.getKey(), percepts);
 					
 					initialPercepts.addAll(percepts);
 				}
@@ -82,6 +91,12 @@ public class EIArtifact extends Artifact {
 				
 				FacilityArtifact	.perceiveUpdate(initialPercepts);
 				DynamicInfoArtifact	.perceiveUpdate(initialPercepts);
+				JobArtifact			.perceiveUpdate(initialPercepts);
+
+				for (String agentName : connections.keySet())
+				{					
+					AgentArtifact.perceiveUpdate(agentName, agentPercepts.get(agentName));
+				}
 				
 				hasPerceivedInitial = true;
 				
@@ -135,13 +150,17 @@ public class EIArtifact extends Artifact {
 			{
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
-//				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
 				
 				allPercepts.addAll(percepts);
 			}
 			
+//			allPercepts.stream().filter(percept -> JobArtifact.PERCEPTS.contains(percept.getName()))
+//								.forEach(percept -> logger.info(percept.toString()));
+			
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
+			JobArtifact			.perceiveUpdate(allPercepts);
 		} 
 		catch (Throwable e) 
 		{

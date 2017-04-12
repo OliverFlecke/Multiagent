@@ -1,4 +1,4 @@
-package env;
+package info;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +13,7 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
+import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.facilities.*;
@@ -21,12 +22,12 @@ public class FacilityArtifact extends Artifact {
 	
 	private static final Logger logger = Logger.getLogger(FacilityArtifact.class.getName());	
 
-	private static final String CHARGING_STATION 	= "chargingStation";
-	private static final String DUMP 				= "dump";
-	private static final String SHOP 				= "shop";
-	private static final String STORAGE 			= "storage";
-	private static final String WORKSHOP 			= "workshop";
-	private static final String RESOURCE_NODE		= "resourceNode";
+	public static final String CHARGING_STATION 	= "chargingStation";
+	public static final String DUMP 				= "dump";
+	public static final String SHOP 				= "shop";
+	public static final String STORAGE 				= "storage";
+	public static final String WORKSHOP 			= "workshop";
+	public static final String RESOURCE_NODE		= "resourceNode";
 	
 	public static final Set<String>	STATIC_PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(CHARGING_STATION, DUMP, SHOP, STORAGE, WORKSHOP)));
@@ -47,7 +48,7 @@ public class FacilityArtifact extends Artifact {
 		// Get agent location, compute closest facility and return 
 		// the facility's name
 		
-		Location agLoc = DynamicInfoArtifact.getEntity(getOpUserName()).getLocation();
+		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
 
 		double closestDistance = Double.MAX_VALUE;
 		String closestFacility = null;
@@ -89,7 +90,7 @@ public class FacilityArtifact extends Artifact {
 		return Math.sqrt(dLon * dLon + dLat * dLat);
 	}
 	
-	protected static void perceiveInitial(Collection<Percept> percepts)
+	public static void perceiveInitial(Collection<Percept> percepts)
 	{
 		logger.info("Perceiving facilities");
 		
@@ -112,7 +113,7 @@ public class FacilityArtifact extends Artifact {
 		logFacilities("Workshops perceived:"		, workshops			.values());
 	}
 	
-	protected static void perceiveUpdate(Collection<Percept> percepts)
+	public static void perceiveUpdate(Collection<Percept> percepts)
 	{
 		percepts.stream().filter(percept -> percept.getName() == RESOURCE_NODE)
 						 .forEach(resourceNode -> perceiveResourceNode(resourceNode));
@@ -217,4 +218,20 @@ public class FacilityArtifact extends Artifact {
 				new ResourceNode(name, new Location(lon, lat), ItemArtifact.getItem(itemId), 0));
 	}
 
+	protected static Facility getFacility(String facilityType, String facilityName) 
+	{		
+		Map<String, ? extends Facility> facilities = new HashMap<>();
+		
+		switch (facilityType)
+		{
+		case CHARGING_STATION: 	facilities = chargingStations	;	break;	
+		case DUMP:				facilities = dumps				;  break;        
+		case SHOP:				facilities = shops				;  break;           
+		case STORAGE:			facilities = storages			;  break;
+		case WORKSHOP:			facilities = workshops			;  break;
+		case RESOURCE_NODE:		facilities = resourceNodes		;  break;
+		}
+		
+		return facilities.get(facilityName);
+	}
 }

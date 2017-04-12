@@ -1,4 +1,4 @@
-package env;
+package info;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -6,10 +6,9 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
-import data.CEntity;
 import eis.iilang.Percept;
+import env.Translator;
 import jason.asSyntax.Term;
-import massim.scenario.city.data.Location;
 
 public class DynamicInfoArtifact extends Artifact {
 	
@@ -23,20 +22,10 @@ public class DynamicInfoArtifact extends Artifact {
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, STEP, TIMESTAMP)));
 
-	private static Map<String, CEntity> entities = new HashMap<>();
 	private static long					deadline;
 	private static int					money;
 	private static int					step;
 	private static long					timestamp;
-
-	@OPERATION
-	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
-	{
-		Location l = entities.get(getOpUserName()).getLocation();
-		
-		lon.set(l.getLon());
-		lat.set(l.getLat());
-	}	
 
 	@OPERATION
 	void getDeadline(OpFeedbackParam<Long> ret)
@@ -62,7 +51,7 @@ public class DynamicInfoArtifact extends Artifact {
 		ret.set(timestamp);
 	}
 	
-	protected static void perceiveUpdate(Collection<Percept> percepts)
+	public static void perceiveUpdate(Collection<Percept> percepts)
 	{
 		logger.info("Perceiving dynamic info");
 		
@@ -114,15 +103,4 @@ public class DynamicInfoArtifact extends Artifact {
 		
 		timestamp = Translator.termToLong(args[0]);
 	}
-	
-	protected static void addEntity(String name, CEntity entity)
-	{
-		entities.put(name, entity);
-	}
-	
-	protected static CEntity getEntity(String name)
-	{
-		return entities.get(name);
-	}
-
 }

@@ -172,8 +172,12 @@ public class Translator
 	 * @param term
 	 * @return
 	 */
-	public static List<Term> literalToTermList(Term term) {
+	public static List<Term> literalToTermToTermList(Term term) {
 		return termToTermList(termToLiteral(term).getTerm(0));
+	}
+	
+	public static List<Term> literalToTermList(Term term) {
+		return termToLiteral(term).getTerms();
 	}
 	
 	/**

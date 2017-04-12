@@ -1,4 +1,4 @@
-package env;
+package info;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -9,6 +9,7 @@ import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
 import eis.iilang.Percept;
+import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Role;
@@ -48,7 +49,7 @@ public class StaticInfoArtifact extends Artifact {
 		team		.set(StaticInfoArtifact.team);
 	}
 
-	protected static void perceiveInitial(Collection<Percept> percepts)
+	public static void perceiveInitial(Collection<Percept> percepts)
 	{
 		logger.info("Perceiving static info");
 		

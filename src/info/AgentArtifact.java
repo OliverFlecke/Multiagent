@@ -1,4 +1,4 @@
-package env;
+package info;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,14 +9,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import cartago.Artifact;
+import cartago.OPERATION;
+import cartago.OpFeedbackParam;
 import data.CEntity;
 import eis.iilang.Percept;
+import env.Translator;
 import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Route;
 
-public class AgentArtifact {
+public class AgentArtifact extends Artifact {
 	
 	private static final Logger logger = Logger.getLogger(AgentArtifact.class.getName());
 
@@ -37,10 +41,19 @@ public class AgentArtifact {
 				LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
-	
-	protected static void perceive(String agentName, Collection<Percept> percepts)
+
+	@OPERATION
+	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
 	{
-		logger.info("Perceiving agent info");
+		Location l = entities.get(getOpUserName()).getLocation();
+		
+		lon.set(l.getLon());
+		lat.set(l.getLat());
+	}	
+	
+	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
+	{
+		logger.info("Perceiving agent info: " + agentName);
 		
 		for (Percept percept : percepts)
 		{
@@ -58,16 +71,6 @@ public class AgentArtifact {
 			case ROUTE_LENGTH: 			perceiveRouteLength(agentName, percept); break;
 			}
 		}
-	}
-
-	protected static void addEntity(String name, CEntity entity)
-	{
-		entities.put(name, entity);
-	}
-	
-	protected static CEntity getEntity(String name)
-	{
-		return entities.get(name);
 	}
 	
 	/**
@@ -169,6 +172,15 @@ public class AgentArtifact {
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setRouteLength(Translator.termToInteger(terms[0]));	
+	}
 
+	protected static void addEntity(String name, CEntity entity)
+	{
+		entities.put(name, entity);
+	}
+	
+	protected static CEntity getEntity(String name)
+	{
+		return entities.get(name);
 	}
 }
