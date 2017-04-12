@@ -15,14 +15,24 @@ public class TaskArtifact extends Artifact {
 	
 	private static int taskId;
 	
+	private static TaskArtifact instance;
+	
+	void init()
+	{
+		instance = this;
+	}
+	
+	public static TaskArtifact getInstance() {
+		return instance;
+	}
+	
 	/**
 	 * Announces a task by creating a CNPArtifact and defining it as an observable property.
 	 * This will commence the bidding between agents.
 	 * @param duration - Duration of the task.
 	 * @param id - Name of the created CNPArtifact as feedback parameter.
 	 */
-	@OPERATION
-	void announceTask(String task, int duration, OpFeedbackParam<String> id)
+	public void announce(String task, int duration)
 	{
 		try {
 			String artifactName = "CNPArtifact" + (++taskId);
@@ -30,8 +40,6 @@ public class TaskArtifact extends Artifact {
 			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(duration));
 			
 			defineObsProperty("task", Literal.parseLiteral(task), artifactName);
-			
-			id.set(artifactName);
 		} 
 		catch (Throwable e) 
 		{
