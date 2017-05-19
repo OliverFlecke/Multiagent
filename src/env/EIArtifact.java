@@ -2,8 +2,12 @@ package env;
 // Environment code for project multiagent_jason
 
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +20,12 @@ import eis.exceptions.NoEnvironmentException;
 import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import info.*;
+import info.AgentArtifact;
+import info.DynamicInfoArtifact;
+import info.FacilityArtifact;
+import info.ItemArtifact;
+import info.JobArtifact;
+import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
 
 public class EIArtifact extends Artifact {
@@ -39,9 +48,10 @@ public class EIArtifact extends Artifact {
 		try 
 		{
 			ei = new EnvironmentInterface("conf/eismassimconfig.json");
-//			ei = EILoader.fromClassName("massim.eismassim.EnvironmentInterface");
 			
 			ei.start();
+			
+			defineObsProperty("step", 0);
 		} 
 		catch (Throwable e) 
 		{
@@ -66,6 +76,7 @@ public class EIArtifact extends Artifact {
 			
 			if (connections.size() == ei.getEntities().size())
 			{
+				// Perceive initial perceptions when all agents have connected
 				execInternalOp("perceiveInitial");
 				
 				// Attach listener for perceiving the following steps
@@ -75,7 +86,13 @@ public class EIArtifact extends Artifact {
 					public void handlePercept(String agent, Percept percept) 
 					{
 						if (percept.getName().equals("step"))
+						{							
+							DynamicInfoArtifact.perceiveStep(percept);
+							
+							getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
+							
 							execInternalOp("perceiveUpdate");
+						}
 					}
 				});
 			}
@@ -110,7 +127,7 @@ public class EIArtifact extends Artifact {
 	{
 		logger.info("perceiveInitial");
 		
-		Set<Percept> initialPercepts = new HashSet<>();
+		Set<Percept> allPercepts = new HashSet<>();
 		
 		Map<String, Collection<Percept>> agentPercepts = new HashMap<>();
 
@@ -120,21 +137,22 @@ public class EIArtifact extends Artifact {
 			
 			agentPercepts.put(entry.getKey(), percepts);
 			
-			initialPercepts.addAll(percepts);
+			allPercepts.addAll(percepts);
 		}
 		
 		// Important to perceive items before facilities
-		ItemArtifact        .perceiveInitial(initialPercepts);
-		FacilityArtifact    .perceiveInitial(initialPercepts);
-		StaticInfoArtifact  .perceiveInitial(initialPercepts);
+		ItemArtifact        .perceiveInitial(allPercepts);
+		FacilityArtifact    .perceiveInitial(allPercepts);
+		StaticInfoArtifact  .perceiveInitial(allPercepts);
 		
-		FacilityArtifact	.perceiveUpdate(initialPercepts);
-		DynamicInfoArtifact	.perceiveUpdate(initialPercepts);
-		JobArtifact			.perceiveUpdate(initialPercepts);
+		FacilityArtifact	.perceiveUpdate(allPercepts);
+		DynamicInfoArtifact	.perceiveUpdate(allPercepts);
+		JobArtifact			.perceiveUpdate(allPercepts);
 
-		for (String agentName : connections.keySet())
+		// Important to perceive agent perceptions after static info
+		for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
 		{					
-			AgentArtifact.perceiveUpdate(agentName, agentPercepts.get(agentName));
+			AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
 		}
 	}
 	

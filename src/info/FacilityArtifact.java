@@ -13,6 +13,7 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
+import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
@@ -105,12 +106,15 @@ public class FacilityArtifact extends Artifact {
 			}
 		}
 
-//		logger.info("Perceived facilities");
-//		logFacilities("Charging station perceived:"	, chargingStations	.values());
-//		logFacilities("Dumps perceived:"			, dumps				.values());
-//		logFacilities("Shops perceived:"			, shops				.values());
-//		logFacilities("Storages perceived:"			, storages			.values());
-//		logFacilities("Workshops perceived:"		, workshops			.values());
+		if (EIArtifact.LOGGING_ENABLED)
+		{
+			logger.info("Perceived facilities");
+			logFacilities("Charging station perceived:"	, chargingStations	.values());
+			logFacilities("Dumps perceived:"			, dumps				.values());
+			logFacilities("Shops perceived:"			, shops				.values());
+			logFacilities("Storages perceived:"			, storages			.values());
+			logFacilities("Workshops perceived:"		, workshops			.values());
+		}
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)

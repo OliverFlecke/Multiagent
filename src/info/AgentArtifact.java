@@ -49,13 +49,12 @@ public class AgentArtifact extends Artifact {
 		
 		lon.set(l.getLon());
 		lat.set(l.getLat());
-	}	
+	}
 	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
-	{
-		
+	{		
 		for (Percept percept : percepts)
-		{
+		{			
 			switch (percept.getName())
 			{
 //			case ACTION_ID: perceiveActionID(percept); break;

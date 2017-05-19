@@ -3,30 +3,31 @@
 
 // Rules
 
-
 // Initial goals
 !register.
-
+!focusArtifacts.
 
 // Plans 
-+!register : connection(C) <- register(C); 
-	lookupArtifact("TaskArtifact", Id); focus(Id).
++!register : connection(C) <- register(C).
 	
 -!register <- .wait(100); !register.
-	
-+task(Id, ArtifactName) <- .print("Got task: ", Id, " and artifact ", ArtifactName).
 
-// This is called in every step. Should therefore always make sure an action is returned
-+step(X) <-
-	.print("This is step: ", X);
-	action(goto(storage4));
-	-step(X).
++!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
+
++!focusArtifacts <-
+	!focusArtifact("TaskArtifact");
+	!focusArtifact("EIArtifact");
+	.print("Success").
+	
+-!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
+	
++task(Id, ArtifactName) : .my_name(agentA1) <- .print("Got task: ", Id, " and artifact ", ArtifactName).
+
++step(X) <- -step(X).
 	
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
-
-
 
 // Test plans
 +inFacility(X) <- .print("I am at: ", X).

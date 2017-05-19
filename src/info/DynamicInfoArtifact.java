@@ -1,6 +1,10 @@
 package info;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
@@ -17,17 +21,22 @@ public class DynamicInfoArtifact extends Artifact {
 
 	private static final String DEADLINE			= "deadline";
 	private static final String MONEY 				= "money";
-	private static final String STEP 				= "step";
+//	private static final String STEP 				= "step";
 	private static final String TIMESTAMP 			= "timestamp";
 	
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, STEP, TIMESTAMP)));
+		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, /* STEP, */ TIMESTAMP)));
 
 	private static long					deadline;
 	private static int					money;
 	private static int					step;
 	private static long					timestamp;
 
+	void init()
+	{
+		defineObsProperty("step", 0);
+	}	
+	
 	@OPERATION
 	void getDeadline(OpFeedbackParam<Long> ret)
 	{
@@ -52,6 +61,11 @@ public class DynamicInfoArtifact extends Artifact {
 		ret.set(timestamp);
 	}
 	
+	public static int getStep() 
+	{
+		return step;
+	}
+	
 	public static void perceiveUpdate(Collection<Percept> percepts)
 	{		
 		for (Percept percept : percepts)
@@ -60,7 +74,7 @@ public class DynamicInfoArtifact extends Artifact {
 			{
 			case DEADLINE:   perceiveDeadline	(percept);	break;
 			case MONEY:      perceiveMoney		(percept);  break;
-			case STEP:       perceiveStep		(percept);  break;
+//			case STEP:       perceiveStep		(percept);  break; // Is percieved prematurely
 			case TIMESTAMP:  perceiveTimestamp	(percept);  break;
 			}
 		}
@@ -92,7 +106,7 @@ public class DynamicInfoArtifact extends Artifact {
 	}
 
 	// Literal(int)
-	private static void perceiveStep(Percept percept)
+	public static void perceiveStep(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
