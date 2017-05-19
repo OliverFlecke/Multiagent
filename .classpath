@@ -7,10 +7,10 @@
 	<classpathentry kind="lib" path="lib/cartago.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/jason.jar"/>
-	<classpathentry kind="lib" path="lib/agentcontest/eismassim-3.0-jar-with-dependencies.jar"/>
-	<classpathentry kind="lib" path="lib/agentcontest/javaagents-2017-1.0-jar-with-dependencies.jar"/>
-	<classpathentry kind="lib" path="lib/agentcontest/protocol-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/agentcontest/server-2017-0.1-jar-with-dependencies.jar"/>
 	<classpathentry kind="lib" path="lib/jade-4.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/olive/OneDrive/Courses/17F/Bachelor/Multiagent/lib/agentcontest/eismassim.jar"/>
+	<classpathentry kind="lib" path="C:/Users/olive/OneDrive/Courses/17F/Bachelor/Multiagent/lib/agentcontest/javaagents.jar"/>
+	<classpathentry kind="lib" path="C:/Users/olive/OneDrive/Courses/17F/Bachelor/Multiagent/lib/agentcontest/protocol.jar"/>
+	<classpathentry kind="lib" path="C:/Users/olive/OneDrive/Courses/17F/Bachelor/Multiagent/lib/agentcontest/server.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

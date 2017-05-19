@@ -32,6 +32,19 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getBaseItem(String name, OpFeedbackParam<String[]> ret)
+	{
+		Item item = items.get(name);
+		String[] baseItems = new String[item.getRequiredBaseItems().size()];
+//		for (Item baseItem : item.getRequiredBaseItems())
+//		{
+//			
+//		}
+	
+				
+	}
+	
+	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {
 		ret.set(itemLocations.get(item));
 	}

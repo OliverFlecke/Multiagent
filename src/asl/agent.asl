@@ -2,6 +2,7 @@
 // Initial beliefs
 
 // Rules
+getBaseItems(Items, BaseItems) :- BaseItems = [].
 
 // Initial goals
 !register.
@@ -9,19 +10,19 @@
 
 // Plans 
 +!register : connection(C) <- register(C).
-	
 -!register <- .wait(100); !register.
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
-
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
-	!focusArtifact("EIArtifact");
-	.print("Success").
-	
+	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
-	
-+task(Id, ArtifactName) : .my_name(agentA1) <- .print("Got task: ", Id, " and artifact ", ArtifactName).
+
++task(Id, ArtifactName) : .my_name(agentA1) <- 
+	lookupArtifact("JobArtifact", JobArtifactId);
+	getJob(Id, Storage, Items)[artifact_id(JobArtifactId)];
+	.print(Storage);
+	.print(Items).
 
 +step(X) <- -step(X).
 	
