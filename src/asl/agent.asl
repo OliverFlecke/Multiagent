@@ -21,11 +21,37 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +task(Id, ArtifactName) : .my_name(agentA1) <- 
 	lookupArtifact("JobArtifact", JobArtifactId);
 	getJob(Id, Storage, Items)[artifact_id(JobArtifactId)];
+	!solveJob(Storage, Items).
+	
++!solveJob(Storage, Items) <- 
 	.print(Storage);
-	.print(Items).
+	.print(Items);
+	lookupArtifact("ItemArtifact", ItemArtifactId);
+	// Find which items needed
+	getBaseItems(Items, BaseItems);
+	.print(BaseItems);
+	// Find with tools needed
+	// Collect items (and tools if needed)
+	!retriveItems(BaseItems);
+	// Assemble items 
+	// Deliver items 
+	.
+
++!retriveItems([]). 
++!retriveItems([Item | Items]) : true <- !retriveItem(Item); !retriveItems(Items).
+
++!retriveItem(map(Item, Amount)) <- .print("Retriving ", Item);
+	getClosestFacilitySelling(Item, Shop);
+	.print("Closet shop is ", Shop);
+	action(goto(Shop));
+//	waitUntilInFacility(Shop);
+  	!buyItem(Item, Amount);
+	.
++!buyItem(Item, Amount) <- .print("Bying ", Amount, " of ", Item).
 
 +step(X) <- -step(X).
-	
+
+
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.

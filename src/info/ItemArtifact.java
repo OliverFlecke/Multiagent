@@ -3,6 +3,9 @@ package info;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
@@ -31,17 +34,31 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	@OPERATION
-	void getBaseItem(String name, OpFeedbackParam<String[]> ret)
+	public Map<String, Integer> getBaseItems(String name)
 	{
-		Item item = items.get(name);
-		String[] baseItems = new String[item.getRequiredBaseItems().size()];
-//		for (Item baseItem : item.getRequiredBaseItems())
-//		{
-//			
-//		}
+		return items.get(name).getRequiredBaseItems().entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));
+	}
 	
-				
+	@OPERATION
+	void getBaseItems(Object[] items, OpFeedbackParam<Object> ret)
+	{
+		Map<String, Integer> all = new HashMap<>();
+		for (String item : Arrays.copyOf(items, items.length, String[].class))
+		{
+			for (Entry<String, Integer> entry : getBaseItems(item).entrySet())
+			{
+				if (all.containsKey(entry.getKey()))
+				{
+					all.put(entry.getKey(), entry.getValue() + all.get(entry.getKey()));
+				}
+				else 
+				{
+					all.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		ret.set(all);
 	}
 	
 	@OPERATION
