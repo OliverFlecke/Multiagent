@@ -1,10 +1,13 @@
 package info;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -43,6 +46,9 @@ public class FacilityArtifact extends Artifact {
 	private static Map<String, Workshop> 		workshops 			= new HashMap<>();
 	private static Map<String, ResourceNode>	resourceNodes		= new HashMap<>();
 	
+	private static List<Map<String, ? extends Facility>> allFacilities = new ArrayList<>(
+			Arrays.asList(chargingStations, dumps, shops, storages, workshops, resourceNodes));
+	
 	@OPERATION
 	void getClosestFacility(String facilityType, OpFeedbackParam<String> ret)
 	{		
@@ -64,26 +70,29 @@ public class FacilityArtifact extends Artifact {
 		ret.set(getClosestFacility(agLoc, facilities));
 	}
 	
-	public static String getClosestFacility(Location loc, Collection<? extends Facility> facilities)
+	public static String getClosestFacility(Location l, Collection<? extends Facility> facilities)
 	{		
-		double closestDistance = Double.MAX_VALUE;
-		String closestFacility = null;
+		return facilities.parallelStream().min(Comparator
+				.comparingDouble(f -> d(f.getLocation(), l))).get().getName();
 		
-		for (Facility facility : facilities)
-		{
-			double distance = euclideanDistance(loc, facility.getLocation());
-			
-			if (distance < closestDistance)
-			{
-				closestDistance = distance;
-				closestFacility = facility.getName();
-			}
-		}
-		return closestFacility;
+//		double closestDistance = Double.MAX_VALUE;
+//		String closestFacility = null;
+//		
+//		for (Facility facility : facilities)
+//		{
+//			double distance = d(l, facility.getLocation());
+//			
+//			if (distance < closestDistance)
+//			{
+//				closestDistance = distance;
+//				closestFacility = facility.getName();
+//			}
+//		}
+//		return closestFacility;
 	}
 	
 	
-	private static double euclideanDistance(Location l1, Location l2)
+	private static double d(Location l1, Location l2)
 	{
 		double dLon = l1.getLon() - l2.getLon();
 		double dLat = l1.getLat() - l2.getLat();
@@ -220,6 +229,12 @@ public class FacilityArtifact extends Artifact {
 		
 		resourceNodes.put(name, 
 				new ResourceNode(name, new Location(lon, lat), ItemArtifact.getItem(itemId), 0));
+	}
+	
+	protected static Facility getFacility(String facilityName)
+	{
+		return allFacilities.stream().filter(facilities -> facilities.containsKey(facilityName))
+				.findFirst().get().get(facilityName);
 	}
 
 	protected static Facility getFacility(String facilityType, String facilityName) 

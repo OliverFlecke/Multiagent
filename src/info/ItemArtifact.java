@@ -1,10 +1,16 @@
 package info;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -12,8 +18,10 @@ import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.*;
-import massim.scenario.city.data.*;
+import jason.asSyntax.Term;
+import massim.scenario.city.data.Item;
+import massim.scenario.city.data.Location;
+import massim.scenario.city.data.Tool;
 import massim.scenario.city.data.facilities.Shop;
 
 public class ItemArtifact extends Artifact {
@@ -34,32 +42,20 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	public Map<String, Integer> getBaseItems(String name)
-	{
+	private static Map<String, Integer> getBaseItem(String name)
+	{	
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));
+				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));				
+	}
+
+	@OPERATION
+	void getBaseItem(String[] items, OpFeedbackParam<Object> ret)
+	{	
+		ret.set(Arrays.stream(items)
+				.map(item -> getBaseItem(item).entrySet()).flatMap(Collection::stream)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
 	}
 	
-	@OPERATION
-	void getBaseItems(Object[] items, OpFeedbackParam<Object> ret)
-	{
-		Map<String, Integer> all = new HashMap<>();
-		for (String item : Arrays.copyOf(items, items.length, String[].class))
-		{
-			for (Entry<String, Integer> entry : getBaseItems(item).entrySet())
-			{
-				if (all.containsKey(entry.getKey()))
-				{
-					all.put(entry.getKey(), entry.getValue() + all.get(entry.getKey()));
-				}
-				else 
-				{
-					all.put(entry.getKey(), entry.getValue());
-				}
-			}
-		}
-		ret.set(all);
-	}
 	
 	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {

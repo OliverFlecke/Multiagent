@@ -3,6 +3,7 @@ package data;
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.ActionExecutor;
 import massim.scenario.city.data.*;
+import massim.scenario.city.data.facilities.Facility;
 
 /**
  * The body of an agent in the City scenario.
@@ -14,6 +15,7 @@ public class CEntity {
     private double lon;
     private Route route;
     private int routeLength;
+    private Facility facility;
 
     private int currentBattery;
     private CBoundedItemBox items;
@@ -230,4 +232,12 @@ public class CEntity {
     public void discharge(){
         this.currentBattery = 0;
     }
+
+	public void setFacility(Facility facility) {
+		this.facility = facility;		
+	}
+	
+	public boolean inFacility(String facilityName) {
+		return this.facility.getName().equals(facilityName);
+	}
 }
