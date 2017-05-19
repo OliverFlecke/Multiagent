@@ -1,16 +1,27 @@
 package info;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.*;
-import massim.scenario.city.data.*;
+import jason.asSyntax.Term;
+import massim.scenario.city.data.Item;
+import massim.scenario.city.data.Location;
+import massim.scenario.city.data.Tool;
 import massim.scenario.city.data.facilities.Shop;
 
 public class ItemArtifact extends Artifact {
@@ -31,18 +42,20 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	@OPERATION
-	void getBaseItem(String name, OpFeedbackParam<String[]> ret)
-	{
-		Item item = items.get(name);
-		String[] baseItems = new String[item.getRequiredBaseItems().size()];
-//		for (Item baseItem : item.getRequiredBaseItems())
-//		{
-//			
-//		}
-	
-				
+	private static Map<String, Integer> getBaseItem(String name)
+	{	
+		return items.get(name).getRequiredBaseItems().entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));				
 	}
+
+	@OPERATION
+	void getBaseItem(String[] items, OpFeedbackParam<Object> ret)
+	{	
+		ret.set(Arrays.stream(items)
+				.map(item -> getBaseItem(item).entrySet()).flatMap(Collection::stream)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
+	}
+	
 	
 	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {

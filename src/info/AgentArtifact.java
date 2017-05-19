@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
+import cartago.GUARD;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
@@ -27,6 +28,7 @@ public class AgentArtifact extends Artifact {
 	
 	private static final String ACTION_ID			= "actionID";
 	private static final String CHARGE 				= "charge";
+	private static final String FACILITY			= "facility";
 	private static final String LAST_ACTION 		= "lastAction";
 	private static final String LAST_ACTION_PARAMS 	= "lastActionParams";
 	private static final String LAST_ACTION_RESULT 	= "lastActionResult";
@@ -37,7 +39,7 @@ public class AgentArtifact extends Artifact {
 	private static final String ROUTE_LENGTH 		= "routeLength";
 	
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, LAST_ACTION, LAST_ACTION_PARAMS, 
+		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, FACILITY, LAST_ACTION, LAST_ACTION_PARAMS, 
 				LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
@@ -51,6 +53,12 @@ public class AgentArtifact extends Artifact {
 		lat.set(l.getLat());
 	}
 	
+	@GUARD
+	boolean inFacility(String facilityName)
+	{
+		return entities.get(getOpUserName()).inFacility(facilityName);
+	}
+	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
 	{		
 		for (Percept percept : percepts)
@@ -59,6 +67,7 @@ public class AgentArtifact extends Artifact {
 			{
 //			case ACTION_ID: perceiveActionID(percept); break;
 			case CHARGE: 				perceiveCharge(agentName, percept); break;
+			case FACILITY:				perceiveFacility(agentName, percept); break;
 			case LAST_ACTION : 			perceiveLastAction(agentName, percept); break;
 //			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
 			case LAST_ACTION_RESULT: 	perceiveLastActionResult(agentName, percept); break;
@@ -75,7 +84,7 @@ public class AgentArtifact extends Artifact {
 			logger.info(agentName + " perceived");
 		}
 	}
-	
+
 	/**
 	 * Literal(int)
 	 * @param percept
@@ -84,6 +93,12 @@ public class AgentArtifact extends Artifact {
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setCurrentBattery(Translator.termToInteger(terms[0]));
+	}
+	
+	private static void perceiveFacility(String agentName, Percept percept) 
+	{
+		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
+		AgentArtifact.getEntity(agentName).setFacility(FacilityArtifact.getFacility(Translator.termToString(terms[0])));
 	}
 	
 	/**
