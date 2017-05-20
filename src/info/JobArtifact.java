@@ -1,6 +1,13 @@
 package info;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
@@ -10,9 +17,11 @@ import cnp.TaskArtifact;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
-import massim.scenario.city.data.*;
+import massim.scenario.city.data.AuctionJob;
+import massim.scenario.city.data.Item;
+import massim.scenario.city.data.Job;
+import massim.scenario.city.data.Mission;
 import massim.scenario.city.data.facilities.Storage;
 
 public class JobArtifact extends Artifact {
@@ -152,7 +161,7 @@ public class JobArtifact extends Artifact {
 		int end 			= Translator.termToInteger(args[4]);
 		int fine			= Translator.termToInteger(args[5]);
 		int bid 			= Translator.termToInteger(args[6]);
-		int time			= Translator.termToInteger(args[7]);
+//		int time			= Translator.termToInteger(args[7]);
 		String mId			= Translator.termToString(args[8]);
 		
 		Storage storage = (Storage) FacilityArtifact.getFacility(FacilityArtifact.STORAGE, storageId);
