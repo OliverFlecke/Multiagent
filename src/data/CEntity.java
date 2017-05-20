@@ -238,6 +238,12 @@ public class CEntity {
 	}
 	
 	public boolean inFacility(String facilityName) {
+		if (this.facility == null) return false;
 		return this.facility.getName().equals(facilityName);
+	}
+	
+	public Facility getFacility()
+	{
+		return this.facility;
 	}
 }

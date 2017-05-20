@@ -21,25 +21,22 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 
 +task(Id, ArtifactName) : .my_name(agentA1) & free <- 
 	-free;
-	lookupArtifact("JobArtifact", JobArtifactId);
-	getJob(Id, Storage, Items)[artifact_id(JobArtifactId)];
+	getJob(Id, Storage, Items);
 	!solveJob(Storage, Items);
 	+free.
 	
 +!solveJob(Storage, Items) <- 
-	.print(Storage);
-	.print(Items);
-	lookupArtifact("ItemArtifact", ItemArtifactId);
+	.print(Storage); .print(Items);
 	// Find which items needed
 	getBaseItems(Items, BaseItems);
-	.print(BaseItems);
+	.print("Base items needed: ", BaseItems);
 	// Find with tools needed
 	// Collect items (and tools if needed)
 	!retriveItems(BaseItems);
 	// Assemble items 
-	
+
 	// Deliver items 
-	!getToFacility(Storage);
+//	!getToFacility(Storage);
 	.
 
 +!retriveItems([]). 
@@ -48,13 +45,13 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +!retriveItem(map(Item, Amount)) <- .print("Retriving ", Item);
 	getClosestFacilitySelling(Item, Shop);
 	.print("Closet shop is ", Shop);
-	!getToFacility(Shop);
-//	waitUntilInFacility(Shop);
+	?getToFacility(Shop);
   	!buyItem(Item, Amount);
 	.
 +!buyItem(Item, Amount) <- .print("Bying ", Amount, " of ", Item); action(buy(Item, Amount)).
 	
-+!getToFacility(Facility) <- action(goto(Facility)); await(inFacility(Facility)).
++?getToFacility(F) <- inFacility(F). 
+-?getToFacility(F) <- action(goto(F)); !getToFacility(F).
 
 +step(X) <- -step(X).
 
