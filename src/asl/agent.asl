@@ -53,18 +53,23 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +!assembleItem(Item) : true // Should check that agent is in a workshop
 	<- action(assemble(Item)).
 
-+!retriveItems([]). 
-+!retriveItems([Item | Items]) : true <- !retriveItem(Item); !retriveItems(Items).
++!retrieveItems([]).
++!retrieveItems([map(Item, Amount) | Items]) <- 
 
-+!retriveItem(map(Item, Amount)) <- 
-	.print("Retriving ", Item);
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
-	.print("Closet shop is ", Shop);
+	.print("Retriving ", Amount, " of ", Item, " in ", Shop);
+	
 	!getToFacility(Shop);
   	!buyItem(Item, AmountAvailable);
+  	
+  	AmountRemaining is Amount - AmountAvailable;
+  	
+	if (AmountRemaining > 0) { !retrieveItems([map(Item, AmountRemaining) | Items]); }
+	else 					 { !retrieveItems(Items); }
 	.
+	
 +!buyItem(Item, Amount) <- 
-	.print("Bying ", Amount, " of ", Item); 
+	.print("Buying ", Amount, " of ", Item); 
 	action(buy(Item, Amount)).
 	
 +!getToFacility(F) : inFacility(F). 
