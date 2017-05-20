@@ -114,11 +114,6 @@ public class EIArtifact extends Artifact {
 		{	
 			Action ac = Translator.stringToAction(action);
 			
-			if (ac.getName().equals("buy"))
-			{
-//				System.out.println("buying");
-			}
-			
 			ei.performAction(agName, ac);
 		}
 		catch (Throwable e) 

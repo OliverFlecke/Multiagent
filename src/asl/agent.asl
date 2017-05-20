@@ -36,13 +36,15 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	// Assemble items 
 
 	// Deliver items 
-//	!getToFacility(Storage);
+	!getToFacility(Storage);
+	.print("Job done!")
 	.
 
 +!retriveItems([]). 
 +!retriveItems([Item | Items]) : true <- !retriveItem(Item); !retriveItems(Items).
 
-+!retriveItem(map(Item, Amount)) <- .print("Retriving ", Item);
++!retriveItem(map(Item, Amount)) <- 
+	.print("Retriving ", Item);
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	.print("Closet shop is ", Shop);
 	!getToFacility(Shop);
