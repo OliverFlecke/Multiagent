@@ -20,7 +20,13 @@ import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
-import massim.scenario.city.data.facilities.*;
+import massim.scenario.city.data.facilities.ChargingStation;
+import massim.scenario.city.data.facilities.Dump;
+import massim.scenario.city.data.facilities.Facility;
+import massim.scenario.city.data.facilities.ResourceNode;
+import massim.scenario.city.data.facilities.Shop;
+import massim.scenario.city.data.facilities.Storage;
+import massim.scenario.city.data.facilities.Workshop;
 
 public class FacilityArtifact extends Artifact {
 	
@@ -73,26 +79,10 @@ public class FacilityArtifact extends Artifact {
 	public static String getClosestFacility(Location l, Collection<? extends Facility> facilities)
 	{		
 		return facilities.parallelStream().min(Comparator
-				.comparingDouble(f -> d(f.getLocation(), l))).get().getName();
-		
-//		double closestDistance = Double.MAX_VALUE;
-//		String closestFacility = null;
-//		
-//		for (Facility facility : facilities)
-//		{
-//			double distance = d(l, facility.getLocation());
-//			
-//			if (distance < closestDistance)
-//			{
-//				closestDistance = distance;
-//				closestFacility = facility.getName();
-//			}
-//		}
-//		return closestFacility;
+				.comparingDouble(f -> euclideanDistance(f.getLocation(), l))).get().getName();
 	}
 	
-	
-	private static double d(Location l1, Location l2)
+	private static double euclideanDistance(Location l1, Location l2)
 	{
 		double dLon = l1.getLon() - l2.getLon();
 		double dLat = l1.getLat() - l2.getLat();

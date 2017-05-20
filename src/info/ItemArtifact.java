@@ -105,7 +105,7 @@ public class ItemArtifact extends Artifact {
 
 	// Literal(String, int, Literal(List<String>), Literal(List<List<String, int>>))
 	private static void perceiveItem(Percept percept, Map<Item, Set<List<Term>>> requirements)
-	{
+	{		
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
 		String     id		= Translator.termToString(args[0]);

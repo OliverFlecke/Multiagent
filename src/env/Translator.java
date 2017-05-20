@@ -87,7 +87,7 @@ public class Translator
 	 * @return
 	 */
 	public static Literal perceptToLiteral(Percept percept) {
-		return Literal.parseLiteral(PrologVisitor.staticVisit((Percept) percept));
+		return Literal.parseLiteral(PrologVisitor.staticVisit(percept));
 	}
 
 	/**
@@ -187,5 +187,70 @@ public class Translator
 	 */
 	public static Literal termToLiteral(Term term) {
 		return (LiteralImpl) term;
+	}
+	
+	public static Object perceptToObject(Percept p) {
+		return termToObject(perceptToLiteral(p));
+	}
+	
+	/**
+	 * Convert a Jason term into a CArtAgO/Java Object
+	 * 
+	 * @param t Jason term
+	 * @param lib Java library - each agent has its own one
+	 * @return
+	 */
+	public static Object termToObject(Term t)
+	{
+	    if (t.isAtom())
+	    {
+			Atom a = (Atom) t;
+			
+				 if (a.equals(Atom.LTrue))  return Boolean.TRUE;
+			else if (a.equals(Atom.LFalse)) return Boolean.FALSE;
+			else							return a.getFunctor();
+	    } 
+	    else if (t.isNumeric())
+	    {
+			try {
+				double d = ((NumberTerm) t).solve();				
+					 if ((byte)  d == d) return (byte)  d;
+				else if ((int)   d == d) return (int)   d;					
+				else if ((float) d == d) return (float) d;
+				else if ((long)  d == d) return (long)  d;
+				else					 return 		d;				
+			} catch (NoValueException e) {
+				e.printStackTrace();
+			}
+		} 
+	    else if (t.isString())
+	    {
+			return ((StringTerm) t).getString();
+		} 
+	    else if (t.isList())
+	    {
+			ListTerm lt = (ListTerm) t;
+			
+			Object[] list = new Object[lt.size()];
+			
+			for (int i = 0; i < lt.size(); i++)
+			{
+				list[i] = termToObject(lt.get(i));
+			}
+			return list;
+		}
+	    else if (t.isLiteral())
+	    {
+	    	Literal l = (Literal) t;
+	    	
+	    	Object[] list = new Object[l.getArity()];
+	    	
+			for (int i = 0; i < l.getArity(); i++)
+			{
+				list[i] = termToObject(l.getTerm(i));
+			}
+			return list;
+	    }
+		return t.toString();
 	}
 }
