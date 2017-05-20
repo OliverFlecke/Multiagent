@@ -43,10 +43,10 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +!retriveItems([Item | Items]) : true <- !retriveItem(Item); !retriveItems(Items).
 
 +!retriveItem(map(Item, Amount)) <- .print("Retriving ", Item);
-	getClosestFacilitySelling(Item, Shop);
+	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	.print("Closet shop is ", Shop);
 	!getToFacility(Shop);
-  	!buyItem(Item, Amount);
+  	!buyItem(Item, AmountAvailable);
 	.
 +!buyItem(Item, Amount) <- 
 	.print("Bying ", Amount, " of ", Item); 
