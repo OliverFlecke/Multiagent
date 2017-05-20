@@ -90,9 +90,8 @@ public class FacilityArtifact extends Artifact {
 		return Math.sqrt(dLon * dLon + dLat * dLat);
 	}
 	
-	public static void perceiveInitial(Collection<Percept> percepts)
-	{
-		
+	public static void perceiveUpdate(Collection<Percept> percepts)
+	{		
 		for (Percept percept : percepts)
 		{
 			switch (percept.getName())
@@ -102,6 +101,7 @@ public class FacilityArtifact extends Artifact {
 			case SHOP:				perceiveShop			(percept);  break;             
 			case STORAGE:			perceiveStorage			(percept);  break;          
 			case WORKSHOP:			perceiveWorkshop		(percept);  break;
+			case RESOURCE_NODE:		perceiveResourceNode	(percept);	break;
 			}
 		}
 
@@ -113,13 +113,8 @@ public class FacilityArtifact extends Artifact {
 			logFacilities("Shops perceived:"			, shops				.values());
 			logFacilities("Storages perceived:"			, storages			.values());
 			logFacilities("Workshops perceived:"		, workshops			.values());
+			logFacilities("Resource nodes perceived:"	, resourceNodes		.values());
 		}
-	}
-	
-	public static void perceiveUpdate(Collection<Percept> percepts)
-	{
-		percepts.stream().filter(percept -> percept.getName() == RESOURCE_NODE)
-						 .forEach(resourceNode -> perceiveResourceNode(resourceNode));
 	}
 	
 	private static void logFacilities(String msg, Collection<? extends Facility> facilities)

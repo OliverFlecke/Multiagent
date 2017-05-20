@@ -142,7 +142,7 @@ public class EIArtifact extends Artifact {
 		
 		// Important to perceive items before facilities
 		ItemArtifact        .perceiveInitial(allPercepts);
-		FacilityArtifact    .perceiveInitial(allPercepts);
+//		FacilityArtifact    .perceiveInitial(allPercepts);
 		StaticInfoArtifact  .perceiveInitial(allPercepts);
 		
 		FacilityArtifact	.perceiveUpdate(allPercepts);
