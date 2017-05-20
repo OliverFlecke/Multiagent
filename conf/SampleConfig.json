@@ -116,18 +116,21 @@
           "toolProbability" : 0.5
         },
         "jobs" : {
-          "rate" : 0.2,
+          "rate" : 1.0,
           "auctionProbability" : 0.4,
           "productTypesMin" : 1,
           "productTypesMax" : 5,
-          "difficultyMin" : 3,
+          "difficultyMin" : 1,
           "difficultyMax" : 12,
           "timeMin" : 100,
           "timeMax" : 400,
           "auctions" : {
             "auctionTimeMin" : 2,
             "auctionTimeMax" : 10
-          }
+          },
+		  "missions" : {
+			"missionDifficultyMax" : 10
+		  }
         }
       }
     }
