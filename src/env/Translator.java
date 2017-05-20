@@ -28,7 +28,11 @@ public class Translator
 		else if (term.isNumeric()) 
 		{
 			try {
-				return new Numeral(((NumberTerm) term).solve());
+				double number = ((NumberTerm) term).solve();
+				if ((int) number == number)
+					return new Numeral((int) number);
+				else
+					return new Numeral(number);
 			} catch (NoValueException e) {
 				e.printStackTrace();
 			}

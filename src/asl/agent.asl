@@ -48,15 +48,19 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	!getToFacility(Shop);
   	!buyItem(Item, Amount);
 	.
-+!buyItem(Item, Amount) <- .print("Bying ", Amount, " of ", Item); action(buy(Item, Amount)).
++!buyItem(Item, Amount) <- 
+	.print("Bying ", Amount, " of ", Item); 
+	action(buy(Item, Amount)).
 	
 +!getToFacility(F) : inFacility(F). 
 +!getToFacility(F) <- 
+	action(goto(F)); 
 	lookupArtifact("AgentArtifact", AAID); focus(AAID);
-	inFacility(_);
-	action(goto(F)); !getToFacility(F).
+	inFacility(_); // Update inFacility belief
+	!getToFacility(F).
 
 +step(X) <- -step(X).
++inFacility(X) <- +inFacility(X). // Needed to add the belief 
 
 
 
@@ -64,5 +68,4 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +charge(X) : X < 200 <- !goCharge.
 
 // Test plans
-+inFacility(X) <- +inFacility(X). // Needed to add the belief 
 

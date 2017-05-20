@@ -31,7 +31,7 @@
 
       "roles" : {
         "car" : {
-          "speed" : 3,
+          "speed" : 30,
           "load" : 550,
           "battery" : 500,
           "roads" : ["road"]
