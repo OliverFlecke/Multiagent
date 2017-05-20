@@ -61,6 +61,18 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getShopSelling(String itemName, int quantity, OpFeedbackParam<String> retShop, OpFeedbackParam<Integer> retQuantity) 
+	{
+		Item 		item 	= items.get(itemName);
+		Set<Shop> 	shops 	= itemLocations.get(itemName);
+		
+		Shop shop = shops.stream().sorted((s1, s2) -> s1.getItemCount(item) - s2.getItemCount(item)).findFirst().get();
+
+		retShop.set(shop.getName());
+		retQuantity.set(Math.min(quantity, shop.getItemCount(item)));
+	}
+	
+	@OPERATION
 	void getClosestFacilitySelling(String item, OpFeedbackParam<String> ret)
 	{
 		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
