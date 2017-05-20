@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,9 +32,9 @@ public class ItemArtifact extends Artifact {
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(ITEM)));
 
-    private static Map<String, Tool> 		tools 			= new HashMap<>();
-	private static Map<String, Item>		items 			= new HashMap<>();
-	private static Map<String, Set<Shop>> 	itemLocations 	= new HashMap<>();	
+    private static Map<String, Tool> 				tools 			= new HashMap<>();
+	private static Map<String, Item>				items 			= new HashMap<>();
+	private static Map<String, Map<String, Shop>> 	itemLocations 	= new HashMap<>();	
 	
 	@OPERATION
 	void getItems(OpFeedbackParam<Collection<Item>> ret) {
@@ -57,19 +58,19 @@ public class ItemArtifact extends Artifact {
 	
 	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {
-		ret.set(itemLocations.get(item));
+		ret.set(itemLocations.get(item).values());
 	}
 	
 	@OPERATION
 	void getShopSelling(String itemName, int quantity, OpFeedbackParam<String> retShop, OpFeedbackParam<Integer> retQuantity) 
 	{
-		Item 		item 	= items.get(itemName);
-		Set<Shop> 	shops 	= itemLocations.get(itemName);
+		Item 				item 	= items.get(itemName);
+		Collection<Shop> 	shops 	= itemLocations.get(itemName).values();
 		
-		Shop shop = shops.stream().sorted((s1, s2) -> s1.getItemCount(item) - s2.getItemCount(item)).findFirst().get();
+		List<Shop> sortedShops = shops.stream().sorted((s1, s2) -> s2.getItemCount(item) - s1.getItemCount(item)).collect(Collectors.toList());
 
-		retShop.set(shop.getName());
-		retQuantity.set(Math.min(quantity, shop.getItemCount(item)));
+		retShop.set(sortedShops.get(0).getName());
+		retQuantity.set(Math.min(quantity, sortedShops.get(0).getItemCount(item)));
 	}
 	
 	@OPERATION
@@ -77,7 +78,7 @@ public class ItemArtifact extends Artifact {
 	{
 		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
 		
-		Collection<Shop> shops = itemLocations.get(item);
+		Collection<Shop> shops = itemLocations.get(item).values();
 		
 		ret.set(FacilityArtifact.getClosestFacility(agLoc, shops));
 	}
@@ -159,13 +160,12 @@ public class ItemArtifact extends Artifact {
 	{
 		if (itemLocations.containsKey(itemId))
 		{
-			itemLocations.get(itemId).add(shop);
+			itemLocations.get(itemId).put(shop.getName(), shop);
 		}
 		else
-		{
-			Set<Shop> shops = new HashSet<>(Arrays.asList(shop));
-			
-			itemLocations.put(itemId, shops);
+		{			
+			itemLocations.put(itemId, new HashMap<>());
+			itemLocations.get(itemId).put(shop.getName(), shop);
 		}
 	}
 }
