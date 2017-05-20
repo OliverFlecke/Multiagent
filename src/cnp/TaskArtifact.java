@@ -31,11 +31,12 @@ public class TaskArtifact extends Artifact {
 	void announce(String task, int duration)
 	{
 		try {
-			String artifactName = "CNPArtifact" + (++taskId);
+//			String artifactName = "CNPArtifact" + (++taskId);
+//			
+//			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(duration));
 			
-			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(duration));
-			
-			defineObsProperty("task", task, artifactName);
+//			defineObsProperty("task", task, artifactName);
+			defineObsProperty("task", task);
 		} 
 		catch (Throwable e) 
 		{

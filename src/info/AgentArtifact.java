@@ -14,9 +14,12 @@ import cartago.GUARD;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
+import eis.iilang.Parameter;
 import eis.iilang.Percept;
+import eis.iilang.PrologVisitor;
 import env.EIArtifact;
 import env.Translator;
+import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.data.Location;
@@ -53,11 +56,21 @@ public class AgentArtifact extends Artifact {
 		lat.set(l.getLat());
 	}
 	
-	@GUARD
-	boolean inFacility(String facilityName)
+	@OPERATION
+	void waitUntilInFacility(String facilityName)
 	{
-		return entities.get(getOpUserName()).inFacility(facilityName);
+		await("inFacility", facilityName);
 	}
+	
+	@OPERATION
+	void inFacility(OpFeedbackParam<String> ret)
+	{
+		String facilityName = entities.get(getOpUserName()).getFacility().getName();
+//		signal(getOpUserId(), "inFacility", facilityName);
+		ret.set(facilityName);
+	}
+	
+
 	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
 	{		
@@ -98,9 +111,16 @@ public class AgentArtifact extends Artifact {
 	
 	private static void perceiveFacility(String agentName, Percept percept) 
 	{
-		Object[] args = Translator.perceptToObject(percept);
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		AgentArtifact.getEntity(agentName).setFacility(FacilityArtifact.getFacility(Translator.termToString(terms[0])));
+		Parameter param = percept.getParameters().get(0);
+		if (!PrologVisitor.staticVisit(param).equals(""))
+		{
+			Object[] args = Translator.perceptToObject(percept);
+			AgentArtifact.getEntity(agentName).setFacility(FacilityArtifact.getFacility((String) args[0]));
+		}
+		else 
+		{
+			AgentArtifact.getEntity(agentName).setFacility(null);
+		}
 	}
 	
 	/**

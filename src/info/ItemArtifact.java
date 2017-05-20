@@ -47,10 +47,10 @@ public class ItemArtifact extends Artifact {
 	}
 
 	@OPERATION
-	void getBaseItem(String[] items, OpFeedbackParam<Object> ret)
+	void getBaseItems(Object[] items, OpFeedbackParam<Object> ret)
 	{	
 		ret.set(Arrays.stream(items)
-				.map(item -> getBaseItem(item).entrySet()).flatMap(Collection::stream)
+				.map(item -> getBaseItem((String) item).entrySet()).flatMap(Collection::stream)
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
 	}
 	
