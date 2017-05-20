@@ -1,5 +1,6 @@
 { include("connections.asl") }
 // Initial beliefs
+free.
 
 // Rules
 getBaseItems(Items, BaseItems) :- BaseItems = [].
@@ -18,10 +19,12 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
-+task(Id, ArtifactName) : .my_name(agentA1) <- 
++task(Id, ArtifactName) : .my_name(agentA1) & free <- 
+	-free;
 	lookupArtifact("JobArtifact", JobArtifactId);
 	getJob(Id, Storage, Items)[artifact_id(JobArtifactId)];
-	!solveJob(Storage, Items).
+	!solveJob(Storage, Items);
+	+free.
 	
 +!solveJob(Storage, Items) <- 
 	.print(Storage);
@@ -34,7 +37,9 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	// Collect items (and tools if needed)
 	!retriveItems(BaseItems);
 	// Assemble items 
+	
 	// Deliver items 
+	!getToFacility(Storage);
 	.
 
 +!retriveItems([]). 
@@ -43,11 +48,13 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +!retriveItem(map(Item, Amount)) <- .print("Retriving ", Item);
 	getClosestFacilitySelling(Item, Shop);
 	.print("Closet shop is ", Shop);
-	action(goto(Shop));
+	!getToFacility(Shop);
 //	waitUntilInFacility(Shop);
   	!buyItem(Item, Amount);
 	.
-+!buyItem(Item, Amount) <- .print("Bying ", Amount, " of ", Item).
++!buyItem(Item, Amount) <- .print("Bying ", Amount, " of ", Item); action(buy(Item, Amount)).
+	
++!getToFacility(Facility) <- action(goto(Facility)); await(inFacility(Facility)).
 
 +step(X) <- -step(X).
 
