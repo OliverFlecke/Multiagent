@@ -24,6 +24,7 @@ import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Route;
+import massim.scenario.city.data.facilities.Facility;
 
 public class AgentArtifact extends Artifact {
 	
@@ -65,8 +66,15 @@ public class AgentArtifact extends Artifact {
 	@OPERATION
 	void inFacility(OpFeedbackParam<String> ret)
 	{
-		String facilityName = entities.get(getOpUserName()).getFacility().getName();
-//		signal(getOpUserId(), "inFacility", facilityName);
+		Facility facility = entities.get(getOpUserName()).getFacility();
+		
+		String facilityName = "none";
+		if (facility != null)
+		{
+			facilityName = facility.getName();
+		}
+		
+		signal(getOpUserId(), "inFacility", facilityName);
 		ret.set(facilityName);
 	}
 	
