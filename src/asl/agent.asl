@@ -33,7 +33,7 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	.print("Base items needed: ", BaseItems);
 	// Find with tools needed
 	// Collect items (and tools if needed)
-	!retriveItems(BaseItems);
+	!retrieveItems(BaseItems);
 
 	// Assemble items 
 	lookupArtifact("FacilityArtifact", FAID); focus(FAID);
@@ -62,7 +62,7 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	!getToFacility(Shop);
   	!buyItem(Item, AmountAvailable);
   	
-  	AmountRemaining is Amount - AmountAvailable;
+  	AmountRemaining = Amount - AmountAvailable;
   	
 	if (AmountRemaining > 0) { !retrieveItems([map(Item, AmountRemaining) | Items]); }
 	else 					 { !retrieveItems(Items); }
