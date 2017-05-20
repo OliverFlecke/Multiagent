@@ -189,8 +189,8 @@ public class Translator
 		return (LiteralImpl) term;
 	}
 	
-	public static Object perceptToObject(Percept p) {
-		return termToObject(perceptToLiteral(p));
+	public static Object[] perceptToObject(Percept p) {
+		return (Object[]) termToObject(perceptToLiteral(p));
 	}
 	
 	/**
@@ -202,7 +202,7 @@ public class Translator
 	 */
 	public static Object termToObject(Term t)
 	{
-	    if (t.isAtom())
+		if (t.isAtom())
 	    {
 			Atom a = (Atom) t;
 			
@@ -213,9 +213,8 @@ public class Translator
 	    else if (t.isNumeric())
 	    {
 			try {
-				double d = ((NumberTerm) t).solve();				
-					 if ((byte)  d == d) return (byte)  d;
-				else if ((int)   d == d) return (int)   d;					
+				double d = ((NumberTerm) t).solve();			
+					 if ((int)   d == d) return (int)   d;
 				else if ((float) d == d) return (float) d;
 				else if ((long)  d == d) return (long)  d;
 				else					 return 		d;				

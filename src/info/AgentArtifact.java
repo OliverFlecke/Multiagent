@@ -91,12 +91,14 @@ public class AgentArtifact extends Artifact {
 	 */
 	private static void perceiveCharge(String agentName, Percept percept) 
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		AgentArtifact.getEntity(agentName).setCurrentBattery(Translator.termToInteger(terms[0]));
+		Object[] args = Translator.perceptToObject(percept);
+//		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
+		AgentArtifact.getEntity(agentName).setCurrentBattery((int) args[0]);
 	}
 	
 	private static void perceiveFacility(String agentName, Percept percept) 
 	{
+		Object[] args = Translator.perceptToObject(percept);
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setFacility(FacilityArtifact.getFacility(Translator.termToString(terms[0])));
 	}

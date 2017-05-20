@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -18,7 +17,6 @@ import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Term;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Tool;
@@ -74,7 +72,7 @@ public class ItemArtifact extends Artifact {
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
 	{		
-		Map<Item, Set<List<Term>>> requirements = new HashMap<>();
+		Map<Item, Set<Object[]>> requirements = new HashMap<>();
 		
 		percepts.stream().filter(percept -> percept.getName() == ITEM)
 						 .forEach(item -> perceiveItem(item, requirements));
@@ -82,14 +80,14 @@ public class ItemArtifact extends Artifact {
 		// Item requirements has to be added after all items have been created, 
 		// since they are not necessarily given in a chronological order.
 		// TODO: Tools and items that require assembly have a volume of 0.
-		for (Entry<Item, Set<List<Term>>> entry : requirements.entrySet())
+		for (Entry<Item, Set<Object[]>> entry : requirements.entrySet())
 		{
 			Item item = entry.getKey();
 			
-			for (List<Term> partTuple : entry.getValue())
+			for (Object[] part : entry.getValue())
 			{
-				String itemId   = Translator.termToString(partTuple.get(0));
-				int    quantity = Translator.termToInteger(partTuple.get(1));
+				String itemId   = (String) part[0];
+				int    quantity = (int)    part[1];
 				
 				item.addRequirement(items.get(itemId), quantity);
 			}
@@ -104,18 +102,18 @@ public class ItemArtifact extends Artifact {
 	}
 
 	// Literal(String, int, Literal(List<String>), Literal(List<List<String, int>>))
-	private static void perceiveItem(Percept percept, Map<Item, Set<List<Term>>> requirements)
-	{		
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+	private static void perceiveItem(Percept percept, Map<Item, Set<Object[]>> requirements)
+	{				
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String     id		= Translator.termToString(args[0]);
-		int 	   volume	= Translator.termToInteger(args[1]);
+		String     id		= (String) args[0];
+		int 	   volume	= (int)    args[1];
 		
 		Item item = new Item(id, volume, 0, Collections.emptySet());
 
-		for (Term toolArg : Translator.literalToTermToTermList(args[2]))
+		for (Object toolArg : ((Object[]) ((Object[]) args[2])[0]))
 		{
-			String toolId = Translator.termToString(toolArg);
+			String toolId = (String) toolArg;
 			
 			if (!tools.containsKey(toolId))
 			{
@@ -124,14 +122,12 @@ public class ItemArtifact extends Artifact {
 			item.addRequiredTool(tools.get(toolId));
 		}
 		
-		Set<List<Term>> parts = new HashSet<>();
+		Set<Object[]> parts = new HashSet<>();
 
-		for (Term partArg : Translator.literalToTermToTermList(args[3]))
-		{
-			List<Term> partTuple = Translator.termToTermList(partArg);
-			
-			parts.add(partTuple);	
-		}		
+		for (Object part : ((Object[]) ((Object[]) args[3])[0]))
+		{			
+			parts.add((Object[]) part);	
+		}
 		items.put(id, item);
 		requirements.put(item, parts);
 	}
