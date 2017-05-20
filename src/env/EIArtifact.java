@@ -43,6 +43,7 @@ public class EIArtifact extends Artifact {
      */
     void init() 
     {
+    	logger.setLevel(Level.FINE);
 		logger.info("init");
 		
 		try 
@@ -64,7 +65,7 @@ public class EIArtifact extends Artifact {
 	{
 		String agName = getOpUserName();
 		
-		logger.info("register " + agName + " on " + entity);
+		logger.fine("register " + agName + " on " + entity);
 		
 		try 
 		{			
@@ -125,7 +126,7 @@ public class EIArtifact extends Artifact {
 	@INTERNAL_OPERATION
 	void perceiveInitial() throws PerceiveException, NoEnvironmentException
 	{
-		logger.info("perceiveInitial");
+		logger.finest("perceiveInitial");
 		
 		Set<Percept> allPercepts = new HashSet<>();
 		
@@ -159,7 +160,7 @@ public class EIArtifact extends Artifact {
 	@INTERNAL_OPERATION
 	void perceiveUpdate() 
 	{		
-		logger.info("perceiveUpdate");
+		logger.finest("perceiveUpdate");
 		
 		try 
 		{
