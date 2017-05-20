@@ -4,7 +4,10 @@ free.
 
 // Rules
 getBaseItems(Items, BaseItems) :- BaseItems = [].
-//inWorkshop :- inFacility(F).
+inWorkshop 	:- inFacility(F) & .substring("workshop", F).
+inStorage 	:- inFacility(F) & .substring("storage",  F).
+inShop	    :- inFacility(F) & .substring("shop",     F).
+inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 
 // Initial goals
 !register.
@@ -26,31 +29,35 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	!solveJob(Id, Storage, Items);
 	+free.
 	
-+!solveJob(Job, Storage, Items) <- 
-	.print(Job, " to ", Storage, " with: ", Items);
-	// Find which items needed
++!solveJob(Job, DeliveryLocation, Items) <- 
+	.print("Doing ", Job, " to ", DeliveryLocation, " with: ", Items);
+	
 	getBaseItems(Items, BaseItems);
 	.print("Base items needed: ", BaseItems);
-	// Find with tools needed
-	// Collect items (and tools if needed)
+	
 	!retrieveItems(BaseItems);
+	!retrieveTools(Tools);
 
-	// Assemble items 
-	lookupArtifact("FacilityArtifact", FAID); focus(FAID);
-	getClosestFacility("workshop", Workshop); 
-	!getToFacility(Workshop);
 	!assembleItems(Items);
 
-	// Deliver items 
-	!getToFacility(Storage);
-	action(deliver_job(Job));
+	!deliverItems(Job, DeliveryLocation);
 	.print("Job done!").
-
+	
++!delieverItems(Job, Facility) <- 
+	!getToFacility(Facility);
+ 	action(deliver_job(Job)).
+ 	
 +!assembleItems([]).
-+!assembleItems([Item | Items]) <- 
++!assembleItems([Item | Items]) : inWorkshop <- 
 	!assembleItem(Item); 
 	!assembleItems(Items).
-+!assembleItem(Item) : true // Should check that agent is in a workshop
++!assembleItems(_) <- 
+	!focusArtifact("FacilityArtifact");
+	getClosestFacility("workshop", Workshop); 
+	
+	!getToFacility(Workshop).
+	
++!assembleItem(Item) : inWorkshop 
 	<- action(assemble(Item)).
 
 +!retrieveItems([]).
@@ -68,6 +75,8 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 	else 					 { !retrieveItems(Items); }
 	.
 	
++!retrieveTools(Tools).
+	
 +!buyItem(Item, Amount) <- 
 	.print("Buying ", Amount, " of ", Item); 
 	action(buy(Item, Amount)).
@@ -75,17 +84,15 @@ getBaseItems(Items, BaseItems) :- BaseItems = [].
 +!getToFacility(F) : inFacility(F). 
 +!getToFacility(F) <- 
 	action(goto(F)); 
-	lookupArtifact("AgentArtifact", AAID); focus(AAID);
-	inFacility(_); // Update inFacility belief
+	
+	!focusArtifact("AgentArtifact"); 
+	updateFacility; // Update inFacility belief
+	
 	!getToFacility(F).
 
-+step(X) <- -step(X).
-+inFacility(X) <- +inFacility(X). // Needed to add the belief 
-
++step(X) 		<- -step(X).
++inFacility(X) 	<- +inFacility(X). // Needed to add the belief 
 
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
-
-// Test plans
-

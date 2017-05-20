@@ -22,7 +22,6 @@ public class Translator
 		if (term.isString())
 		{
 			String string = ((StringTerm) term).getString();
-			System.out.println(string);
 			return new Identifier(string);
 		}
 		else if (term.isNumeric()) 

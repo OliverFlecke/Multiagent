@@ -62,7 +62,7 @@ public class AgentArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void inFacility(OpFeedbackParam<String> ret)
+	void updateFacility()
 	{
 		Facility facility = entities.get(getOpUserName()).getFacility();
 		
@@ -73,7 +73,6 @@ public class AgentArtifact extends Artifact {
 		}
 		
 		signal(getOpUserId(), "inFacility", facilityName);
-		ret.set(facilityName);
 	}
 	
 
