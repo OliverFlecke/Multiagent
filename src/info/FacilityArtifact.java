@@ -124,6 +124,11 @@ public class FacilityArtifact extends Artifact {
 			logger.info(facility.toString());
 	}
 	
+	public static void logShops() 
+	{
+		logFacilities("Shops perceived:"			, shops				.values());
+	}
+	
 	// Literal(String, double, double, int)
 	private static void perceiveChargingStation(Percept percept) 
 	{

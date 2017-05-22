@@ -178,6 +178,8 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
+			
+			FacilityArtifact.logShops();
 		} 
 		catch (Throwable e) 
 		{

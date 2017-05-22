@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
-import cartago.GUARD;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
@@ -19,7 +18,6 @@ import eis.iilang.Percept;
 import eis.iilang.PrologVisitor;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.data.Location;
