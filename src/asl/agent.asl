@@ -9,6 +9,9 @@ inStorage 	:- inFacility(F) & .substring("storage",  F).
 inShop	    :- inFacility(F) & .substring("shop",     F).
 inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 
+contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
+contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 
+
 // Initial goals
 !register.
 !focusArtifacts.
@@ -35,9 +38,10 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 	getBaseItems(Items, BaseItems);
 	.print("Base items needed: ", BaseItems);
 	
-	!retrieveItems(BaseItems);
+//	!retrieveItems(BaseItems);
 	!retrieveTools(Tools);
 
+	!focusArtifact("ItemArtifact");
 	!assembleItems(Items);
 
 	!delieverItems(Job, DeliveryLocation);
@@ -48,7 +52,8 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
  	action(deliver_job(Job)).
  	
 +!assembleItems([]).
-+!assembleItems([Item | Items]) : inWorkshop <- 
++!assembleItems([Item | Items]) : inWorkshop 
+	<- 
 	!assembleItem(Item); 
 	!assembleItems(Items).
 +!assembleItems(Items) <- 
@@ -58,8 +63,25 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 	!getToFacility(Workshop);
 	!assembleItems(Items).
 	
-+!assembleItem(Item) : inWorkshop 
-	<- action(assemble(Item)).
++!assembleItem(Item) : inWorkshop & .my_name(Agent) 
+	<- 
+	.print("Assembling item: ", Item);
+	getRequiredItems(Item, ReqItems);
+	getAgentInventory(Agent, Inv);
+	?contains(ReqItems, Inv, Missing);
+	if (Missing = []) { action(assemble(Item)); }
+	else {
+		!assembleItems(Missing);
+		!assembleItem(Item);	
+	}.
++!assembleItem(Item) <- .print("Could not asseble item").
+
++?contains([], _, _).
++?contains([Item | Rest], Inventory, Missing) : contains(Item, Inventory)
+	<- ?contains(Rest, Inventory, Missing). 
++?contains([map(Item, _) | Rest], Inventory, [Item | Missing]) 	
+ 	<- ?contains(Rest, Inventory, Missing).
+
 
 +!retrieveItems([]).
 +!retrieveItems([map(Item, Amount) | Items]) <- 
@@ -81,9 +103,7 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 	
 +!retrieveTools(Tools).
 	
-+!buyItem(Item, Amount) : inShop <- 
-	.print("Buying ", Amount, " of ", Item); 
-	action(buy(Item, Amount)).
++!buyItem(Item, Amount) : inShop <- action(buy(Item, Amount)).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 

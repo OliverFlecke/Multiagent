@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
@@ -54,6 +55,11 @@ public class FacilityArtifact extends Artifact {
 	
 	private static List<Map<String, ? extends Facility>> allFacilities = new ArrayList<>(
 			Arrays.asList(chargingStations, dumps, shops, storages, workshops, resourceNodes));
+	
+	void init()
+	{
+		logger.setLevel(Level.OFF);
+	}
 	
 	@OPERATION
 	void getClosestFacility(String facilityType, OpFeedbackParam<String> ret)

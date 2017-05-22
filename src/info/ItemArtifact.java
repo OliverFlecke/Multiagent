@@ -55,6 +55,12 @@ public class ItemArtifact extends Artifact {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
 	}
 	
+	@OPERATION 
+	void getRequiredItems(Object itemName, OpFeedbackParam<Object> ret)
+	{
+		ret.set(items.get(itemName).getRequiredItems());
+	}
+	
 	
 	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {
@@ -146,7 +152,7 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	// Used by the FacilityArtifact when adding items to shops.
-	protected static Item getItem(String itemId)
+	public static Item getItem(String itemId)
 	{
         if (items.containsKey(itemId)) 
         {

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -49,7 +50,6 @@ public class AgentArtifact extends Artifact {
 	
     void init() 
     {
-
 		defineObsProperty("inFacility", "none");
     }
 
@@ -82,7 +82,12 @@ public class AgentArtifact extends Artifact {
 		getObsProperty("inFacility").updateValue(facilityName);
 	}
 	
-
+	@OPERATION
+	void getAgentInventory(String agentName, OpFeedbackParam<Object> ret)
+	{
+		ret.set(getEntity(agentName).getInventory().toItemAmountData().stream()
+				.collect(Collectors.toMap(e -> e.getName(), e -> e.getAmount())));
+	}
 	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
 	{		
@@ -231,7 +236,7 @@ public class AgentArtifact extends Artifact {
 		entities.put(name, entity);
 	}
 	
-	protected static CEntity getEntity(String name)
+	public static CEntity getEntity(String name)
 	{
 		return entities.get(name);
 	}
