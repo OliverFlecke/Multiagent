@@ -5,7 +5,7 @@ import massim.scenario.city.data.*;
 /**
  * A box to store a limited volume of items in.
  */
-public class CBoundedItemBox extends ItemBox{
+public class CBoundedItemBox extends CItemBox {
 
     private int capacity;
     private int currentVolume = 0;

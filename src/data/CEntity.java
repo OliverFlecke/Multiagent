@@ -206,7 +206,7 @@ public class CEntity {
     /**
      * @return the mutable inventory of this agent. Proceed with caution.
      */
-    public ItemBox getInventory(){
+    public CItemBox getInventory(){
         return items;
     }
 
