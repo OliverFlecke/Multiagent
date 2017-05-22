@@ -58,7 +58,8 @@ public class ItemArtifact extends Artifact {
 	@OPERATION 
 	void getRequiredItems(Object itemName, OpFeedbackParam<Object> ret)
 	{
-		ret.set(items.get(itemName).getRequiredItems());
+		ret.set(items.get(itemName).getRequiredItems().entrySet().stream()
+				.collect(Collectors.toMap(x -> x.getKey().getName(), Map.Entry::getValue)));
 	}
 	
 	
