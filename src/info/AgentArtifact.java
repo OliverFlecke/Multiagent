@@ -21,6 +21,7 @@ import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
+import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Route;
 import massim.scenario.city.data.facilities.Facility;
@@ -98,6 +99,7 @@ public class AgentArtifact extends Artifact {
 //			case ACTION_ID: perceiveActionID(percept); break;
 			case CHARGE: 				perceiveCharge(agentName, percept); break;
 			case FACILITY:				perceiveFacility(agentName, percept); break;
+			case HAS_ITEM:				perceiveHasItem(agentName, percept); break;
 			case LAST_ACTION : 			perceiveLastAction(agentName, percept); break;
 //			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
 			case LAST_ACTION_RESULT: 	perceiveLastActionResult(agentName, percept); break;
@@ -138,6 +140,17 @@ public class AgentArtifact extends Artifact {
 		{
 			AgentArtifact.getEntity(agentName).setFacility(null);
 		}
+	}
+
+	private static void perceiveHasItem(String agentName, Percept percept) 
+	{
+		Object[] args = Translator.perceptToObject(percept);
+
+		Item item 	= ItemArtifact.getItem((String) args[0]);
+		int amount 	= (int) args[1];
+		
+		AgentArtifact.getEntity(agentName).addItem(item, amount);
+		logger.info(AgentArtifact.getEntity(agentName).getInventory().toString());
 	}
 	
 	/**

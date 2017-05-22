@@ -20,7 +20,6 @@ import eis.exceptions.NoEnvironmentException;
 import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import eis.iilang.PrologVisitor;
 import info.AgentArtifact;
 import info.DynamicInfoArtifact;
 import info.FacilityArtifact;
@@ -28,7 +27,6 @@ import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
-import massim.scenario.city.data.Item;
 
 public class EIArtifact extends Artifact {
 
@@ -116,14 +114,6 @@ public class EIArtifact extends Artifact {
 		try 
 		{	
 			Action ac = Translator.stringToAction(action);
-			
-			if (ac.getName().equals("buy"))
-			{
-				Item item 	= ItemArtifact.getItem(PrologVisitor.staticVisit(ac.getParameters().get(0)));
-				@SuppressWarnings("deprecation")
-				int amount 	= Integer.parseInt(ac.getParameters().get(1).toString());
-				AgentArtifact.getEntity(agentName).addItem(item, amount);
-			}
 			
 			ei.performAction(agentName, ac);
 		}
