@@ -54,8 +54,6 @@ public class AgentArtifact extends Artifact {
 	void init()
 	{
 		instance = this;
-
-		defineObsProperty("inFacility", "none");
 	}
 	
 	public static AgentArtifact getInstance()
@@ -76,6 +74,20 @@ public class AgentArtifact extends Artifact {
 	void waitUntilInFacility(String facilityName)
 	{
 		await("inFacility", facilityName);
+	}
+	
+	@OPERATION
+	void updateFacility()
+	{
+		Facility facility = entities.get(getOpUserName()).getFacility();
+		
+		String facilityName = "none";
+		if (facility != null)
+		{
+			facilityName = facility.getName();
+		}
+		
+		getObsProperty("inFacility").updateValue(facilityName);
 	}
 	
 	@OPERATION
@@ -123,9 +135,9 @@ public class AgentArtifact extends Artifact {
 		AgentArtifact.getEntity(agentName).setCurrentBattery((int) args[0]);
 	}
 	
+	@OPERATION
 	public void perceiveFacility(String agentName, Percept percept) 
 	{
-		getObsProperty("inFacility").updateValue("shop3");
 		Parameter param = percept.getParameters().get(0);
 		if (!PrologVisitor.staticVisit(param).equals(""))
 		{
