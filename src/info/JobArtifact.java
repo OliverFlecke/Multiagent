@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -43,11 +44,13 @@ public class JobArtifact extends Artifact {
 	
 	@OPERATION
 	void getJob(String jobId, OpFeedbackParam<String> storage, 
-			OpFeedbackParam<String[]> items)
+			OpFeedbackParam<Object> items)
 	{
 		Job job = jobs.get(jobId);
 		
 		storage.set(job.getStorage().getName());
+//		items.set(job.getRequiredItems().getStoredTypes().stream()
+//				.map(x -> x.getName()).collect(Collectors.toList()));
 		String[] itemNames = new String[job.getRequiredItems().getStoredTypes().size()];
 		int i = 0;
 		for (Item item : job.getRequiredItems().getStoredTypes())

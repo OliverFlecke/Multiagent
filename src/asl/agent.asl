@@ -23,6 +23,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
+	!focusArtifact("AgentArtifact");
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
@@ -49,7 +50,8 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	
 +!delieverItems(Job, Facility) <- 
 	!getToFacility(Facility);
- 	action(deliver_job(Job)).
+ 	action(deliver_job(Job));
+ 	!delieverItems(Job, Facility).
  	
 +!assembleItems([]).
 +!assembleItems([Item | Items]) : inWorkshop 
@@ -67,16 +69,14 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	<- 
 	.print("Assembling item: ", Item);
 	getRequiredItems(Item, ReqItems);
-	.print("Req: ", ReqItems);
 	getAgentInventory(Agent, Inv);
-	.print("Inventory: ", Inv);
 	?contains(ReqItems, Inv, Missing);
 	if (Missing = []) { action(assemble(Item)); }
 	else {
 		!assembleItems(Missing);
 		!assembleItem(Item);	
 	}.
-+!assembleItem(Item) <- .print("Could not asseble item").
++!assembleItem(Item) <- .print("Could not assemble item").
 
 +?contains([], _, _).
 +?contains([Item | Rest], Inventory, Missing) : contains(Item, Inventory)
@@ -111,8 +111,10 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 +!getToFacility(F) : inFacility(F). 
 +!getToFacility(F) <- 
 	!focusArtifact("AgentArtifact"); 
-	updateFacility; // Update inFacility belief
+//	updateFacility; // Update inFacility belief
 	if (not inFacility(F)) 	{ action(goto(F)); !getToFacility(F); }.	
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
+
++inFacility(X) <- .print("I am in ", X).

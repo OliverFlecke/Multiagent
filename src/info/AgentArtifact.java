@@ -49,10 +49,19 @@ public class AgentArtifact extends Artifact {
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
 	
-    void init() 
-    {
+	private static AgentArtifact instance;
+	
+	void init()
+	{
+		instance = this;
+
 		defineObsProperty("inFacility", "none");
-    }
+	}
+	
+	public static AgentArtifact getInstance()
+	{
+		return instance;
+	}
 
 	@OPERATION
 	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
@@ -70,20 +79,6 @@ public class AgentArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void updateFacility()
-	{
-		Facility facility = entities.get(getOpUserName()).getFacility();
-		
-		String facilityName = "none";
-		if (facility != null)
-		{
-			facilityName = facility.getName();
-		}
-		
-		getObsProperty("inFacility").updateValue(facilityName);
-	}
-	
-	@OPERATION
 	void getAgentInventory(String agentName, OpFeedbackParam<Object> ret)
 	{
 		ret.set(getEntity(agentName).getInventory().toItemAmountData().stream()
@@ -98,7 +93,7 @@ public class AgentArtifact extends Artifact {
 			{
 //			case ACTION_ID: perceiveActionID(percept); break;
 			case CHARGE: 				perceiveCharge(agentName, percept); break;
-			case FACILITY:				perceiveFacility(agentName, percept); break;
+			case FACILITY:				getInstance().perceiveFacility(agentName, percept); break;
 			case HAS_ITEM:				perceiveHasItem(agentName, percept); break;
 			case LAST_ACTION : 			perceiveLastAction(agentName, percept); break;
 //			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
@@ -128,13 +123,18 @@ public class AgentArtifact extends Artifact {
 		AgentArtifact.getEntity(agentName).setCurrentBattery((int) args[0]);
 	}
 	
-	private static void perceiveFacility(String agentName, Percept percept) 
+	public void perceiveFacility(String agentName, Percept percept) 
 	{
+		getObsProperty("inFacility").updateValue("shop3");
 		Parameter param = percept.getParameters().get(0);
 		if (!PrologVisitor.staticVisit(param).equals(""))
 		{
 			Object[] args = Translator.perceptToObject(percept);
-			AgentArtifact.getEntity(agentName).setFacility(FacilityArtifact.getFacility((String) args[0]));
+			
+			Facility facility = FacilityArtifact.getFacility((String) args[0]);
+			
+			AgentArtifact.getEntity(agentName).setFacility(facility);
+			
 		}
 		else 
 		{
