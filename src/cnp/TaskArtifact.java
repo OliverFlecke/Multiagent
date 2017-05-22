@@ -12,7 +12,7 @@ public class TaskArtifact extends Artifact {
 
 	private static final Logger logger = Logger.getLogger(TaskArtifact.class.getName());
 	
-	private static int taskId;
+	private static int cnpId;
 	
 	private static TaskArtifact instance;
 	
@@ -28,15 +28,15 @@ public class TaskArtifact extends Artifact {
 	 * @param id - Name of the created CNPArtifact as feedback parameter.
 	 */
 	@INTERNAL_OPERATION
-	void announce(String task, int duration)
+	void announce(String taskId)
 	{
 		try {
-//			String artifactName = "CNPArtifact" + (++taskId);
-//			
-//			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(duration));
+			String artifactName = "CNPArtifact" + (++cnpId);
 			
-//			defineObsProperty("task", task, artifactName);
-			defineObsProperty("task", task);
+			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(5000));
+			
+			defineObsProperty("task", taskId, artifactName);
+//			defineObsProperty("task", task);
 		} 
 		catch (Throwable e) 
 		{

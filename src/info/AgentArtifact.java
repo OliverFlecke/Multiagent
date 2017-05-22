@@ -150,7 +150,8 @@ public class AgentArtifact extends Artifact {
 		int amount 	= (int) args[1];
 		
 		AgentArtifact.getEntity(agentName).addItem(item, amount);
-		logger.info(AgentArtifact.getEntity(agentName).getInventory().toString());
+		
+//		logger.info(AgentArtifact.getEntity(agentName).getInventory().toString());
 	}
 	
 	/**
