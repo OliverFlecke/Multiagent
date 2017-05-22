@@ -38,7 +38,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	getBaseItems(Items, BaseItems);
 	.print("Base items needed: ", BaseItems);
 	
-//	!retrieveItems(BaseItems);
+	!retrieveItems(BaseItems);
 	!retrieveTools(Tools);
 
 	!focusArtifact("ItemArtifact");
@@ -67,7 +67,9 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	<- 
 	.print("Assembling item: ", Item);
 	getRequiredItems(Item, ReqItems);
+	.print("Req: ", ReqItems);
 	getAgentInventory(Agent, Inv);
+	.print("Inventory: ", Inv);
 	?contains(ReqItems, Inv, Missing);
 	if (Missing = []) { action(assemble(Item)); }
 	else {
