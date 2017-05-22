@@ -40,7 +40,7 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 
 	!assembleItems(Items);
 
-	!deliverItems(Job, DeliveryLocation);
+	!delieverItems(Job, DeliveryLocation);
 	.print("Job done!").
 	
 +!delieverItems(Job, Facility) <- 
@@ -51,11 +51,12 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
 +!assembleItems([Item | Items]) : inWorkshop <- 
 	!assembleItem(Item); 
 	!assembleItems(Items).
-+!assembleItems(_) <- 
++!assembleItems(Items) <- 
 	!focusArtifact("FacilityArtifact");
 	getClosestFacility("workshop", Workshop); 
 	
-	!getToFacility(Workshop).
+	!getToFacility(Workshop);
+	!assembleItems(Items).
 	
 +!assembleItem(Item) : inWorkshop 
 	<- action(assemble(Item)).
@@ -71,28 +72,25 @@ inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
   	
   	AmountRemaining = Amount - AmountAvailable;
   	
-	if (AmountRemaining > 0) { !retrieveItems([map(Item, AmountRemaining) | Items]); }
+	if (AmountRemaining > 0) { 
+		.concat(Items, [map(Item, AmountRemaining)], NewItems);
+		!retrieveItems(NewItems);
+	}
 	else 					 { !retrieveItems(Items); }
 	.
 	
 +!retrieveTools(Tools).
 	
-+!buyItem(Item, Amount) <- 
++!buyItem(Item, Amount) : inShop <- 
 	.print("Buying ", Amount, " of ", Item); 
 	action(buy(Item, Amount)).
+-!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
 +!getToFacility(F) <- 
-	action(goto(F)); 
-	
 	!focusArtifact("AgentArtifact"); 
 	updateFacility; // Update inFacility belief
-	
-	!getToFacility(F).
-
-+step(X) 		<- -step(X).
-+inFacility(X) 	<- +inFacility(X). // Needed to add the belief 
-
+	if (not inFacility(F)) 	{ action(goto(F)); !getToFacility(F); }.	
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.

@@ -47,6 +47,12 @@ public class AgentArtifact extends Artifact {
 				LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
+	
+    void init() 
+    {
+
+		defineObsProperty("inFacility", "none");
+    }
 
 	@OPERATION
 	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
@@ -74,7 +80,7 @@ public class AgentArtifact extends Artifact {
 			facilityName = facility.getName();
 		}
 		
-		signal(getOpUserId(), "inFacility", facilityName);
+		getObsProperty("inFacility").updateValue(facilityName);
 	}
 	
 
