@@ -170,7 +170,7 @@ public class EIArtifact extends Artifact {
 			{
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
-				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);				
 				
 				allPercepts.addAll(percepts);
 			}
@@ -179,7 +179,7 @@ public class EIArtifact extends Artifact {
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
 			
-			FacilityArtifact.logShops();
+//			FacilityArtifact.logShops();
 		} 
 		catch (Throwable e) 
 		{

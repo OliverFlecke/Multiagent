@@ -31,6 +31,7 @@ public class AgentArtifact extends Artifact {
 	private static final String ACTION_ID			= "actionID";
 	private static final String CHARGE 				= "charge";
 	private static final String FACILITY			= "facility";
+	private static final String HAS_ITEM			= "hasItem";
 	private static final String LAST_ACTION 		= "lastAction";
 	private static final String LAST_ACTION_PARAMS 	= "lastActionParams";
 	private static final String LAST_ACTION_RESULT 	= "lastActionResult";
@@ -41,7 +42,7 @@ public class AgentArtifact extends Artifact {
 	private static final String ROUTE_LENGTH 		= "routeLength";
 	
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, FACILITY, LAST_ACTION, LAST_ACTION_PARAMS, 
+		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, FACILITY, HAS_ITEM, LAST_ACTION, LAST_ACTION_PARAMS, 
 				LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
