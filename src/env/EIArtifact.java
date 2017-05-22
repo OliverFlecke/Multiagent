@@ -20,6 +20,7 @@ import eis.exceptions.NoEnvironmentException;
 import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import eis.iilang.PrologVisitor;
 import info.AgentArtifact;
 import info.DynamicInfoArtifact;
 import info.FacilityArtifact;
@@ -27,6 +28,7 @@ import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
+import massim.scenario.city.data.facilities.Facility;
 
 public class EIArtifact extends Artifact {
 
