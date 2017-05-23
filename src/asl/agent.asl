@@ -3,6 +3,10 @@
 free.
 
 // Rules
+isMyName(Name) :- .my_name(Me) & .term2string(Me, String) & String == Name.
+
+inFacility(F) :- .my_name(Me) & .term2string(Me, Name) & inFacility(Name, F).
+
 getBaseItems(Items, BaseItems) :- BaseItems = [].
 inWorkshop 	:- inFacility(F) & .substring("workshop", F).
 inStorage 	:- inFacility(F) & .substring("storage",  F).
@@ -56,8 +60,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	
 +!delieverItems(Job, Facility) <- 
 	!getToFacility(Facility);
- 	action(deliver_job(Job));
- 	!delieverItems(Job, Facility).
+ 	action(deliver_job(Job)).
  	
 +!assembleItems([]).
 +!assembleItems([Item | Items]) : inWorkshop 
@@ -115,12 +118,9 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) <- 
-	!focusArtifact("AgentArtifact"); 
-//	updateFacility; // Update inFacility belief
-	if (not inFacility(F)) 	{ action(goto(F)); !getToFacility(F); }.	
++!getToFacility(F) <- action(goto(F)); !getToFacility(F).	
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
 
-+inFacility(X) <- .print("I am in ", X).
++inFacility(Name, X) : isMyName(Name).

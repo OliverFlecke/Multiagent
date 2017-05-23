@@ -20,7 +20,6 @@ import eis.exceptions.NoEnvironmentException;
 import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import eis.iilang.PrologVisitor;
 import info.AgentArtifact;
 import info.DynamicInfoArtifact;
 import info.FacilityArtifact;
@@ -76,6 +75,8 @@ public class EIArtifact extends Artifact {
 			ei.associateEntity(agName, entity);
 			
 			connections.put(agName, entity);
+
+			defineObsProperty("inFacility", agName, "none");
 			
 			if (connections.size() == ei.getEntities().size())
 			{
@@ -118,6 +119,10 @@ public class EIArtifact extends Artifact {
 			Action ac = Translator.stringToAction(action);
 			
 			ei.performAction(agentName, ac);
+
+			Facility facility = AgentArtifact.getEntity(agentName).getFacility();
+			if (facility == null) 	getObsPropertyByTemplate("inFacility", agentName).updateValues(agentName, "none");
+			else 					getObsPropertyByTemplate("inFacility", agentName).updateValues(agentName, facility.getName());
 		}
 		catch (Throwable e) 
 		{
