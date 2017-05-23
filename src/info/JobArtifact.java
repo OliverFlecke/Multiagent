@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -17,7 +16,6 @@ import cnp.TaskArtifact;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Term;
 import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
@@ -93,16 +91,16 @@ public class JobArtifact extends Artifact {
 	
 	private static void perceiveAuction(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String id 			= Translator.termToString(args[0]);
-		String storageId	= Translator.termToString(args[1]);
-		int reward 			= Translator.termToInteger(args[2]);
-		int start 			= Translator.termToInteger(args[3]);
-		int end 			= Translator.termToInteger(args[4]);
-		int fine			= Translator.termToInteger(args[5]);
-		int bid 			= Translator.termToInteger(args[6]);
-		int time			= Translator.termToInteger(args[7]);
+		String 	id 			= (String) args[0];
+		String 	storageId	= (String) args[1];
+		int 	reward 		= (int)    args[2];
+		int 	start 		= (int)    args[3];
+		int 	end 		= (int)    args[4];
+		int 	fine		= (int)    args[5];
+		int 	bid 		= (int)    args[6];
+		int 	time		= (int)    args[7];
 		
 		Storage storage = (Storage) FacilityArtifact.getFacility(FacilityArtifact.STORAGE, storageId);
 		
@@ -110,12 +108,12 @@ public class JobArtifact extends Artifact {
 		
 		auction.bid(null, bid);
 
-		for (Term partArg : Translator.termToTermList(args[8]))
+		for (Object part : (Object[]) args[8])
 		{
-			List<Term> partTuple = Translator.literalToTermList(partArg);
+			Object[] partArgs = (Object[]) part;
 			
-			String itemId   = Translator.termToString(partTuple.get(0));
-			int    quantity = Translator.termToInteger(partTuple.get(1));
+			String 	itemId   = (String) partArgs[0];
+			int    	quantity = (int)    partArgs[1];
 			
 			auction.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
@@ -125,24 +123,24 @@ public class JobArtifact extends Artifact {
 	
 	private static void perceiveJob(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String id 			= Translator.termToString(args[0]);
-		String storageId	= Translator.termToString(args[1]);
-		int reward 			= Translator.termToInteger(args[2]);
-		int start 			= Translator.termToInteger(args[3]);
-		int end 			= Translator.termToInteger(args[4]);
+		String 	id 			= (String) args[0];
+		String 	storageId	= (String) args[1];
+		int 	reward 		= (int)    args[2];
+		int 	start 		= (int)    args[3];
+		int 	end 		= (int)    args[4];
 		
 		Storage storage = (Storage) FacilityArtifact.getFacility(FacilityArtifact.STORAGE, storageId);
 		
 		Job job = new Job(reward, storage, start, end, "");
-
-		for (Term partArg : Translator.termToTermList(args[5]))
+		// TODO
+		for (Object part : (Object[]) args[5])
 		{
-			List<Term> partTuple = Translator.literalToTermList(partArg);
+			Object[] partArgs = (Object[]) part;
 			
-			String itemId   = Translator.termToString(partTuple.get(0));
-			int    quantity = Translator.termToInteger(partTuple.get(1));
+			String 	itemId   = (String) partArgs[0];
+			int    	quantity = (int)    partArgs[1];
 			
 			job.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
@@ -154,17 +152,17 @@ public class JobArtifact extends Artifact {
 	
 	private static void perceiveMission(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String id 			= Translator.termToString(args[0]);
-		String storageId	= Translator.termToString(args[1]);
-		int reward 			= Translator.termToInteger(args[2]);
-		int start 			= Translator.termToInteger(args[3]);
-		int end 			= Translator.termToInteger(args[4]);
-		int fine			= Translator.termToInteger(args[5]);
-		int bid 			= Translator.termToInteger(args[6]);
-//		int time			= Translator.termToInteger(args[7]);
-		String mId			= Translator.termToString(args[8]);
+		String 	id 			= (String) args[0];
+		String 	storageId	= (String) args[1];
+		int 	reward 		= (int)    args[2];
+		int 	start 		= (int)    args[3];
+		int 	end 		= (int)    args[4];
+		int 	fine		= (int)    args[5];
+		int 	bid 		= (int)    args[6];
+//		int 	time		= (int)    args[7];
+		String	mId			= (String) args[8];
 		
 		Storage storage = (Storage) FacilityArtifact.getFacility(FacilityArtifact.STORAGE, storageId);
 		
@@ -172,12 +170,12 @@ public class JobArtifact extends Artifact {
 		
 		mission.bid(null, bid);
 
-		for (Term partArg : Translator.termToTermList(args[9]))
+		for (Object part : (Object[]) args[9])
 		{
-			List<Term> partTuple = Translator.literalToTermList(partArg);
+			Object[] partArgs = (Object[]) part;
 			
-			String itemId   = Translator.termToString(partTuple.get(0));
-			int    quantity = Translator.termToInteger(partTuple.get(1));
+			String itemId   = (String) partArgs[0];
+			int    quantity = (int)    partArgs[1];
 			
 			mission.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
@@ -187,24 +185,24 @@ public class JobArtifact extends Artifact {
 	
 	private static void perceivePosted(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String id 			= Translator.termToString(args[0]);
-		String storageId	= Translator.termToString(args[1]);
-		int reward 			= Translator.termToInteger(args[2]);
-		int start 			= Translator.termToInteger(args[3]);
-		int end 			= Translator.termToInteger(args[4]);
+		String 	id 			= (String) args[0];
+		String 	storageId	= (String) args[1];
+		int 	reward 		= (int)    args[2];
+		int 	start 		= (int)    args[3];
+		int 	end 		= (int)    args[4];
 		
 		Storage storage = (Storage) FacilityArtifact.getFacility(FacilityArtifact.STORAGE, storageId);
 		
 		Job job = new Job(reward, storage, start, end, "");
 
-		for (Term partArg : Translator.termToTermList(args[5]))
+		for (Object part : (Object[]) args[5])
 		{
-			List<Term> partTuple = Translator.literalToTermList(partArg);
+			Object[] partArgs = (Object[]) part;
 			
-			String itemId   = Translator.termToString(partTuple.get(0));
-			int    quantity = Translator.termToInteger(partTuple.get(1));
+			String 	itemId   = (String) partArgs[0];
+			int    	quantity = (int)    partArgs[1];
 			
 			job.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}

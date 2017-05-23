@@ -19,7 +19,6 @@ import eis.iilang.Percept;
 import eis.iilang.PrologVisitor;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Term;
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Location;
@@ -131,7 +130,7 @@ public class AgentArtifact extends Artifact {
 	private static void perceiveCharge(String agentName, Percept percept) 
 	{
 		Object[] args = Translator.perceptToObject(percept);
-//		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
+
 		AgentArtifact.getEntity(agentName).setCurrentBattery((int) args[0]);
 	}
 	
@@ -158,8 +157,8 @@ public class AgentArtifact extends Artifact {
 	{
 		Object[] args = Translator.perceptToObject(percept);
 
-		Item item 	= ItemArtifact.getItem((String) args[0]);
-		int amount 	= (int) args[1];
+		Item 	item 	= ItemArtifact.getItem((String) args[0]);
+		int 	amount 	= (int) args[1];
 		
 		AgentArtifact.getEntity(agentName).addItem(item, amount);
 		
@@ -173,8 +172,10 @@ public class AgentArtifact extends Artifact {
 	 */
 	private static void perceiveLastAction(String agentName, Percept percept)
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		Action action = new Action(Translator.termToString(terms[0]));
+		Object[] args = Translator.perceptToObject(percept);
+		
+		Action action = new Action((String) args[0]);
+		
 		AgentArtifact.getEntity(agentName).setLastAction(action);
 	}
 	
@@ -185,8 +186,9 @@ public class AgentArtifact extends Artifact {
 	 */
 	private static void perceiveLastActionResult(String agentName, Percept percept)
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		AgentArtifact.getEntity(agentName).setLastActionResult(Translator.termToString(terms[0]));
+		Object[] args = Translator.perceptToObject(percept);
+		
+		AgentArtifact.getEntity(agentName).setLastActionResult((String) args[0]);
 	}
 	
 	/**
@@ -196,8 +198,9 @@ public class AgentArtifact extends Artifact {
 	 */
 	private static void perceiveLat(String agentName, Percept percept)
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		AgentArtifact.getEntity(agentName).setLat(Translator.termToDouble(terms[0]));
+		Object[] args = Translator.perceptToObject(percept);
+		
+		AgentArtifact.getEntity(agentName).setLat((double) args[0]);
 	}
 	
 	/**
@@ -207,8 +210,9 @@ public class AgentArtifact extends Artifact {
 	 */
 	private static void perceiveLon(String agentName, Percept percept)
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		AgentArtifact.getEntity(agentName).setLon(Translator.termToDouble(terms[0]));	
+		Object[] args = Translator.perceptToObject(percept);
+		
+		AgentArtifact.getEntity(agentName).setLon((double) args[0]);	
 	}
 	
 	/**
@@ -229,16 +233,17 @@ public class AgentArtifact extends Artifact {
 	 */
 	public static void perceiveRoute(String agentName, Percept percept)
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		Route route = new Route();
-		for (Term term : terms)
+
+		for (Object term : args)
 		{
-			for (Term arg : Translator.termToTermList(term))
+			for (Object arg : (Object[]) term)
 			{
-				Term[] values = Translator.termToLiteral(arg).getTermsArray();
+				Object[] values = (Object[]) arg;
 	
-				double lat = Translator.termToDouble(values[1]);
-				double lon = Translator.termToDouble(values[2]);
+				double lat = (double) values[1];
+				double lon = (double) values[2];
 				route.addPoint(new Location(lon, lat));
 			}
 		}
@@ -253,8 +258,9 @@ public class AgentArtifact extends Artifact {
 	 */
 	private static void perceiveRouteLength(String agentName, Percept percept)
 	{
-		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-		AgentArtifact.getEntity(agentName).setRouteLength(Translator.termToInteger(terms[0]));	
+		Object[] args = Translator.perceptToObject(percept);
+		
+		AgentArtifact.getEntity(agentName).setRouteLength((int) args[0]);	
 	}
 
 	protected static void addEntity(String name, CEntity entity)

@@ -19,7 +19,6 @@ import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.facilities.ChargingStation;
 import massim.scenario.city.data.facilities.Dump;
@@ -138,12 +137,12 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double, int)
 	private static void perceiveChargingStation(Percept percept) 
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String name = Translator.termToString(args[0]);
-		double lon 	= Translator.termToDouble(args[1]);
-		double lat 	= Translator.termToDouble(args[2]);
-		int rate 	= Translator.termToInteger(args[3]);
+		String 	name 	= (String) args[0];
+		double 	lon 	= (double) args[1];
+		double 	lat 	= (double) args[2];
+		int 	rate 	= (int)    args[3];
 		
 		chargingStations.put(name, new ChargingStation(name, new Location(lon, lat), rate));
 	}
@@ -151,11 +150,11 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double)
 	private static void perceiveDump(Percept percept) 
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String name = Translator.termToString(args[0]);
-		double lon 	= Translator.termToDouble(args[1]);
-		double lat 	= Translator.termToDouble(args[2]);
+		String 	name 	= (String) args[0];
+		double 	lon 	= (double) args[1];
+		double 	lat 	= (double) args[2];
 		
 		dumps.put(name, new Dump(name, new Location(lon, lat)));
 	}
@@ -163,22 +162,22 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double, int, List<Literal(String, int, int)>)
 	private static void perceiveShop(Percept percept) 
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String name    = Translator.termToString(args[0]);
-		double lon     = Translator.termToDouble(args[1]);
-		double lat     = Translator.termToDouble(args[2]);
-		int    restock = Translator.termToInteger(args[3]);
+		String 	name	= (String) args[0];
+		double 	lon		= (double) args[1];
+		double 	lat		= (double) args[2];
+		int    	restock	= (int)    args[3];
 		
 		Shop shop = new Shop(name, new Location(lon, lat), restock);
-		
-		for (Term itemLiteral : Translator.termToTermList(args[4])) 
+
+		for (Object item : (Object[]) args[4]) 
 		{
-			Term[] itemArgs = Translator.termToLiteral(itemLiteral).getTermsArray();
+			Object[] itemArgs = (Object[]) item;
 			
-			String itemId = Translator.termToString(itemArgs[0]);
-			int price 	  = Translator.termToInteger(itemArgs[1]);
-			int quantity  = Translator.termToInteger(itemArgs[2]);
+			String 	itemId 		= (String) itemArgs[0];
+			int 	price 	  	= (int)    itemArgs[1];
+			int 	quantity  	= (int)    itemArgs[2];
 			
 			shop.addItem(ItemArtifact.getItem(itemId), quantity, price);	
 			ItemArtifact.addItemLocation(itemId, shop);
@@ -189,12 +188,12 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double, int)
 	private static void perceiveStorage(Percept percept) 
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String name  = Translator.termToString(args[0]);
-		double lon 	 = Translator.termToDouble(args[1]);
-		double lat 	 = Translator.termToDouble(args[2]);
-		int capacity = Translator.termToInteger(args[3]);
+		String 	name  		= (String) args[0];
+		double 	lon			= (double) args[1];
+		double 	lat			= (double) args[2];
+		int 	capacity	= (int)    args[3];
 		// Set<String> teamNames?
 		
 		storages.put(name, 
@@ -204,11 +203,12 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double)
 	private static void perceiveWorkshop(Percept percept) 
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+//		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String name = Translator.termToString(args[0]);
-		double lon 	= Translator.termToDouble(args[1]);
-		double lat 	= Translator.termToDouble(args[2]);
+		String 	name 	= (String) args[0];
+		double 	lon 	= (double) args[1];
+		double 	lat 	= (double) args[2];
 		
 		workshops.put(name, new Workshop(name, new Location(lon, lat)));
 	}
@@ -216,12 +216,13 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double, String)
 	private static void perceiveResourceNode(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+//		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		String name   = Translator.termToString(args[0]);
-		double lon 	  = Translator.termToDouble(args[1]);
-		double lat 	  = Translator.termToDouble(args[2]);
-		String itemId = Translator.termToString(args[3]);
+		String 	name   	= (String) args[0];
+		double 	lon		= (double) args[1];
+		double 	lat		= (double) args[2];
+		String 	itemId 	= (String) args[3];
 		
 		resourceNodes.put(name, 
 				new ResourceNode(name, new Location(lon, lat), ItemArtifact.getItem(itemId), 0));

@@ -13,7 +13,6 @@ import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Term;
 
 public class DynamicInfoArtifact extends Artifact {
 	
@@ -92,32 +91,32 @@ public class DynamicInfoArtifact extends Artifact {
 	// Literal(long)
 	private static void perceiveDeadline(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		deadline = Translator.termToLong(args[0]);
+		deadline = (long) args[0];
 	}
 
 	// Literal(int)
 	private static void perceiveMoney(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		money = Translator.termToInteger(args[0]);
+		money = (int) args[0];
 	}
 
 	// Literal(int)
 	public static void perceiveStep(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		step = Translator.termToInteger(args[0]);
+		step = (int) args[0];
 	}
 
 	// Literal(long)
 	private static void perceiveTimestamp(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		timestamp = Translator.termToLong(args[0]);
+		timestamp = (long) args[0];
 	}
 }

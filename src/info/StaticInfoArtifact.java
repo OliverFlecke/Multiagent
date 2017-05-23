@@ -1,6 +1,12 @@
 package info;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -11,7 +17,6 @@ import data.CEntity;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Role;
 
@@ -86,13 +91,13 @@ public class StaticInfoArtifact extends Artifact {
 	// Literal(String, String, double, double, String)
 	private static void perceiveEntity(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 
-		String name = Translator.termToString(args[0]);
-		String team = Translator.termToString(args[1]);
-		double lon 	= Translator.termToDouble(args[2]);
-		double lat 	= Translator.termToDouble(args[3]);
-		String role = Translator.termToString(args[4]);
+		String name = (String) args[0];
+		String team = (String) args[1];
+		double lon 	= (double) args[2];
+		double lat 	= (double) args[3];
+		String role = (String) args[4];
 		
 		// Entity has not been made public
 		if (team.equals(StaticInfoArtifact.team))
@@ -104,32 +109,33 @@ public class StaticInfoArtifact extends Artifact {
 	// Literal(String)
 	private static void perceiveId(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		id = Translator.termToString(args[0]);
+		id = (String) args[0];
 	}
 
 	// Literal(String)
 	private static void perceiveMap(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		map = Translator.termToString(args[0]);
+		map = (String) args[0];
 	}
 
 	// Literal(String,)
 	private static void perceiveRole(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 
-		String 		name 	= Translator.termToString(args[0]);
-		int 		speed 	= Translator.termToInteger(args[1]);
-		int 		load 	= Translator.termToInteger(args[2]);
-		int 		battery = Translator.termToInteger(args[3]);
-		List<Term> 	tools 	= Translator.termToTermList(args[4]);
+		String 		name 	= (String)   args[0];
+		int 		speed 	= (int)      args[1];
+		int 		load 	= (int)      args[2];
+		int 		battery = (int)      args[3];
+		Object[] 	tools 	= (Object[]) args[4];
 		
-		Set<String> permissions = tools.stream().map(tool -> Translator.termToString(tool))
-									   			.collect(Collectors.toSet());
+		Set<String> permissions = Arrays.stream(tools)
+				.map(String.class::cast)
+				.collect(Collectors.toSet());
 		
 		roles.put(name, new Role(name, speed, battery, load, permissions));
 	}
@@ -137,24 +143,24 @@ public class StaticInfoArtifact extends Artifact {
 	// Literal(int)
 	private static void perceiveSeedCapital(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		seedCapital = Translator.termToInteger(args[0]);
+		seedCapital = (int) args[0];
 	}
 
 	// Literal(int)
 	private static void perceiveSteps(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		steps = Translator.termToInteger(args[0]);
+		steps = (int) args[0];
 	}
 
 	// Literal(String)
 	private static void perceiveTeam(Percept percept)
 	{
-		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
+		Object[] args = Translator.perceptToObject(percept);
 		
-		team = Translator.termToString(args[0]);
+		team = (String) args[0];
 	}	
 }

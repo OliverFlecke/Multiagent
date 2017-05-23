@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
+import cartago.ArtifactConfig;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 
