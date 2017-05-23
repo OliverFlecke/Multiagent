@@ -135,17 +135,20 @@ public class EIArtifact extends Artifact {
 
 		for (Entry<String, String> entry : connections.entrySet())
 		{
-			Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
+			String agentName = entry.getKey();
 			
-			agentPercepts.put(entry.getKey(), percepts);
+			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entry.getValue());
 			
-			defineObsProperty("inFacility", entry.getKey(), null);
-			defineObsProperty("charge", 	entry.getKey(), null);
-			defineObsProperty("load", 		entry.getKey(), null);
+			agentPercepts.put(agentName, percepts);
+			
+			defineObsProperty("inFacility", 	agentName, null);
+			defineObsProperty("charge", 		agentName, null);
+			defineObsProperty("load", 			agentName, null);
+			defineObsProperty("routeLength", 	agentName, null);
 			
 			allPercepts.addAll(percepts);
 			
-			defineObsProperty("inFacility", entry.getKey(), "none");
+//			defineObsProperty("inFacility", agentName, "none");
 		}
 		
 		// Important to perceive items before facilities
@@ -176,12 +179,14 @@ public class EIArtifact extends Artifact {
 			for (Entry<String, String> entry : connections.entrySet())
 			{
 				String agentName = entry.getKey();
+				
 				Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entry.getValue());
 				
 				AgentArtifact.perceiveUpdate(agentName, percepts);
 				
-				getObsPropertyByTemplate("charge", agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentBattery());
-				getObsPropertyByTemplate("load",   agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentLoad());
+				getObsPropertyByTemplate("charge", 		agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentBattery());
+				getObsPropertyByTemplate("load",   		agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentLoad());
+				getObsPropertyByTemplate("routeLength", agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getRouteLength());
 				
 //				if (entry.getKey().equals("agentA1")) logger.info(percepts.toString());
 				

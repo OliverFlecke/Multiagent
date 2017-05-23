@@ -34,6 +34,12 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	winner(Name)[artifact_id(CNPId)];
 	+winner(Name, TaskId).
 	
++task(Items, DeliveryLocation, CNPName) : free <- 
+	lookupArtifact(CNPName, CNPId);
+	bid(20)[artifact_id(CNPId)];
+	winner(Name)[artifact_id(CNPId)];
+	+winner(Name, TaskId).
+	
 +winner(Name, TaskId) : isMyName(Name) <-
 	-free;
 	!solveJob(TaskId);
