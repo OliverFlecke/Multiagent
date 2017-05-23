@@ -3,9 +3,14 @@
 free.
 
 // Rules
-isMyName(Name) :- .my_name(Me) & .term2string(Me, String) & String == Name.
+myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
+isMyName(Name) 	:- myName(String) & String == Name.
 
-inFacility(F) :- .my_name(Me) & .term2string(Me, Name) & inFacility(Name, F).
+// Personal percepts
+inFacility(F) 	:- myName(Name) & inFacility(Name, F).
+charge(C) 		:- myName(Name) & charge(Name, C).
+load(L)			:- myName(Name) & load(Name, L).
+routeLength(L)	:- myName(Name) & routeLength(Name, L).
 
 getBaseItems(Items, BaseItems) :- BaseItems = [].
 inWorkshop 	:- inFacility(F) & .substring("workshop", F).
@@ -28,7 +33,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
-+task(TaskId, CNPName) : free <- 
++task(TaskId, CNPName) : free & .my_name(agentA1) <- 
 	lookupArtifact(CNPName, CNPId);
 	bid(20)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
@@ -133,7 +138,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : newStep 	<- action(goto(F)); -newStep; !getToFacility(F).	
++!getToFacility(F) : newStep 	<- -newStep; action(goto(F)); !getToFacility(F).	
 +!getToFacility(F) 				<- !getToFacility(F).
 
 +step(X) <- +newStep.

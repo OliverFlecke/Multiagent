@@ -162,5 +162,13 @@ public class StaticInfoArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		team = (String) args[0];
+	}
+
+	/**
+	 * @return The roles in this simulation
+	 */
+	public static Collection<Role> getRoles() 
+	{
+		return roles.values();
 	}	
 }

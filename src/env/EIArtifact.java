@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
+import data.CEntity;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.exceptions.NoEnvironmentException;
@@ -27,6 +28,7 @@ import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
+import massim.scenario.city.data.Role;
 import massim.scenario.city.data.facilities.Facility;
 
 public class EIArtifact extends Artifact {
@@ -147,8 +149,6 @@ public class EIArtifact extends Artifact {
 			defineObsProperty("routeLength", 	agentName, null);
 			
 			allPercepts.addAll(percepts);
-			
-//			defineObsProperty("inFacility", agentName, "none");
 		}
 		
 		// Important to perceive items before facilities
@@ -164,6 +164,14 @@ public class EIArtifact extends Artifact {
 		for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
 		{					
 			AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
+		}
+		
+		for (Entry<String, CEntity> agent : AgentArtifact.getEntities().entrySet())
+		{
+			Role role = agent.getValue().getRole();
+			
+			defineObsProperty("myRole", agent.getKey(), role.getName());
+			defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), role.getMaxBattery(), role.getTools());
 		}
 	}
 	

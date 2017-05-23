@@ -275,8 +275,8 @@ public class AgentArtifact extends Artifact {
 	/**
 	 * @return All the entities
 	 */
-	public static Collection<CEntity> getEntities() {
-		return entities.values();
+	public static Map<String, CEntity> getEntities() {
+		return entities;
 	}
 
 	/**
