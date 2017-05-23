@@ -177,7 +177,9 @@ public class EIArtifact extends Artifact {
 			{
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
-				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);				
+				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				
+//				if (entry.getKey().equals("agentA1")) logger.info(percepts.toString());
 				
 				allPercepts.addAll(percepts);
 			}

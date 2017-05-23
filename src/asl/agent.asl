@@ -29,14 +29,20 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 // Plans 
 +inFacility(Name, X) : isMyName(Name) <- +inFacility(X).
 
-+task(Id) : .my_name(agentA1) & free <- 
++task(TaskId, CNPName) : free <- 
+	lookupArtifact(CNPName, CNPId);
+	bid(20, BidId)[artifact_id(CNPId)];
+	winner(WinnerId)[artifact_id(CNPId)];
+	+winner(BidId, WinnerId, TaskId).
+	
++winner(BidId, WinnerId, TaskId) : BidId = WinnerId & free <-
 	-free;
-	getJob(Id, Storage, Items);
-	!solveJob(Id, Storage, Items);
+	!solveJob(TaskId);
 	+free.
 	
-+!solveJob(Job, DeliveryLocation, Items) <- 
-	.print("Doing ", Job, " to ", DeliveryLocation, " with: ", Items);
++!solveJob(Job) : .my_name(Me) <- 
+	getJob(Job, DeliveryLocation, Items);
+	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Items);
 	
 	getBaseItems(Items, BaseItems);
 	.print("Base items needed: ", BaseItems);

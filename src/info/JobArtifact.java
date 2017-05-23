@@ -167,7 +167,7 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-			TaskArtifact.announce(id, 1000000);
+			TaskArtifact.announce(id);
 		jobs.put(id, job); 
 	}
 	
