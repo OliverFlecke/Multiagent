@@ -46,8 +46,8 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	getBaseItems(Items, BaseItems);
 	.print("Base items needed: ", BaseItems);
 	
-	!retrieveItems(BaseItems);
 	!retrieveTools(Tools);
+	!retrieveItems(BaseItems);
 
 	!focusArtifact("ItemArtifact");
 	!assembleItems(Items);
@@ -61,8 +61,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
  	
 +!assembleItems([]).
 +!assembleItems([map(Item, Amount) | Items]) : inWorkshop 
-	<- 
-	!assembleItem(Item); 
+	<- !assembleItem(Item); 
 	if (Amount > 1) { !assembleItems([map(Item, Amount - 1) | Items]); }
 	else 			{ !assembleItems(Items); }.
 +!assembleItems(Items) <- 
@@ -73,8 +72,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	!assembleItems(Items).
 	
 +!assembleItem(Item) : inWorkshop & .my_name(Agent) 
-	<- 
-	.print("Assembling item: ", Item);
+	<- .print("Assembling item: ", Item);
 	getRequiredItems(Item, ReqItems);
 	getAgentInventory(Agent, Inv);
 	?contains(ReqItems, Inv, Missing);
@@ -83,7 +81,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 		!assembleItems(Missing);
 		!assembleItem(Item);	
 	}.
-+!assembleItem(Item) <- .print("Could not assemble item").
+-!assembleItem(Item) <- .print("Could not assemble item").
 
 +?contains([], _, _).
 +?contains([Item | Rest], Inventory, Missing) : contains(Item, Inventory)
@@ -94,7 +92,6 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 
 +!retrieveItems([]).
 +!retrieveItems([map(Item, Amount) | Items]) <- 
-
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	.print("Retriving ", Amount, " of ", Item, " in ", Shop);
 	
@@ -109,7 +106,22 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	}
 	else { !retrieveItems(Items); }.
 	
-+!retrieveTools(Tools).
++!retrieveTools([]).
++!retrieveTools([Tool | Tools]) <-
+	!retrieveTool(Tool);
+	!retrieveTools(Tools).
++!retrieveTool(Tool) <-
+	.my_name(Me); canUseTool(Tool, Me, CanUse);
+	if (CanUse)
+	{
+		getShopSelling(Tool, Shop);
+		.print(Tool, " can be bougth in ", Shop);
+		
+		!getToFacility(Shop);
+		!buyItem(Tool, 1);
+	}
+	else { .print("Can't use the tool"); } // Need help from someone that can use this tool
+	.
 	
 +!buyItem(Item, Amount) : inShop <- action(buy(Item, Amount)).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).

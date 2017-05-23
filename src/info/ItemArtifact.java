@@ -114,6 +114,19 @@ public class ItemArtifact extends Artifact {
 		ret.set(FacilityArtifact.getClosestFacility(agLoc, shops));
 	}
 	
+	@OPERATION
+	void canUseTool(String toolName, String agentName, OpFeedbackParam<Boolean> ret)
+	{
+		if (tools.containsKey(toolName))
+		{
+			ret.set(((Tool) getItem(toolName)).getRoles().contains(agentName));
+		}
+		else 
+		{
+			ret.set(false);
+		}
+	}
+	
 	public static void perceiveInitial(Collection<Percept> percepts)
 	{		
 		Map<Item, Set<Object[]>> requirements = new HashMap<>();
