@@ -12,23 +12,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
+import cartago.ArtifactId;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
+import cartago.OperationException;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.exceptions.NoEnvironmentException;
 import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import eis.iilang.PrologVisitor;
-import info.AgentArtifact;
-import info.DynamicInfoArtifact;
-import info.FacilityArtifact;
-import info.ItemArtifact;
-import info.JobArtifact;
-import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
-import massim.scenario.city.data.facilities.Facility;
 
 public class EIArtifact extends Artifact {
 
@@ -39,6 +33,8 @@ public class EIArtifact extends Artifact {
     private EnvironmentInterfaceStandard ei;
     
     private Map<String, String> connections = new HashMap<>();
+    
+    private ArtifactId agentArtifactId, dynamicInfoArtifactId, facilityArtifactId, itemArtifactId, jobArtifactId, staticInfoArtifactId;
 
     /**
      * Instantiates and starts the environment interface.
@@ -46,15 +42,12 @@ public class EIArtifact extends Artifact {
     void init() 
     {
     	logger.setLevel(Level.FINE);
-		logger.info("init");
 		
 		try 
 		{
 			ei = new EnvironmentInterface("conf/eismassimconfig.json");
 			
 			ei.start();
-			
-			defineObsProperty("step", 0);
 		} 
 		catch (Throwable e) 
 		{
@@ -79,6 +72,13 @@ public class EIArtifact extends Artifact {
 			
 			if (connections.size() == ei.getEntities().size())
 			{
+				agentArtifactId = lookupArtifact("AgentArtifact");
+				dynamicInfoArtifactId = lookupArtifact("DynamicInfoArtifact");
+				facilityArtifactId = lookupArtifact("FacilityArtifact");
+				itemArtifactId = lookupArtifact("ItemArtifact");
+				jobArtifactId = lookupArtifact("JobArtifact");
+				staticInfoArtifactId = lookupArtifact("StaticInfoArtifact");
+				
 				// Perceive initial perceptions when all agents have connected
 				execInternalOp("perceiveInitial");
 				
@@ -86,14 +86,8 @@ public class EIArtifact extends Artifact {
 				ei.attachAgentListener(agName, new AgentListener() 
 				{				
 					@Override
-					public void handlePercept(String agent, Percept percept) 
-					{
-						if (percept.getName().equals("step"))
-						{							
-							DynamicInfoArtifact.perceiveStep(percept);
-							
-							getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
-							
+					public void handlePercept(String agent, Percept percept) {
+						if (percept.getName().equals("step")) {
 							execInternalOp("perceiveUpdate");
 						}
 					}
@@ -126,7 +120,7 @@ public class EIArtifact extends Artifact {
 	}	
 	
 	@INTERNAL_OPERATION
-	void perceiveInitial() throws PerceiveException, NoEnvironmentException
+	void perceiveInitial() throws PerceiveException, NoEnvironmentException, OperationException
 	{
 		logger.finest("perceiveInitial");
 		
@@ -144,18 +138,26 @@ public class EIArtifact extends Artifact {
 		}
 		
 		// Important to perceive items before facilities
-		ItemArtifact        .perceiveInitial(allPercepts);
-//		FacilityArtifact    .perceiveInitial(allPercepts);
-		StaticInfoArtifact  .perceiveInitial(allPercepts);
+//		ItemArtifact        .perceiveInitial(allPercepts);
+////		FacilityArtifact    .perceiveInitial(allPercepts);
+//		StaticInfoArtifact  .perceiveInitial(allPercepts);
+//		
+//		FacilityArtifact	.perceiveUpdate(allPercepts);
+//		DynamicInfoArtifact	.perceiveUpdate(allPercepts);
+//		JobArtifact			.perceiveUpdate(allPercepts);
 		
-		FacilityArtifact	.perceiveUpdate(allPercepts);
-		DynamicInfoArtifact	.perceiveUpdate(allPercepts);
-		JobArtifact			.perceiveUpdate(allPercepts);
+		execLinkedOp(itemArtifactId, "perceiveInitial", allPercepts);
+		execLinkedOp(staticInfoArtifactId, "perceiveInitial", allPercepts);
+
+		execLinkedOp(facilityArtifactId, "perceiveUpdate", allPercepts);
+		execLinkedOp(dynamicInfoArtifactId, "perceiveUpdate", allPercepts);
+		execLinkedOp(jobArtifactId, "perceiveUpdate", allPercepts);
 
 		// Important to perceive agent perceptions after static info
 		for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
 		{					
-			AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
+//			AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
+			execLinkedOp(agentArtifactId, "perceiveUpdate", entry.getKey(), entry.getValue());
 		}
 	}
 	
@@ -172,16 +174,21 @@ public class EIArtifact extends Artifact {
 			{
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
-				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+//				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				execLinkedOp(agentArtifactId, "perceiveUpdate", entry.getKey(), percepts);
 				
 //				if (entry.getKey().equals("agentA1")) logger.info(percepts.toString());
 				
 				allPercepts.addAll(percepts);
 			}
 			
-			FacilityArtifact	.perceiveUpdate(allPercepts);
-			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
-			JobArtifact			.perceiveUpdate(allPercepts);
+//			FacilityArtifact	.perceiveUpdate(allPercepts);
+//			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
+//			JobArtifact			.perceiveUpdate(allPercepts);
+			
+			execLinkedOp(facilityArtifactId, "perceiveUpdate", allPercepts);
+			execLinkedOp(dynamicInfoArtifactId, "perceiveUpdate", allPercepts);
+			execLinkedOp(jobArtifactId, "perceiveUpdate", allPercepts);
 			
 //			FacilityArtifact.logShops();
 		} 

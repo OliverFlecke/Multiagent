@@ -1,10 +1,19 @@
 package info;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
@@ -14,6 +23,7 @@ import env.Translator;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Role;
+import util.ArtifactUtil;
 
 public class StaticInfoArtifact extends Artifact {
 	
@@ -50,26 +60,30 @@ public class StaticInfoArtifact extends Artifact {
 		team		.set(StaticInfoArtifact.team);
 	}
 
-	public static void perceiveInitial(Collection<Percept> percepts)
+	@LINK
+	void perceiveInitial(Collection<Percept> allPercepts)
 	{		
+		Collection<Percept> percepts = allPercepts.stream()
+				.filter(percept -> PERCEPTS.contains(percept.getName()))
+				.collect(Collectors.toList());
+		
+		percepts.forEach(percept -> execInternalOp(ArtifactUtil.perceive(percept), percept));
+		
 		// Roles and team are used when perceiving entities
-		percepts.stream().filter(percept -> percept.getName() == ROLE)
-						 .forEach(role -> perceiveRole(role));
-		
-		percepts.stream().filter(percept -> percept.getName() == TEAM)
-						 .forEach(team -> perceiveTeam(team));
-		
-		for (Percept percept : percepts)
-		{
-			switch (percept.getName())
-			{
-			case ENTITY: 		perceiveEntity		(percept);	break;
-			case ID:			perceiveId			(percept);  break;
-			case MAP:			perceiveMap			(percept);  break;
-			case SEED_CAPITAL:	perceiveSeedCapital	(percept);  break;
-			case STEPS:			perceiveSteps		(percept);  break;
-			}
-		}
+//		allPercepts.stream().filter(ROLE::equals).forEach(this::perceiveRole);
+//		allPercepts.stream().filter(TEAM::equals).forEach(this::perceiveTeam);
+//		
+//		for (Percept percept : allPercepts)
+//		{
+//			switch (percept.getName())
+//			{
+//			case ENTITY: 		perceiveEntity		(percept);	break;
+//			case ID:			perceiveId			(percept);  break;
+//			case MAP:			perceiveMap			(percept);  break;
+//			case SEED_CAPITAL:	perceiveSeedCapital	(percept);  break;
+//			case STEPS:			perceiveSteps		(percept);  break;
+//			}
+//		}
 
 		if (EIArtifact.LOGGING_ENABLED)
 		{
@@ -84,7 +98,8 @@ public class StaticInfoArtifact extends Artifact {
 	}
 	
 	// Literal(String, String, double, double, String)
-	private static void perceiveEntity(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveEntity(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 
@@ -97,12 +112,18 @@ public class StaticInfoArtifact extends Artifact {
 		// Entity has not been made public
 		if (team.equals(StaticInfoArtifact.team))
 		{
-			AgentArtifact.addEntity(name, new CEntity(roles.get(role), new Location(lon, lat)));
+			AgentArtifact.addEntity(name, new CEntity(getRole(role), new Location(lon, lat)));			
+//			try {
+//				execLinkedOp(lookupArtifact("AgentArtifact"), "addEntity", name, new CEntity(roles.get(role), new Location(lon, lat)));
+//			} catch (OperationException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 	
 	// Literal(String)
-	private static void perceiveId(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveId(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -110,7 +131,8 @@ public class StaticInfoArtifact extends Artifact {
 	}
 
 	// Literal(String)
-	private static void perceiveMap(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveMap(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -118,7 +140,8 @@ public class StaticInfoArtifact extends Artifact {
 	}
 
 	// Literal(String,)
-	private static void perceiveRole(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveRole(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 
@@ -135,7 +158,8 @@ public class StaticInfoArtifact extends Artifact {
 	}
 
 	// Literal(int)
-	private static void perceiveSeedCapital(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveSeedCapital(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -143,7 +167,8 @@ public class StaticInfoArtifact extends Artifact {
 	}
 
 	// Literal(int)
-	private static void perceiveSteps(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveSteps(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -151,10 +176,23 @@ public class StaticInfoArtifact extends Artifact {
 	}
 
 	// Literal(String)
-	private static void perceiveTeam(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveTeam(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
 		team = Translator.termToString(args[0]);
-	}	
+	}
+	
+	private static Role getRole(String name) 
+	{
+		try {
+			while (roles.get(name) == null)
+			{
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException e) { e.printStackTrace(); }
+		
+		return roles.get(name);
+	}
 }

@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import cartago.Artifact;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
@@ -90,7 +91,8 @@ public class ItemArtifact extends Artifact {
 		ret.set(FacilityArtifact.getClosestFacility(agLoc, shops));
 	}
 	
-	public static void perceiveInitial(Collection<Percept> percepts)
+	@LINK
+	void perceiveInitial(Collection<Percept> percepts)
 	{		
 		Map<Item, Set<Object[]>> requirements = new HashMap<>();
 		
@@ -122,7 +124,7 @@ public class ItemArtifact extends Artifact {
 	}
 
 	// Literal(String, int, Literal(List<String>), Literal(List<List<String, int>>))
-	private static void perceiveItem(Percept percept, Map<Item, Set<Object[]>> requirements)
+	private void perceiveItem(Percept percept, Map<Item, Set<Object[]>> requirements)
 	{				
 		Object[] args = Translator.perceptToObject(percept);
 		

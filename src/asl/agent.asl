@@ -22,9 +22,11 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
-	!focusArtifact("TaskArtifact");
 	!focusArtifact("AgentArtifact");
-	!focusArtifact("EIArtifact").	
+	!focusArtifact("DynamicInfoArtifact");
+	!focusArtifact("TaskArtifact");
+	!focusArtifact("EIArtifact");
+	.print("Focusing artifacts succeeded").
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
 +task(TaskId, CNPName) : free <- 
@@ -37,6 +39,8 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 	-free;
 	!solveJob(TaskId);
 	+free.
+	
++step(X) <- -step(X); .print("Step: ", X).
 	
 +!solveJob(Job) : .my_name(Me) <- 
 	getJob(Job, DeliveryLocation, Items);
@@ -122,5 +126,3 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
-
-+inFacility(X) <- .print("I am in ", X).

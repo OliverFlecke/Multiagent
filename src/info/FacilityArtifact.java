@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
@@ -28,6 +31,7 @@ import massim.scenario.city.data.facilities.ResourceNode;
 import massim.scenario.city.data.facilities.Shop;
 import massim.scenario.city.data.facilities.Storage;
 import massim.scenario.city.data.facilities.Workshop;
+import util.ArtifactUtil;
 
 public class FacilityArtifact extends Artifact {
 	
@@ -40,11 +44,8 @@ public class FacilityArtifact extends Artifact {
 	public static final String WORKSHOP 			= "workshop";
 	public static final String RESOURCE_NODE		= "resourceNode";
 	
-	public static final Set<String>	STATIC_PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(CHARGING_STATION, DUMP, SHOP, STORAGE, WORKSHOP)));
-
-	public static final Set<String>	DYNAMIC_PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(RESOURCE_NODE)));
+	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
+		new HashSet<String>(Arrays.asList(CHARGING_STATION, DUMP, SHOP, STORAGE, WORKSHOP, RESOURCE_NODE)));
 	
 	private static Map<String, ChargingStation> chargingStations 	= new HashMap<>();
 	private static Map<String, Dump> 			dumps 			 	= new HashMap<>();
@@ -96,20 +97,14 @@ public class FacilityArtifact extends Artifact {
 		return Math.sqrt(dLon * dLon + dLat * dLat);
 	}
 	
-	public static void perceiveUpdate(Collection<Percept> percepts)
-	{		
-		for (Percept percept : percepts)
-		{
-			switch (percept.getName())
-			{
-			case CHARGING_STATION: 	perceiveChargingStation	(percept);	break;	
-			case DUMP:				perceiveDump			(percept);  break;             
-			case SHOP:				perceiveShop			(percept);  break;             
-			case STORAGE:			perceiveStorage			(percept);  break;          
-			case WORKSHOP:			perceiveWorkshop		(percept);  break;
-			case RESOURCE_NODE:		perceiveResourceNode	(percept);	break;
-			}
-		}
+	@LINK
+	void perceiveUpdate(Collection<Percept> allPercepts)
+	{
+		Collection<Percept> percepts = allPercepts.stream()
+				.filter(percept -> PERCEPTS.contains(percept.getName()))
+				.collect(Collectors.toList());
+		
+		percepts.forEach(percept -> execInternalOp(ArtifactUtil.perceive(percept), percept));
 
 		if (EIArtifact.LOGGING_ENABLED)
 		{
@@ -132,11 +127,12 @@ public class FacilityArtifact extends Artifact {
 	
 	public static void logShops() 
 	{
-		logFacilities("Shops perceived:"			, shops				.values());
+		logFacilities("Shops perceived:", shops.values());
 	}
 	
 	// Literal(String, double, double, int)
-	private static void perceiveChargingStation(Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveChargingStation(Percept percept) 
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -149,7 +145,8 @@ public class FacilityArtifact extends Artifact {
 	}
 
 	// Literal(String, double, double)
-	private static void perceiveDump(Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveDump(Percept percept) 
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -161,7 +158,8 @@ public class FacilityArtifact extends Artifact {
 	}
 
 	// Literal(String, double, double, int, List<Literal(String, int, int)>)
-	private static void perceiveShop(Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveShop(Percept percept) 
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -187,7 +185,8 @@ public class FacilityArtifact extends Artifact {
 	}
 
 	// Literal(String, double, double, int)
-	private static void perceiveStorage(Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveStorage(Percept percept) 
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -202,7 +201,8 @@ public class FacilityArtifact extends Artifact {
 	}
 
 	// Literal(String, double, double)
-	private static void perceiveWorkshop(Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveWorkshop(Percept percept) 
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -214,7 +214,8 @@ public class FacilityArtifact extends Artifact {
 	}
 	
 	// Literal(String, double, double, String)
-	private static void perceiveResourceNode(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveResourceNode(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		

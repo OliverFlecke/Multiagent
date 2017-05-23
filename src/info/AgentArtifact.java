@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import data.CEntity;
@@ -25,6 +27,7 @@ import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Route;
 import massim.scenario.city.data.facilities.Facility;
+import util.ArtifactUtil;
 
 public class AgentArtifact extends Artifact {
 	
@@ -44,38 +47,23 @@ public class AgentArtifact extends Artifact {
 	private static final String ROUTE_LENGTH 		= "routeLength";
 	
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, FACILITY, HAS_ITEM, LAST_ACTION, LAST_ACTION_PARAMS, 
-				LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
+		new HashSet<String>(Arrays.asList(ACTION_ID, CHARGE, FACILITY, HAS_ITEM, LAST_ACTION, 
+				LAST_ACTION_PARAMS, LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
 	
-	private static AgentArtifact instance;
-	
 	void init()
-	{
-		instance = this;
-
-		defineObsProperty("inFacility", "none");
+	{		
+		defineObsProperty("facility", "none");
 	}
 	
-	public static AgentArtifact getInstance()
-	{
-		return instance;
-	}
-
 	@OPERATION
 	void getPos(OpFeedbackParam<Double> lon, OpFeedbackParam<Double> lat)
 	{
-		Location l = entities.get(getOpUserName()).getLocation();
+		Location l = getEntity(getOpUserName()).getLocation();
 		
 		lon.set(l.getLon());
 		lat.set(l.getLat());
-	}
-	
-	@OPERATION
-	void waitUntilInFacility(String facilityName)
-	{
-		await("inFacility", facilityName);
 	}
 	
 	@OPERATION
@@ -85,26 +73,14 @@ public class AgentArtifact extends Artifact {
 				.collect(Collectors.toMap(e -> e.getName(), e -> e.getAmount())));
 	}
 	
-	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
-	{		
-		for (Percept percept : percepts)
-		{			
-			switch (percept.getName())
-			{
-//			case ACTION_ID: perceiveActionID(percept); break;
-			case CHARGE: 				perceiveCharge(agentName, percept); break;
-			case FACILITY:				getInstance().perceiveFacility(agentName, percept); break;
-			case HAS_ITEM:				perceiveHasItem(agentName, percept); break;
-			case LAST_ACTION : 			perceiveLastAction(agentName, percept); break;
-//			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
-			case LAST_ACTION_RESULT: 	perceiveLastActionResult(agentName, percept); break;
-			case LAT: 					perceiveLat(agentName, percept); break;
-			case LON: 					perceiveLon(agentName, percept); break;
-//			case LOAD: 					perceiveLoad(agentName, percept); break;
-//			case ROUTE: 				perceiveRoute(agentName, percept); break;
-			case ROUTE_LENGTH: 			perceiveRouteLength(agentName, percept); break;
-			}
-		}
+	@LINK
+	void perceiveUpdate(String agentName, Collection<Percept> allPercepts)
+	{
+		Collection<Percept> percepts = allPercepts.stream()
+				.filter(percept -> PERCEPTS.contains(percept.getName()))
+				.collect(Collectors.toList());
+		
+		percepts.forEach(percept -> execInternalOp(ArtifactUtil.perceive(percept), percept));
 		
 		if (EIArtifact.LOGGING_ENABLED)
 		{
@@ -116,16 +92,17 @@ public class AgentArtifact extends Artifact {
 	 * Literal(int)
 	 * @param percept
 	 */
-	private static void perceiveCharge(String agentName, Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveCharge(String agentName, Percept percept) 
 	{
 		Object[] args = Translator.perceptToObject(percept);
 //		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setCurrentBattery((int) args[0]);
 	}
-	
-	public void perceiveFacility(String agentName, Percept percept) 
+
+	@INTERNAL_OPERATION
+	private void perceiveFacility(String agentName, Percept percept) 
 	{
-		getObsProperty("inFacility").updateValue("shop3");
 		Parameter param = percept.getParameters().get(0);
 		if (!PrologVisitor.staticVisit(param).equals(""))
 		{
@@ -142,7 +119,8 @@ public class AgentArtifact extends Artifact {
 		}
 	}
 
-	private static void perceiveHasItem(String agentName, Percept percept) 
+	@INTERNAL_OPERATION
+	private void perceiveHasItem(String agentName, Percept percept) 
 	{
 		Object[] args = Translator.perceptToObject(percept);
 
@@ -159,7 +137,8 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLastAction(String agentName, Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveLastAction(String agentName, Percept percept)
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		Action action = new Action(Translator.termToString(terms[0]));
@@ -171,7 +150,8 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLastActionResult(String agentName, Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveLastActionResult(String agentName, Percept percept)
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setLastActionResult(Translator.termToString(terms[0]));
@@ -182,7 +162,8 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLat(String agentName, Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveLat(String agentName, Percept percept)
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setLat(Translator.termToDouble(terms[0]));
@@ -193,7 +174,8 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLon(String agentName, Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveLon(String agentName, Percept percept)
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setLon(Translator.termToDouble(terms[0]));	
@@ -215,7 +197,8 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	public static void perceiveRoute(String agentName, Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveRoute(String agentName, Percept percept)
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		Route route = new Route();
@@ -239,19 +222,28 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveRouteLength(String agentName, Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveRouteLength(String agentName, Percept percept)
 	{
 		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
 		AgentArtifact.getEntity(agentName).setRouteLength(Translator.termToInteger(terms[0]));	
 	}
 
-	protected static void addEntity(String name, CEntity entity)
+//	@LINK
+	static void addEntity(String name, CEntity entity)
 	{
 		entities.put(name, entity);
 	}
 	
 	public static CEntity getEntity(String name)
 	{
+		try {
+			while (entities.get(name) == null)
+			{
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException e) { e.printStackTrace(); }
+		
 		return entities.get(name);
 	}
 }

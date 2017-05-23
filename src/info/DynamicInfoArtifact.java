@@ -6,14 +6,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
 import jason.asSyntax.Term;
+import util.ArtifactUtil;
 
 public class DynamicInfoArtifact extends Artifact {
 	
@@ -21,16 +25,16 @@ public class DynamicInfoArtifact extends Artifact {
 
 	private static final String DEADLINE			= "deadline";
 	private static final String MONEY 				= "money";
-//	private static final String STEP 				= "step";
+	private static final String STEP 				= "step";
 	private static final String TIMESTAMP 			= "timestamp";
 	
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, /* STEP, */ TIMESTAMP)));
+		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, STEP, TIMESTAMP)));
 
-	private static long					deadline;
-	private static int					money;
-	private static int					step;
-	private static long					timestamp;
+	private long	deadline;
+	private int		money;
+	private int		step;
+	private long	timestamp;
 
 	void init()
 	{
@@ -61,23 +65,14 @@ public class DynamicInfoArtifact extends Artifact {
 		ret.set(timestamp);
 	}
 	
-	public static int getStep() 
-	{
-		return step;
-	}
-	
-	public static void perceiveUpdate(Collection<Percept> percepts)
+	@LINK
+	void perceiveUpdate(Collection<Percept> allPercepts)
 	{		
-		for (Percept percept : percepts)
-		{
-			switch (percept.getName())
-			{
-			case DEADLINE:   perceiveDeadline	(percept);	break;
-			case MONEY:      perceiveMoney		(percept);  break;
-//			case STEP:       perceiveStep		(percept);  break; // Is percieved prematurely
-			case TIMESTAMP:  perceiveTimestamp	(percept);  break;
-			}
-		}
+		Collection<Percept> percepts = allPercepts.stream()
+				.filter(percept -> PERCEPTS.contains(percept.getName()))
+				.collect(Collectors.toList());
+		
+		percepts.forEach(percept -> execInternalOp(ArtifactUtil.perceive(percept), percept));
 
 		if (EIArtifact.LOGGING_ENABLED)
 		{
@@ -90,7 +85,8 @@ public class DynamicInfoArtifact extends Artifact {
 	}
 	
 	// Literal(long)
-	private static void perceiveDeadline(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveDeadline(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -98,7 +94,8 @@ public class DynamicInfoArtifact extends Artifact {
 	}
 
 	// Literal(int)
-	private static void perceiveMoney(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveMoney(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -106,15 +103,19 @@ public class DynamicInfoArtifact extends Artifact {
 	}
 
 	// Literal(int)
-	public static void perceiveStep(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveStep(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
 		step = Translator.termToInteger(args[0]);
+		
+		getObsProperty("step").updateValue(step);
 	}
 
 	// Literal(long)
-	private static void perceiveTimestamp(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveTimestamp(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		

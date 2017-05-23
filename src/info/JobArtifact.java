@@ -12,9 +12,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import cartago.Artifact;
+import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
-import cnp.TaskArtifact;
+import cartago.OperationException;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
@@ -24,6 +26,7 @@ import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
 import massim.scenario.city.data.Mission;
 import massim.scenario.city.data.facilities.Storage;
+import util.ArtifactUtil;
 
 public class JobArtifact extends Artifact {
 	
@@ -60,19 +63,14 @@ public class JobArtifact extends Artifact {
 		items.set(itemNames);
 	}
 	
-	public static void perceiveUpdate(Collection<Percept> percepts)
+	@LINK
+	public void perceiveUpdate(Collection<Percept> allPercepts)
 	{
+		Collection<Percept> percepts = allPercepts.stream()
+				.filter(percept -> PERCEPTS.contains(percept.getName()))
+				.collect(Collectors.toList());
 		
-		for (Percept percept : percepts)
-		{
-			switch (percept.getName())
-			{
-			case AUCTION: perceiveAuction	(percept); break;
-			case JOB:     perceiveJob		(percept); break;
-			case MISSION: perceiveMission	(percept); break;
-			case POSTED:  perceivePosted	(percept); break;
-			}
-		}
+		percepts.forEach(percept -> execInternalOp(ArtifactUtil.perceive(percept), percept));
 
 		if (EIArtifact.LOGGING_ENABLED)
 		{
@@ -84,15 +82,8 @@ public class JobArtifact extends Artifact {
 		}		
 	}
 	
-	private static void logJobs(String msg, Collection<? extends Job> jobs)
-	{
-		if (jobs.size() != 0)
-			logger.info(msg);
-			for (Job job : jobs)
-				logger.info(job.toString());
-	}
-	
-	private static void perceiveAuction(Percept percept)
+	@INTERNAL_OPERATION
+	private void perceiveAuction(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -123,8 +114,9 @@ public class JobArtifact extends Artifact {
 		
 		auctions.put(id, auction);
 	}
-	
-	private static void perceiveJob(Percept percept)
+
+	@INTERNAL_OPERATION
+	private void perceiveJob(Percept percept) throws OperationException
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -149,11 +141,12 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-			TaskArtifact.announce(id);
+			execLinkedOp(lookupArtifact("TaskArtifact"), "announce", id);
 		jobs.put(id, job); 
 	}
-	
-	private static void perceiveMission(Percept percept)
+
+	@INTERNAL_OPERATION
+	private void perceiveMission(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -185,8 +178,9 @@ public class JobArtifact extends Artifact {
 		
 		missions.put(id, mission);
 	}
-	
-	private static void perceivePosted(Percept percept)
+
+	@INTERNAL_OPERATION
+	private void perceivePosted(Percept percept)
 	{
 		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		
@@ -211,5 +205,13 @@ public class JobArtifact extends Artifact {
 		}
 		
 		postedJobs.put(id, job);
+	}
+	
+	private static void logJobs(String msg, Collection<? extends Job> jobs)
+	{
+		if (jobs.size() != 0)
+			logger.info(msg);
+		for (Job job : jobs)
+			logger.info(job.toString());
 	}
 }
