@@ -1,5 +1,10 @@
 package cnp;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
 import cartago.Artifact;
 import cartago.GUARD;
 import cartago.INTERNAL_OPERATION;
@@ -8,30 +13,19 @@ import cartago.OpFeedbackParam;
 
 public class CNPArtifact extends Artifact {
 	
-	private int bidId;
-	
-	private int bestBid;
-	private int bestBidId;
-	
-	private boolean isOpen;
+	private List<Bid> 	bids;	
+	private boolean 	isOpen;
 	
 	/**
 	 * 
 	 * @param duration
 	 */
-	void init(long duration)
-	{
-		log("init");
+	void init()
+	{		
+		this.bids	= new ArrayList<>();
+		this.isOpen = true;
 		
-		bidId = 0;
-		
-		// Assuming lower is better
-		bestBid   = Integer.MAX_VALUE;
-		bestBidId = -1;
-		
-		isOpen = true;
-		
-		execInternalOp("awaitBids", duration);
+		execInternalOp("awaitBids", 1000);
 	}
 	
 	/**
@@ -45,7 +39,7 @@ public class CNPArtifact extends Artifact {
 		
 		await_time(duration);
 		
-		isOpen = false;
+		this.isOpen = false;
 		
 		log("Bidding closed");
 	}
@@ -58,20 +52,11 @@ public class CNPArtifact extends Artifact {
 	 * @param id - ID of the bid.
 	 */
 	@OPERATION
-	void bid(int bid, OpFeedbackParam<Integer> id)
-	{
-		log("New bid of " + bid + " from agent " + getOpUserName());
-		
+	void bid(int bid)
+	{		
 		if (isOpen)
 		{
-			id.set(++bidId);
-			
-			// Assuming lower is better
-			if (bid < bestBid)
-			{
-				bestBid   = bid;
-				bestBidId = bidId;				
-			}
+			bids.add(new Bid(getOpUserName(), bid));
 		}
 	}
 	
@@ -91,10 +76,29 @@ public class CNPArtifact extends Artifact {
 	 * @param id - ID of the best bid.
 	 */
 	@OPERATION
-	void winner(OpFeedbackParam<Integer> id)
+	void winner(OpFeedbackParam<String> agent)
 	{		
 		await("biddingClosed");
 		
-		id.set(bestBidId);
+		Optional<Bid> bestBid = bids.stream().min(Comparator.comparingInt(Bid::getBid));
+		
+		if (bestBid.isPresent())
+		{
+			agent.set(bestBid.get().getAgent());
+		}
+	}
+	
+	static class Bid {
+		
+		String 	agent;
+		int 	bid;
+		
+		public Bid(String agent, int bid) {
+			this.agent 	= agent;
+			this.bid	= bid;
+		}
+		
+		public String 	getAgent() 	{ return this.agent; }
+		public int 		getBid()	{ return this.bid; }
 	}
 }

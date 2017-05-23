@@ -144,6 +144,10 @@ public class EIArtifact extends Artifact {
 			
 			agentPercepts.put(entry.getKey(), percepts);
 			
+			defineObsProperty("inFacility", entry.getKey(), null);
+			defineObsProperty("charge", 	entry.getKey(), null);
+			defineObsProperty("load", 		entry.getKey(), null);
+			
 			allPercepts.addAll(percepts);
 		}
 		
@@ -155,7 +159,7 @@ public class EIArtifact extends Artifact {
 		FacilityArtifact	.perceiveUpdate(allPercepts);
 		DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 		JobArtifact			.perceiveUpdate(allPercepts);
-
+		
 		// Important to perceive agent perceptions after static info
 		for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
 		{					
@@ -174,9 +178,13 @@ public class EIArtifact extends Artifact {
 
 			for (Entry<String, String> entry : connections.entrySet())
 			{
-				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
+				String agentName = entry.getKey();
+				Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entry.getValue());
 				
-				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				AgentArtifact.perceiveUpdate(agentName, percepts);
+				
+				getObsPropertyByTemplate("charge", agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentBattery());
+				getObsPropertyByTemplate("load",   agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentLoad());
 				
 //				if (entry.getKey().equals("agentA1")) logger.info(percepts.toString());
 				

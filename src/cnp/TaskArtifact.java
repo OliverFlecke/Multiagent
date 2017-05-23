@@ -1,5 +1,6 @@
 package cnp;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +22,11 @@ public class TaskArtifact extends Artifact {
 		instance = this;
 	}
 	
+	public static void announce(Object... args)
+	{
+		instance.execInternalOp("announce", args);
+	}
+	
 	/**
 	 * Announces a task by creating a CNPArtifact and defining it as an observable property.
 	 * This will commence the bidding between agents.
@@ -33,29 +39,29 @@ public class TaskArtifact extends Artifact {
 		try {
 			String artifactName = "CNPArtifact" + (++cnpId);
 			
-			makeArtifact(artifactName, "cnp.CNPArtifact", new ArtifactConfig(5000));
+			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
 			defineObsProperty("task", taskId, artifactName);
-//			defineObsProperty("task", task);
 		} 
 		catch (Throwable e) 
 		{
-			logger.log(Level.SEVERE, "Failure in announceTask: " + e.getMessage(), e);
+			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
 		}		
 	}
 	
-	public static void announce(Object... args)
-	{
-		instance.execInternalOp("announce", args);
-	}
-	
-	/**
-	 * Removes a previously announced task from the Artifact.
-	 * @param artifactName - Name of the CNPArtifact
-	 */
 	@OPERATION
-	void clear(String artifactName)
+	void announce(Map<String, Integer> items, String deliveryLocation)
 	{
-		removeObsPropertyByTemplate("task", artifactName);
+		try {
+			String artifactName = "CNPArtifact" + (++cnpId);
+			
+			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
+			
+			defineObsProperty("task", items, deliveryLocation, artifactName);
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
+		}		
 	}
 }

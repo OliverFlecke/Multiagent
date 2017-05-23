@@ -31,11 +31,11 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 
 +task(TaskId, CNPName) : free <- 
 	lookupArtifact(CNPName, CNPId);
-	bid(20, BidId)[artifact_id(CNPId)];
-	winner(WinnerId)[artifact_id(CNPId)];
-	+winner(BidId, WinnerId, TaskId).
+	bid(20)[artifact_id(CNPId)];
+	winner(Name)[artifact_id(CNPId)];
+	+winner(Name, TaskId).
 	
-+winner(BidId, WinnerId, TaskId) : BidId = WinnerId & free <-
++winner(Name, TaskId) : isMyName(Name) <-
 	-free;
 	!solveJob(TaskId);
 	+free.
@@ -120,4 +120,12 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
+
++!goCharge : charge(X) & X > 300.
++!goCharge <- 
+	getClosestFacility("charging_station", ChargingStation);
+	!getToFacility(ChargingStation);
+	action(charge);
+	!goCharge.
+	 
 
