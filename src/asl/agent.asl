@@ -5,7 +5,7 @@ free.
 // Rules
 isMyName(Name) :- .my_name(Me) & .term2string(Me, String) & String == Name.
 
-//inFacility(F) :- .my_name(Me) & .term2string(Me, Name) & inFacility(Name, F).
+inFacility(F) :- .my_name(Me) & .term2string(Me, Name) & inFacility(Name, F).
 
 getBaseItems(Items, BaseItems) :- BaseItems = [].
 inWorkshop 	:- inFacility(F) & .substring("workshop", F).
@@ -20,14 +20,13 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 !register.
 !focusArtifacts.
 
+// Plans 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("AgentArtifact");
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
-// Plans 
-+inFacility(Name, X) : isMyName(Name) <- +inFacility(X).
 
 +task(TaskId, CNPName) : free <- 
 	lookupArtifact(CNPName, CNPId);
@@ -116,7 +115,10 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) <- action(goto(F)); !getToFacility(F).	
++!getToFacility(F) : newStep 	<- action(goto(F)); -newStep; !getToFacility(F).	
++!getToFacility(F) 				<- !getToFacility(F).
+
++step(X) <- +newStep.
 
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.

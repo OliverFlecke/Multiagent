@@ -54,7 +54,6 @@ public class EIArtifact extends Artifact {
 			ei.start();
 			
 			defineObsProperty("step", 0);
-			defineObsProperty("inFacility", "nobody", "none");
 		} 
 		catch (Throwable e) 
 		{
@@ -118,10 +117,6 @@ public class EIArtifact extends Artifact {
 			Action ac = Translator.stringToAction(action);
 			
 			ei.performAction(agentName, ac);
-			
-			Facility facility = AgentArtifact.getEntity(agentName).getFacility();
-			if (facility == null) 	getObsPropertyByTemplate("inFacility").updateValues(agentName, "none");
-			else 					getObsPropertyByTemplate("inFacility").updateValues(agentName, facility.getName());
 		}
 		catch (Throwable e) 
 		{
@@ -145,6 +140,8 @@ public class EIArtifact extends Artifact {
 			agentPercepts.put(entry.getKey(), percepts);
 			
 			allPercepts.addAll(percepts);
+			
+			defineObsProperty("inFacility", entry.getKey(), "none");
 		}
 		
 		// Important to perceive items before facilities
@@ -186,6 +183,14 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
+			
+			for (String agentName : AgentArtifact.getEntitiesNames())
+			{
+				Facility facility = AgentArtifact.getEntity(agentName).getFacility();
+				
+				if (facility == null) 	getObsPropertyByTemplate("inFacility", agentName, null).updateValue(1, "none");
+				else 					getObsPropertyByTemplate("inFacility", agentName, null).updateValue(1, facility.getName());
+			}
 			
 //			FacilityArtifact.logShops();
 		} 
