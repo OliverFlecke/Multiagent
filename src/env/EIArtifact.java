@@ -54,6 +54,7 @@ public class EIArtifact extends Artifact {
 			ei.start();
 			
 			defineObsProperty("step", 0);
+			defineObsProperty("inFacility", "nobody", "none");
 		} 
 		catch (Throwable e) 
 		{
@@ -64,30 +65,28 @@ public class EIArtifact extends Artifact {
 	@OPERATION
 	void register(String entity)  
 	{
-		String agName = getOpUserName();
+		String agentName = getOpUserName();
 		
-		logger.fine("register " + agName + " on " + entity);
+		logger.fine("register " + agentName + " on " + entity);
 		
 		try 
 		{			
-			ei.registerAgent(agName);
+			ei.registerAgent(agentName);
 			
-			ei.associateEntity(agName, entity);
+			ei.associateEntity(agentName, entity);
 			
-			connections.put(agName, entity);
+			connections.put(agentName, entity);
 
-			defineObsProperty("inFacility", agName, "none");
-			
 			if (connections.size() == ei.getEntities().size())
 			{
 				// Perceive initial perceptions when all agents have connected
 				execInternalOp("perceiveInitial");
 				
 				// Attach listener for perceiving the following steps
-				ei.attachAgentListener(agName, new AgentListener() 
+				ei.attachAgentListener(agentName, new AgentListener() 
 				{				
 					@Override
-					public void handlePercept(String agent, Percept percept) 
+					public void handlePercept(String agentName, Percept percept) 
 					{
 						if (percept.getName().equals("step"))
 						{							
@@ -119,10 +118,10 @@ public class EIArtifact extends Artifact {
 			Action ac = Translator.stringToAction(action);
 			
 			ei.performAction(agentName, ac);
-
+			
 			Facility facility = AgentArtifact.getEntity(agentName).getFacility();
-			if (facility == null) 	getObsPropertyByTemplate("inFacility", agentName).updateValues(agentName, "none");
-			else 					getObsPropertyByTemplate("inFacility", agentName).updateValues(agentName, facility.getName());
+			if (facility == null) 	getObsPropertyByTemplate("inFacility").updateValues(agentName, "none");
+			else 					getObsPropertyByTemplate("inFacility").updateValues(agentName, facility.getName());
 		}
 		catch (Throwable e) 
 		{

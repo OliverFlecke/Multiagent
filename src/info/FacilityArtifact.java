@@ -17,7 +17,6 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
-import env.EIArtifact;
 import env.Translator;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.facilities.ChargingStation;
@@ -110,16 +109,13 @@ public class FacilityArtifact extends Artifact {
 			}
 		}
 
-		if (EIArtifact.LOGGING_ENABLED)
-		{
-			logger.info("Perceived facilities");
-			logFacilities("Charging station perceived:"	, chargingStations	.values());
-			logFacilities("Dumps perceived:"			, dumps				.values());
-			logFacilities("Shops perceived:"			, shops				.values());
-			logFacilities("Storages perceived:"			, storages			.values());
-			logFacilities("Workshops perceived:"		, workshops			.values());
-			logFacilities("Resource nodes perceived:"	, resourceNodes		.values());
-		}
+		logger.info("Perceived facilities");
+		logFacilities("Charging station perceived:"	, chargingStations	.values());
+		logFacilities("Dumps perceived:"			, dumps				.values());
+		logFacilities("Shops perceived:"			, shops				.values());
+		logFacilities("Storages perceived:"			, storages			.values());
+		logFacilities("Workshops perceived:"		, workshops			.values());
+		logFacilities("Resource nodes perceived:"	, resourceNodes		.values());
 	}
 	
 	private static void logFacilities(String msg, Collection<? extends Facility> facilities)

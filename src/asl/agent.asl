@@ -5,7 +5,7 @@ free.
 // Rules
 isMyName(Name) :- .my_name(Me) & .term2string(Me, String) & String == Name.
 
-inFacility(F) :- .my_name(Me) & .term2string(Me, Name) & inFacility(Name, F).
+//inFacility(F) :- .my_name(Me) & .term2string(Me, Name) & inFacility(Name, F).
 
 getBaseItems(Items, BaseItems) :- BaseItems = [].
 inWorkshop 	:- inFacility(F) & .substring("workshop", F).
@@ -20,16 +20,14 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 !register.
 !focusArtifacts.
 
-// Plans 
-+!register : connection(C) <- register(C).
--!register <- .wait(100); !register.
-
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("AgentArtifact");
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
+// Plans 
++inFacility(Name, X) : isMyName(Name) <- +inFacility(X).
 
 +task(TaskId, CNPName) : free <- 
 	lookupArtifact(CNPName, CNPId);
@@ -63,10 +61,11 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
  	action(deliver_job(Job)).
  	
 +!assembleItems([]).
-+!assembleItems([Item | Items]) : inWorkshop 
++!assembleItems([map(Item, Amount) | Items]) : inWorkshop 
 	<- 
 	!assembleItem(Item); 
-	!assembleItems(Items).
+	if (Amount > 1) { !assembleItems([map(Item, Amount - 1) | Items]); }
+	else 			{ !assembleItems(Items); }.
 +!assembleItems(Items) <- 
 	!focusArtifact("FacilityArtifact");
 	getClosestFacility("workshop", Workshop); 
@@ -90,7 +89,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 +?contains([], _, _).
 +?contains([Item | Rest], Inventory, Missing) : contains(Item, Inventory)
 	<- ?contains(Rest, Inventory, Missing). 
-+?contains([map(Item, _) | Rest], Inventory, [Item | Missing]) 	
++?contains([Item | Rest], Inventory, [Item | Missing]) 	
  	<- ?contains(Rest, Inventory, Missing).
 
 
@@ -109,8 +108,7 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 		.concat(Items, [map(Item, AmountRemaining)], NewItems);
 		!retrieveItems(NewItems);
 	}
-	else 					 { !retrieveItems(Items); }
-	.
+	else { !retrieveItems(Items); }.
 	
 +!retrieveTools(Tools).
 	
@@ -123,4 +121,3 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 // Power related plans
 +charge(X) : X < 200 <- !goCharge.
 
-+inFacility(Name, X) : isMyName(Name).

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,11 @@ import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
+import jason.NoValueException;
+import jason.asSyntax.ASSyntax;
+import jason.asSyntax.Literal;
+import jason.asSyntax.NumberTerm;
+import jason.asSyntax.parser.ParseException;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Tool;
@@ -41,16 +47,34 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	private static Map<String, Integer> getBaseItem(String name)
+	public static Map<String, Integer> getBaseItem(String name)
 	{	
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));				
 	}
 
 	@OPERATION
-	void getBaseItems(Object[] items, OpFeedbackParam<Object> ret)
+	void getBaseItems(Object[] itemMap, OpFeedbackParam<Object> ret)
 	{	
-		ret.set(Arrays.stream(items)
+		List<String> items = new LinkedList<>();
+		for (Object item : itemMap)
+		{
+			try {
+				Literal literal = ASSyntax.parseLiteral(item.toString());
+				String itemName = literal.getTerm(0).toString().replaceAll("\"", "");
+				double number = ((NumberTerm) literal.getTerm(1)).solve();
+				
+				for (int i = 0; i < number; i++)
+				{
+					items.add(itemName);
+				}
+			} catch (ParseException | NoValueException e) {
+				logger.warning("Could not parse literal in getBaseItems");
+				e.printStackTrace();
+			}
+		}
+		
+		ret.set(items.stream()
 				.map(item -> getBaseItem((String) item).entrySet()).flatMap(Collection::stream)
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
 	}

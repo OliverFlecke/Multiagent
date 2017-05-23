@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -16,6 +18,7 @@ import cnp.TaskArtifact;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
+import massim.protocol.scenario.city.data.ItemAmountData;
 import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
@@ -46,15 +49,31 @@ public class JobArtifact extends Artifact {
 		Job job = jobs.get(jobId);
 		
 		storage.set(job.getStorage().getName());
-//		items.set(job.getRequiredItems().getStoredTypes().stream()
-//				.map(x -> x.getName()).collect(Collectors.toList()));
-		String[] itemNames = new String[job.getRequiredItems().getStoredTypes().size()];
-		int i = 0;
-		for (Item item : job.getRequiredItems().getStoredTypes())
+		items.set(job.getRequiredItems().toItemAmountData().stream()
+				.collect(Collectors.toMap(x -> x.getName(), x -> x.getAmount())));
+	}
+	
+	/**
+	 * Computes the price to by all the necessary items needed to complete this job
+	 * @param job
+	 * @return The price to buy all the items needed for the job
+	 */
+	public static int priceForItems(Job job)
+	{
+		int price = 0;
+		for (ItemAmountData itemData : job.getRequiredItems().toItemAmountData())
 		{
-			itemNames[i++] = item.getName();
+			int currentPrice = 0;
+			
+			for (Entry<String, Integer> entry : ItemArtifact.getBaseItem(itemData.getName()).entrySet())
+			{
+				Item item = ItemArtifact.getItem(entry.getKey());
+				currentPrice += item.getValue() * entry.getValue();
+			}
+			
+			price += currentPrice * itemData.getAmount();
 		}
-		items.set(itemNames);
+		return price;
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
@@ -134,7 +153,7 @@ public class JobArtifact extends Artifact {
 		Storage storage = (Storage) FacilityArtifact.getFacility(FacilityArtifact.STORAGE, storageId);
 		
 		Job job = new Job(reward, storage, start, end, "");
-		// TODO
+
 		for (Object part : (Object[]) args[5])
 		{
 			Object[] partArgs = (Object[]) part;
