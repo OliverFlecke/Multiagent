@@ -20,6 +20,12 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 !register.
 !focusArtifacts.
 
++!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
++!focusArtifacts <-
+	!focusArtifact("TaskArtifact");
+	!focusArtifact("AgentArtifact");
+	!focusArtifact("EIArtifact").	
+-!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 // Plans 
 +inFacility(Name, X) : isMyName(Name) <- +inFacility(X).
 

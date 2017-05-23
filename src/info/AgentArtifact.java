@@ -162,7 +162,7 @@ public class AgentArtifact extends Artifact {
 		int amount 	= (int) args[1];
 		
 		AgentArtifact.getEntity(agentName).addItem(item, amount);
-		logger.info(AgentArtifact.getEntity(agentName).getInventory().toString());
+//		logger.info(AgentArtifact.getEntity(agentName).getInventory().toString());
 	}
 	
 	/**
@@ -264,5 +264,19 @@ public class AgentArtifact extends Artifact {
 	public static CEntity getEntity(String name)
 	{
 		return entities.get(name);
+	}
+
+	/**
+	 * @return All the entities
+	 */
+	public static Collection<CEntity> getEntities() {
+		return entities.values();
+	}
+
+	/**
+	 * @return The names of all the entities
+	 */
+	public static Set<String> getEntitiesNames() {
+		return entities.keySet();
 	}
 }
