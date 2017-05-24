@@ -4,7 +4,8 @@ free.
 
 // Rules
 myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
-isMyName(Name) 	:- myName(String) & String == Name.
+isMyName(Name) 	:- myName(StringName) & StringName == Name.
+myRole(Role) 	:- myName(Name) & myRole(Name, Role).
 
 // Personal percepts
 inFacility(F) 	:- myName(Name) & inFacility(Name, F).
@@ -12,20 +13,32 @@ charge(C) 		:- myName(Name) & charge(Name, C).
 load(L)			:- myName(Name) & load(Name, L).
 routeLength(L)	:- myName(Name) & routeLength(Name, L).
 
-getBaseItems(Items, BaseItems) :- BaseItems = [].
-inWorkshop 	:- inFacility(F) & .substring("workshop", F).
-inStorage 	:- inFacility(F) & .substring("storage",  F).
-inShop	    :- inFacility(F) & .substring("shop",     F).
-inShop(X)	:- inFacility(F) & .substring("shop",     F) & .substring(X, F).
+speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
+maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
+maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
+chargeThreshold(100). // Should the threshold be dependent on the type of vehicle (properly) 
+// Don't know if we will need to know if they travel by road or air
+
+// Check if agent is in this type of facility
+inChargingStation 	:- inFacility(F) & .substring("chargingStation", F).
+inWorkshop 			:- inFacility(F) & .substring("workshop", F).
+inStorage 			:- inFacility(F) & .substring("storage",  F).
+inShop	    		:- inFacility(F) & .substring("shop",     F).
+inShop(X)			:- inFacility(F) & inShop & .substring(X, F).
 
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
 contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 
 
+enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshold) & 
+				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
+				
 // Initial goals
 !register.
 !focusArtifacts.
 
 // Plans 
++step(X) <- +newStep.
+
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
@@ -138,19 +151,17 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : newStep 	<- -newStep; action(goto(F)); !getToFacility(F).	
-+!getToFacility(F) 				<- !getToFacility(F).
++!getToFacility(F) : newStep & enoughCharge		<- -newStep; action(goto(F)); !getToFacility(F).	
++!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge.
++!getToFacility(F) 								<- !getToFacility(F).
 
-+step(X) <- +newStep.
-
-// Power related plans
-+charge(X) : X < 200 <- !goCharge.
-
-+!goCharge : charge(X) & X > 300.
-+!goCharge <- 
-	getClosestFacility("charging_station", ChargingStation);
++!charge : charge(X) & maxCharge(X).
++!charge : inChargingStation <- action(charge); !charge.
++!charge <- 
+	getClosestFacility("chargingStation", ChargingStation);
+	+enoughCharge;
 	!getToFacility(ChargingStation);
-	action(charge);
-	!goCharge.
+	-enoughCharge;
+	!charge.
 	 
 

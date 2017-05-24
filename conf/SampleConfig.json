@@ -33,7 +33,7 @@
         "car" : {
           "speed" : 30,
           "load" : 1000000,
-          "battery" : 10000000,
+          "battery" : 500,
           "roads" : ["road"]
         },
         "drone" : {
