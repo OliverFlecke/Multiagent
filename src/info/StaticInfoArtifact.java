@@ -13,12 +13,14 @@ import java.util.stream.Collectors;
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
+import data.CCityMap;
 import data.CEntity;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Role;
+import massim.scenario.city.data.Route;
 
 public class StaticInfoArtifact extends Artifact {
 	
@@ -42,6 +44,7 @@ public class StaticInfoArtifact extends Artifact {
 	private static int					seedCapital;
 	private static int					steps;
 	private static String				team;
+	private static CCityMap				cityMap;
 	
 	@OPERATION
 	void getSimulationData(OpFeedbackParam<String> id, OpFeedbackParam<String> map,
@@ -53,6 +56,27 @@ public class StaticInfoArtifact extends Artifact {
 		seedCapital	.set(StaticInfoArtifact.seedCapital);
 		steps		.set(StaticInfoArtifact.steps);
 		team		.set(StaticInfoArtifact.team);
+	}
+	
+	/**
+	 * @return The map of the city, which is able to calculate route between points
+	 */
+	public static CCityMap getMap()
+	{
+		return cityMap;
+	}
+	
+	/**
+	 * Get the route from an agent to any location
+	 * @param agentName
+	 * @param to
+	 * @return The route to the location
+	 */
+	public static Route getRoute(String agentName, Location to)
+	{
+		CEntity agent = AgentArtifact.getEntity(agentName);
+		
+		return StaticInfoArtifact.getMap().findRoute(agent.getLocation(), to, agent.getPremissions());
 	}
 
 	public static void perceiveInitial(Collection<Percept> percepts)
@@ -120,6 +144,16 @@ public class StaticInfoArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		map = (String) args[0];
+		
+		// TODO: Read these in from the file (Only works for Paris map now)
+		double cellSize = 200;
+	    double minLat   = 2.26;
+	    double maxLat   = 2.41;
+	    double minLon   = 48.82;
+	    double maxLon   = 48.90;
+	    Location center = new Location(2.3209, 48.8424);
+		
+		cityMap = new CCityMap(map, cellSize, minLat, maxLat, minLon, maxLon, center);
 	}
 
 	// Literal(String,)

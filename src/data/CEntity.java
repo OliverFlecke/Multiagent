@@ -1,9 +1,13 @@
 package data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.ActionExecutor;
 import massim.scenario.city.data.*;
 import massim.scenario.city.data.facilities.Facility;
+import massim.scenario.city.util.GraphHopperManager;
 
 /**
  * The body of an agent in the City scenario.
@@ -11,6 +15,7 @@ import massim.scenario.city.data.facilities.Facility;
 public class CEntity {
 
     private Role role;
+    private Set<String> premissions;
     private double lat; 
     private double lon;
     private Route route;
@@ -25,12 +30,23 @@ public class CEntity {
 
     public CEntity(Role role, Location location){
         this.role = role;
+        
+        premissions = new HashSet<>();
+        
+        if (role.getName() == "drone") 	premissions.add(GraphHopperManager.PERMISSION_AIR);
+        else 				        	premissions.add(GraphHopperManager.PERMISSION_ROAD);
+        
         items = new CBoundedItemBox(role.getMaxLoad());
         this.lat = location.getLat();
         this.lon = location.getLon();
         currentBattery = role.getMaxBattery();
     }
 
+    public Set<String> getPremissions()
+    {
+    	return this.premissions;
+    }
+    
     public int getCurrentBattery(){
         return currentBattery;
     }

@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
+import data.CEntity;
 import eis.iilang.Percept;
 import env.Translator;
 import massim.scenario.city.data.Location;
@@ -78,6 +79,20 @@ public class FacilityArtifact extends Artifact {
 		
 		// What happens if the feedback parameter is null?
 		ret.set(getClosestFacility(agLoc, facilities));
+	}
+	
+	@OPERATION
+	void distanceToFacility(String facilityName, OpFeedbackParam<Integer> distance)
+	{
+		distance.set(StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation()).getRouteLength());
+	}
+	
+	@OPERATION
+	void durationToFacility(String facilityName, OpFeedbackParam<Integer> duration)
+	{
+		CEntity agent = AgentArtifact.getEntity(getOpUserName());
+		
+		duration.set(StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation()).getRouteDuration(agent.getRole().getSpeed()));
 	}
 	
 	public static String getClosestFacility(Location l, Collection<? extends Facility> facilities)
@@ -177,7 +192,7 @@ public class FacilityArtifact extends Artifact {
 			
 			shop.addItem(ItemArtifact.getItem(itemId), quantity, price);	
 			ItemArtifact.addItemLocation(itemId, shop);
-		}		
+		}
 		shops.put(name, shop);
 	}
 

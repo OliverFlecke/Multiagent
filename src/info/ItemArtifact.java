@@ -86,10 +86,18 @@ public class ItemArtifact extends Artifact {
 				.collect(Collectors.toMap(x -> x.getKey().getName(), Map.Entry::getValue)));
 	}
 	
+	/**
+	 * @param item
+	 * @return A collection of all the shops selling the given item
+	 */
+	public static Collection<Shop> getShopSelling(String item)
+	{
+		return itemLocations.get(item).values();
+	}
 	
 	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {
-		ret.set(itemLocations.get(item).values());
+		ret.set(getShopSelling(item));
 	}
 	
 	@OPERATION
@@ -125,6 +133,24 @@ public class ItemArtifact extends Artifact {
 		{
 			ret.set(false);
 		}
+	}
+	
+	/**
+	 * @param item
+	 * @return Get the best price for an item on the market
+	 */
+	public static int itemPrice(Item item)
+	{
+		Collection<Shop> shops = getShopSelling(item.getName());
+		
+		if (shops.isEmpty()) return 0;
+		
+		int bestPrice = Integer.MAX_VALUE;
+		
+		for (Shop shop : shops)
+			bestPrice = bestPrice > shop.getPrice(item) ? shop.getPrice(item) : bestPrice;
+		
+		return bestPrice;
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)

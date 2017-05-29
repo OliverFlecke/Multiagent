@@ -4,7 +4,6 @@ free.
 
 // Rules
 myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
-isMyName(Name) 	:- myName(StringName) & StringName == Name.
 myRole(Role) 	:- myName(Name) & myRole(Name, Role).
 
 // Personal percepts
@@ -29,6 +28,8 @@ inShop(X)			:- inFacility(F) & inShop & .substring(X, F).
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
 contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 
 
+have(I) :- .my_name(Me) & getAgentInventory(Agent, Inv) & .member(I, Inv).
+
 enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshold) & 
 				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
 				
@@ -43,6 +44,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("AgentArtifact");
+	!focusArtifact("FacilityArtifact");
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
@@ -58,7 +60,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	winner(Name)[artifact_id(CNPId)];
 	+winner(Name, TaskId).
 	
-+winner(Name, TaskId) : isMyName(Name) <-
++winner(Name, TaskId) : myName(Name) <-
 	-free;
 	!solveJob(TaskId);
 	+free.
@@ -131,9 +133,8 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	else { !retrieveItems(Items); }.
 	
 +!retrieveTools([]).
-+!retrieveTools([Tool | Tools]) <-
-	!retrieveTool(Tool);
-	!retrieveTools(Tools).
++!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
++!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
 +!retrieveTool(Tool) <-
 	.my_name(Me); canUseTool(Tool, Me, CanUse);
 	if (CanUse)
@@ -147,12 +148,12 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	else { .print("Can't use the tool"); } // Need help from someone that can use this tool
 	.
 	
-+!buyItem(Item, Amount) : inShop <- action(buy(Item, Amount)).
--!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
++!buyItem(Item, Amount) : inShop 	<- action(buy(Item, Amount)). // Should maybe check if the shop sells the item
+-!buyItem(Item, Amount) 			<- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : newStep & enoughCharge		<- -newStep; action(goto(F)); !getToFacility(F).	
-+!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge.
++!getToFacility(F) : newStep & enoughCharge		<- -newStep; action(goto(F)); !getToFacility(F).
++!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge; !getToFacility(F).
 +!getToFacility(F) 								<- !getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
