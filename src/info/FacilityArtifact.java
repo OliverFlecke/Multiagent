@@ -97,7 +97,7 @@ public class FacilityArtifact extends Artifact {
 	
 	public static String getClosestFacility(Location l, Collection<? extends Facility> facilities)
 	{		
-		return facilities.parallelStream().min(Comparator
+		return facilities.stream().min(Comparator
 				.comparingDouble(f -> euclideanDistance(f.getLocation(), l))).get().getName();
 	}
 	
@@ -151,8 +151,8 @@ public class FacilityArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name 	= (String) args[0];
-		double 	lon 	= (double) args[1];
-		double 	lat 	= (double) args[2];
+		double 	lat 	= (double) args[1];
+		double 	lon 	= (double) args[2];
 		int 	rate 	= (int)    args[3];
 		
 		chargingStations.put(name, new ChargingStation(name, new Location(lon, lat), rate));
@@ -164,8 +164,8 @@ public class FacilityArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name 	= (String) args[0];
-		double 	lon 	= (double) args[1];
-		double 	lat 	= (double) args[2];
+		double 	lat 	= (double) args[1];
+		double 	lon 	= (double) args[2];
 		
 		dumps.put(name, new Dump(name, new Location(lon, lat)));
 	}
@@ -176,8 +176,8 @@ public class FacilityArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name	= (String) args[0];
-		double 	lon		= (double) args[1];
-		double 	lat		= (double) args[2];
+		double 	lat		= (double) args[1];
+		double 	lon		= (double) args[2];
 		int    	restock	= (int)    args[3];
 		
 		Shop shop = new Shop(name, new Location(lon, lat), restock);
@@ -202,8 +202,8 @@ public class FacilityArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name  		= (String) args[0];
-		double 	lon			= (double) args[1];
-		double 	lat			= (double) args[2];
+		double 	lat			= (double) args[1];
+		double 	lon			= (double) args[2];
 		int 	capacity	= (int)    args[3];
 		// Set<String> teamNames?
 		
@@ -218,8 +218,8 @@ public class FacilityArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name 	= (String) args[0];
-		double 	lon 	= (double) args[1];
-		double 	lat 	= (double) args[2];
+		double 	lat 	= (double) args[1];
+		double 	lon 	= (double) args[2];
 		
 		workshops.put(name, new Workshop(name, new Location(lon, lat)));
 	}
@@ -231,8 +231,8 @@ public class FacilityArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name   	= (String) args[0];
-		double 	lon		= (double) args[1];
-		double 	lat		= (double) args[2];
+		double 	lat		= (double) args[1];
+		double 	lon		= (double) args[2];
 		String 	itemId 	= (String) args[3];
 		
 		resourceNodes.put(name, 

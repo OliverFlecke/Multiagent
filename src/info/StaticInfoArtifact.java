@@ -147,10 +147,10 @@ public class StaticInfoArtifact extends Artifact {
 		
 		// TODO: Read these in from the file (Only works for Paris map now)
 		double cellSize = 200;
-	    double minLat   = 2.26;
-	    double maxLat   = 2.41;
-	    double minLon   = 48.82;
-	    double maxLon   = 48.90;
+	    double minLon   = 2.26;
+	    double maxLon   = 2.41;
+	    double minLat   = 48.82;
+	    double maxLat   = 48.90;
 	    Location center = new Location(2.3209, 48.8424);
 		
 		cityMap = new CCityMap(map, cellSize, minLat, maxLat, minLon, maxLon, center);
