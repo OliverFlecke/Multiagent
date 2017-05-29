@@ -23,7 +23,7 @@
       "proximity" : 5,
       "cellSize" : 200,
       "randomSeed" : 17,
-      "randomFail" : 1,
+      "randomFail" : 0,
       "postJobLimit": 10,
       "gotoCost" : 10,
       "rechargeRate" : 5,
