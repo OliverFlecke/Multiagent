@@ -66,7 +66,7 @@ public class JobArtifact extends Artifact {
 		{
 			int currentPrice = 0;
 			
-			for (Entry<String, Integer> entry : ItemArtifact.getBaseItem(itemData.getName()).entrySet())
+			for (Entry<String, Integer> entry : ItemArtifact.getBaseItems(itemData.getName()).entrySet())
 			{
 				Item item = ItemArtifact.getItem(entry.getKey());
 				

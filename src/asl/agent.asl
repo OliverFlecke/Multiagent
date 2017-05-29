@@ -67,6 +67,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	
 +!solveJob(Job) : .my_name(Me) <- 
 	getJob(Job, DeliveryLocation, Items);
+	
 	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Items);
 	
 	getBaseItems(Items, BaseItems);
