@@ -27,6 +27,7 @@ import info.FacilityArtifact;
 import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
+import jason.asSyntax.ASSyntax;
 import massim.eismassim.EnvironmentInterface;
 import massim.scenario.city.data.Role;
 import massim.scenario.city.data.facilities.Facility;
@@ -93,7 +94,6 @@ public class EIArtifact extends Artifact {
 						{							
 							DynamicInfoArtifact.perceiveStep(percept);
 							
-							getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 							
 							execInternalOp("perceiveUpdate");
 						}
@@ -147,6 +147,8 @@ public class EIArtifact extends Artifact {
 			defineObsProperty("charge", 		agentName, null);
 			defineObsProperty("load", 			agentName, null);
 			defineObsProperty("routeLength", 	agentName, null);
+			defineObsProperty("lastAction", agentName, null);
+			defineObsProperty("lastActionResult", agentName, null);
 			
 			allPercepts.addAll(percepts);
 		}
@@ -195,9 +197,11 @@ public class EIArtifact extends Artifact {
 				getObsPropertyByTemplate("charge", 		agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentBattery());
 				getObsPropertyByTemplate("load",   		agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentLoad());
 				getObsPropertyByTemplate("routeLength", agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getRouteLength());
+				String action = AgentArtifact.getEntity(agentName).getLastAction().getActionType();
+				getObsPropertyByTemplate("lastAction",  agentName, null).updateValue(1, action);
+				getObsPropertyByTemplate("lastActionResult", agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getLastActionResult());
 				
 //				if (entry.getKey().equals("agentA1")) logger.info(percepts.toString());
-				
 				allPercepts.addAll(percepts);
 			}
 			
@@ -212,6 +216,8 @@ public class EIArtifact extends Artifact {
 				if (facility == null) 	getObsPropertyByTemplate("inFacility", agentName, null).updateValue(1, "none");
 				else 					getObsPropertyByTemplate("inFacility", agentName, null).updateValue(1, facility.getName());
 			}
+			
+			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
 //			FacilityArtifact.logShops();
 		} 

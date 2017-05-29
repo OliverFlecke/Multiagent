@@ -95,6 +95,11 @@ public class FacilityArtifact extends Artifact {
 		duration.set(StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation()).getRouteDuration(agent.getRole().getSpeed()));
 	}
 	
+	/**
+	 * @param l location to search from
+	 * @param facilities to search
+	 * @return The name of the nearest facility
+	 */
 	public static String getClosestFacility(Location l, Collection<? extends Facility> facilities)
 	{		
 		return facilities.stream().min(Comparator

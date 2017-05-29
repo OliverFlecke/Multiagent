@@ -70,6 +70,15 @@ public class AgentArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getCurrentFacility(OpFeedbackParam<String> name)
+	{
+		Facility facility = getEntity(getOpUserName()).getFacility();
+		
+		if (facility == null) name.set("none");
+		else name.set(facility.getName());
+	}
+	
+	@OPERATION
 	void waitUntilInFacility(String facilityName)
 	{
 		await("inFacility", facilityName);
