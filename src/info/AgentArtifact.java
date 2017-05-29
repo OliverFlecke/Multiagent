@@ -70,26 +70,6 @@ public class AgentArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void waitUntilInFacility(String facilityName)
-	{
-		await("inFacility", facilityName);
-	}
-	
-	@OPERATION
-	void updateFacility()
-	{
-		Facility facility = entities.get(getOpUserName()).getFacility();
-		
-		String facilityName = "none";
-		if (facility != null)
-		{
-			facilityName = facility.getName();
-		}
-		
-		getObsProperty("inFacility").updateValue(facilityName);
-	}
-	
-	@OPERATION
 	void getAgentInventory(String agentName, OpFeedbackParam<Object> ret)
 	{
 		ret.set(getEntity(agentName).getInventory().toItemAmountData().stream()

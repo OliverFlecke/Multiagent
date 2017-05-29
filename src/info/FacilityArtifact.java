@@ -127,7 +127,7 @@ public class FacilityArtifact extends Artifact {
 	
 	public static void logShops() 
 	{
-		logFacilities("Shops perceived:"			, shops				.values());
+		logFacilities("Shops perceived:", shops.values());
 	}
 	
 	// Literal(String, double, double, int)
@@ -199,7 +199,6 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double)
 	private static void perceiveWorkshop(Percept percept) 
 	{
-//		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name 	= (String) args[0];
@@ -212,7 +211,6 @@ public class FacilityArtifact extends Artifact {
 	// Literal(String, double, double, String)
 	private static void perceiveResourceNode(Percept percept)
 	{
-//		Term[] args = Translator.perceptToLiteral(percept).getTermsArray();
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String 	name   	= (String) args[0];

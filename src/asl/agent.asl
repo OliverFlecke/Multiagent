@@ -18,11 +18,17 @@ maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
 chargeThreshold(100). // Should the threshold be dependent on the type of vehicle (properly) 
 // Don't know if we will need to know if they travel by road or air
 
+// Check facility type
+isChargingStation(F)	:- .substring("chargingStation", F).
+isWorkshop(F)			:- .substring("workshop", F).
+isStorage(F)			:- .substring("storage",  F).
+isShop(F)				:- .substring("shop",     F).
+
 // Check if agent is in this type of facility
-inChargingStation 	:- inFacility(F) & .substring("chargingStation", F).
-inWorkshop 			:- inFacility(F) & .substring("workshop", F).
-inStorage 			:- inFacility(F) & .substring("storage",  F).
-inShop	    		:- inFacility(F) & .substring("shop",     F).
+inChargingStation 	:- inFacility(F) & isChargingStation(F).
+inWorkshop 			:- inFacility(F) & isWorkshop(F).
+inStorage 			:- inFacility(F) & isStorage(F).
+inShop	    		:- inFacility(F) & isShop(F).
 inShop(X)			:- inFacility(F) & inShop & .substring(X, F).
 
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
@@ -36,28 +42,46 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 !focusArtifacts.
 
 // Plans 
-+step(X) <- +newStep.
+//+step(X) <- +newStep.
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
+//	!focusArtifact("AgentArtifact");
+//	!focusArtifact("ItemArtifact");
+//	!focusArtifact("FacilityArtifact");
 	!focusArtifact("TaskArtifact");
-	!focusArtifact("AgentArtifact");
-	!focusArtifact("ItemArtifact");
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
-+task(TaskId, DeliveryLocation, [Item|Items], CNPName) : free <- 
++task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & .my_name(agentA1) <-
 	lookupArtifact(CNPName, CNPId);
 	bid(20)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
 	if ( myName(Name) )
 	{
-		-free;
-		lookupArtifact("TaskArtifact", ArtifactId);
-		announce(TaskId, DeliveryLocation, Items)[artifact_id(ArtifactId)];
-		!solvePartialJob(TaskId, DeliveryLocation, Item);
-		+free;
+		!solveJob(TaskId, DeliveryLocation, [Item|Items])
 	}.
+	
++!solveJob(TaskId, DeliveryLocation, [Item|Items]) <-
+	-free;
+	if ( not Items = [] )
+	{
+		announce(TaskId, DeliveryLocation, Items, "partial");
+	}
+	!solvePartialJob(TaskId, DeliveryLocation, Item);
+	+free.
+	
++free : task(TaskId, DeliveryLocation, Items, "partial", CNPName) & .my_name(agentA1) <-
+	.print("Partial");
+	lookupArtifact(CNPName, CNPId);
+	takeTask[artifact_id(CNPId)];
+	!solveJob(TaskId, DeliveryLocation, Items).
+	
++free : task(TaskId, DeliveryLocation, Items, _, CNPName) & .my_name(agentA1) <-
+	.print("Non-Partial");
+	lookupArtifact(CNPName, CNPId);
+	takeTask[artifact_id(CNPId)];
+	!solveJob(TaskId, DeliveryLocation, Items).
 	
 +!solvePartialJob(Job, DeliveryLocation, Item) : .my_name(Me) <- 
 	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
@@ -75,7 +99,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	
 +!delieverItems(Job, Facility) <- 
 	!getToFacility(Facility);
- 	action(deliver_job(Job)).
+ 	!doAction(deliver_job(Job)).
  	
 +!assembleItems([]).
 +!assembleItems([map(Item, Amount) | Items]) : inWorkshop 
@@ -83,7 +107,6 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	if (Amount > 1) { !assembleItems([map(Item, Amount - 1) | Items]); }
 	else 			{ !assembleItems(Items); }.
 +!assembleItems(Items) <- 
-	!focusArtifact("FacilityArtifact");
 	getClosestFacility("workshop", Workshop); 
 	
 	!getToFacility(Workshop);
@@ -94,7 +117,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	getRequiredItems(Item, ReqItems);
 	getAgentInventory(Agent, Inv);
 	?contains(ReqItems, Inv, Missing);
-	if (Missing = []) { action(assemble(Item)); }
+	if (Missing = []) { !doAction(assemble(Item)); }
 	else {
 		!assembleItems(Missing);
 		!assembleItem(Item);	
@@ -141,21 +164,21 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	else { .print("Can't use the tool"); } // Need help from someone that can use this tool
 	.
 	
-+!buyItem(Item, Amount) : inShop <- action(buy(Item, Amount)).
++!buyItem(Item, Amount) : inShop <- !doAction(buy(Item, Amount)).
 -!buyItem(Item, Amount) <- .print("Not in a shop while buying ", Item).
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : newStep & enoughCharge		<- -newStep; action(goto(F)); !getToFacility(F).	
-+!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge; !getToFacility(F).
-+!getToFacility(F) 								<- !getToFacility(F).
++!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- .print("Need to charge"); !charge; !getToFacility(F).
++!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
-+!charge : inChargingStation <- action(charge); !charge.
++!charge : inChargingStation <- !doAction(charge); !charge.
 +!charge <- 
 	getClosestFacility("chargingStation", ChargingStation);
-	+enoughCharge;
 	!getToFacility(ChargingStation);
-	-enoughCharge;
 	!charge.
 	 
-
++!doAction(Action) : step(X) <-
+//	.wait(step(X));
+	.print(X);	
+	action(Action).

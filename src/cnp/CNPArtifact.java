@@ -34,14 +34,10 @@ public class CNPArtifact extends Artifact {
 	 */
 	@INTERNAL_OPERATION
 	void awaitBids(long duration)
-	{
-		log("Awaiting bids");
-		
+	{		
 		await_time(duration);
 		
 		this.isOpen = false;
-		
-		log("Bidding closed");
 	}
 	
 	/**
@@ -85,13 +81,30 @@ public class CNPArtifact extends Artifact {
 		if (bestBid.isPresent())
 		{
 			agent.set(bestBid.get().getAgent());
+			
+			TaskArtifact.clear(getId());
+		}
+	}
+	
+	/**
+	 * Any agent is allowed to immediately take a task which has been 
+	 * bid for, but not received any bids.
+	 */
+	@OPERATION
+	void takeTask()
+	{
+		await("biddingClosed");
+		
+		if (bids.isEmpty())
+		{
+			TaskArtifact.clear(getId());
 		}
 	}
 	
 	static class Bid {
 		
-		String 	agent;
-		int 	bid;
+		private String 	agent;
+		private int 	bid;
 		
 		public Bid(String agent, int bid) {
 			this.agent 	= agent;

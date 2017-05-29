@@ -29,7 +29,6 @@ import info.JobArtifact;
 import info.StaticInfoArtifact;
 import massim.eismassim.EnvironmentInterface;
 import massim.scenario.city.data.Role;
-import massim.scenario.city.data.facilities.Facility;
 
 public class EIArtifact extends Artifact {
 
@@ -91,10 +90,6 @@ public class EIArtifact extends Artifact {
 					{
 						if (percept.getName().equals("step"))
 						{							
-							DynamicInfoArtifact.perceiveStep(percept);
-							
-							getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
-							
 							execInternalOp("perceiveUpdate");
 						}
 					}
@@ -146,14 +141,13 @@ public class EIArtifact extends Artifact {
 			defineObsProperty("inFacility", 	agentName, null);
 			defineObsProperty("charge", 		agentName, null);
 			defineObsProperty("load", 			agentName, null);
-			defineObsProperty("routeLength", 	agentName, null);
+			defineObsProperty("routeLength",	agentName, null);
 			
 			allPercepts.addAll(percepts);
 		}
 		
 		// Important to perceive items before facilities
 		ItemArtifact        .perceiveInitial(allPercepts);
-//		FacilityArtifact    .perceiveInitial(allPercepts);
 		StaticInfoArtifact  .perceiveInitial(allPercepts);
 		
 		FacilityArtifact	.perceiveUpdate(allPercepts);
@@ -185,18 +179,10 @@ public class EIArtifact extends Artifact {
 			Set<Percept> allPercepts = new HashSet<>();
 
 			for (Entry<String, String> entry : connections.entrySet())
-			{
-				String agentName = entry.getKey();
+			{				
+				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
-				Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entry.getValue());
-				
-				AgentArtifact.perceiveUpdate(agentName, percepts);
-				
-				getObsPropertyByTemplate("charge", 		agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentBattery());
-				getObsPropertyByTemplate("load",   		agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getCurrentLoad());
-				getObsPropertyByTemplate("routeLength", agentName, null).updateValue(1, AgentArtifact.getEntity(agentName).getRouteLength());
-				
-//				if (entry.getKey().equals("agentA1")) logger.info(percepts.toString());
+				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
 				
 				allPercepts.addAll(percepts);
 			}
@@ -205,13 +191,19 @@ public class EIArtifact extends Artifact {
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
 			
-			for (String agentName : AgentArtifact.getEntitiesNames())
-			{
-				Facility facility = AgentArtifact.getEntity(agentName).getFacility();
+			// Update observable properties
+			for (Entry<String, CEntity> entry : AgentArtifact.getEntities().entrySet())
+			{				
+				String 		agentName 	= entry.getKey();
+				CEntity 	entity		= entry.getValue();				
 				
-				if (facility == null) 	getObsPropertyByTemplate("inFacility", agentName, null).updateValue(1, "none");
-				else 					getObsPropertyByTemplate("inFacility", agentName, null).updateValue(1, facility.getName());
+				getObsPropertyByTemplate("inFacility", 	agentName, null).updateValue(1, entity.getFacilityName());
+				getObsPropertyByTemplate("charge", 		agentName, null).updateValue(1, entity.getCurrentBattery());
+				getObsPropertyByTemplate("load",   		agentName, null).updateValue(1, entity.getCurrentLoad());
+				getObsPropertyByTemplate("routeLength", agentName, null).updateValue(1, entity.getRouteLength());
 			}
+			
+			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
 //			FacilityArtifact.logShops();
 		} 

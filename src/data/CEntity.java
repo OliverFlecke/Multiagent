@@ -242,8 +242,8 @@ public class CEntity {
 		return this.facility.getName().equals(facilityName);
 	}
 	
-	public Facility getFacility()
+	public String getFacilityName()
 	{
-		return this.facility;
+		return facility == null ? "none" : facility.getName();
 	}
 }

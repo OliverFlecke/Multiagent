@@ -164,7 +164,7 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-			TaskArtifact.announce(id, storage.getName(), CUtil.extractItems(job));
+			TaskArtifact.announce(id, storage.getName(), CUtil.extractItems(job), "new");
 		jobs.put(id, job); 
 	}
 	

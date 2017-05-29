@@ -20,11 +20,11 @@ public class DynamicInfoArtifact extends Artifact {
 
 	private static final String DEADLINE			= "deadline";
 	private static final String MONEY 				= "money";
-//	private static final String STEP 				= "step";
+	private static final String STEP 				= "step";
 	private static final String TIMESTAMP 			= "timestamp";
 	
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
-		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, /* STEP, */ TIMESTAMP)));
+		new HashSet<String>(Arrays.asList(DEADLINE, MONEY, STEP, TIMESTAMP)));
 
 	private static long					deadline;
 	private static int					money;
@@ -73,7 +73,7 @@ public class DynamicInfoArtifact extends Artifact {
 			{
 			case DEADLINE:   perceiveDeadline	(percept);	break;
 			case MONEY:      perceiveMoney		(percept);  break;
-//			case STEP:       perceiveStep		(percept);  break; // Is percieved prematurely
+			case STEP:       perceiveStep		(percept);  break;
 			case TIMESTAMP:  perceiveTimestamp	(percept);  break;
 			}
 		}

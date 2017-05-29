@@ -121,7 +121,7 @@
           "toolProbability" : 0
         },
         "jobs" : {
-          "rate" : 1.0,
+          "rate" : 0.2,
           "auctionProbability" : 0.4,
           "productTypesMin" : 1,
           "productTypesMax" : 5,
