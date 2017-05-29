@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import cnp.TaskArtifact;
+import data.CUtil;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
@@ -49,8 +49,7 @@ public class JobArtifact extends Artifact {
 		Job job = jobs.get(jobId);
 		
 		storage.set(job.getStorage().getName());
-		items.set(job.getRequiredItems().toItemAmountData().stream()
-				.collect(Collectors.toMap(x -> x.getName(), x -> x.getAmount())));
+		items.set(CUtil.extractItems(job));
 	}
 	
 	/**
@@ -165,7 +164,7 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-			TaskArtifact.announce(id);
+			TaskArtifact.announce(id, storage.getName(), CUtil.extractItems(job));
 		jobs.put(id, job); 
 	}
 	

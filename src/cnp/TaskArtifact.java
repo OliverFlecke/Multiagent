@@ -1,12 +1,10 @@
 package cnp;
 
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
-import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 
 public class TaskArtifact extends Artifact {
@@ -27,37 +25,15 @@ public class TaskArtifact extends Artifact {
 		instance.execInternalOp("announce", args);
 	}
 	
-	/**
-	 * Announces a task by creating a CNPArtifact and defining it as an observable property.
-	 * This will commence the bidding between agents.
-	 * @param duration - Duration of the task.
-	 * @param id - Name of the created CNPArtifact as feedback parameter.
-	 */
-	@INTERNAL_OPERATION
-	void announce(String taskId)
-	{
-		try {
-			String artifactName = "CNPArtifact" + (++cnpId);
-			
-			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
-			
-			defineObsProperty("task", taskId, artifactName);
-		} 
-		catch (Throwable e) 
-		{
-			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
-		}		
-	}
-	
 	@OPERATION
-	void announce(Map<String, Integer> items, String deliveryLocation)
+	void announce(String taskId, String deliveryLocation, Object items)
 	{
 		try {
 			String artifactName = "CNPArtifact" + (++cnpId);
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty("task", items, deliveryLocation, artifactName);
+			defineObsProperty("task", taskId, deliveryLocation, items, artifactName);
 		} 
 		catch (Throwable e) 
 		{

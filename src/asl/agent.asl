@@ -4,7 +4,6 @@ free.
 
 // Rules
 myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
-isMyName(Name) 	:- myName(StringName) & StringName == Name.
 myRole(Role) 	:- myName(Name) & myRole(Name, Role).
 
 // Personal percepts
@@ -43,41 +42,36 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("AgentArtifact");
+	!focusArtifact("ItemArtifact");
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
-+task(TaskId, CNPName) : free & .my_name(agentA1) <- 
++task(TaskId, DeliveryLocation, [Item|Items], CNPName) : free <- 
 	lookupArtifact(CNPName, CNPId);
 	bid(20)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
-	+winner(Name, TaskId).
+	if ( myName(Name) )
+	{
+		-free;
+		lookupArtifact("TaskArtifact", ArtifactId);
+		announce(TaskId, DeliveryLocation, Items)[artifact_id(ArtifactId)];
+		!solvePartialJob(TaskId, DeliveryLocation, Item);
+		+free;
+	}.
 	
-+task(Items, DeliveryLocation, CNPName) : free <- 
-	lookupArtifact(CNPName, CNPId);
-	bid(20)[artifact_id(CNPId)];
-	winner(Name)[artifact_id(CNPId)];
-	+winner(Name, TaskId).
++!solvePartialJob(Job, DeliveryLocation, Item) : .my_name(Me) <- 
+	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
 	
-+winner(Name, TaskId) : isMyName(Name) <-
-	-free;
-	!solveJob(TaskId);
-	+free.
-	
-+!solveJob(Job) : .my_name(Me) <- 
-	getJob(Job, DeliveryLocation, Items);
-	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Items);
-	
-	getBaseItems(Items, BaseItems);
+	getBaseItems([Item], BaseItems);
 	.print("Base items needed: ", BaseItems);
 	
-	!retrieveTools(Tools);
 	!retrieveItems(BaseItems);
 
-	!focusArtifact("ItemArtifact");
-	!assembleItems(Items);
+	!assembleItems([Item]);
 
 	!delieverItems(Job, DeliveryLocation);
 	.print("Job done!").
+	
 	
 +!delieverItems(Job, Facility) <- 
 	!getToFacility(Facility);
@@ -152,7 +146,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	
 +!getToFacility(F) : inFacility(F). 
 +!getToFacility(F) : newStep & enoughCharge		<- -newStep; action(goto(F)); !getToFacility(F).	
-+!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge.
++!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge; !getToFacility(F).
 +!getToFacility(F) 								<- !getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
