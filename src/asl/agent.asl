@@ -149,15 +149,13 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	else { .print("Can't use the tool"); } // Need help from someone that can use this tool
 	.
 	
-+!buyItem(Item, Amount) : inShop	<- action(buy(Item, Amount)). // Should maybe check if the shop sells the item
--!buyItem(Item, Amount)  			<- !buyItem(Item, Amount).
++!buyItem(Item, Amount) : inShop & newStep 	<- -newStep; action(buy(Item, Amount)). // Should maybe check if the shop sells the item
++!buyItem(Item, Amount) : inShop 			<- !buyItem(Item, Amount).
+-!buyItem(Item, Amount) : newStep			<- .print("Not in a shop while buying ", Item).
 
 	
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : newStep & enoughCharge		<- 
-	-newStep; action(goto(F)); 
-	durationToFacility(F, D); 
-	if (D > 2) { !getToFacility(F) }. // Duration should be 1, but that makes it goto once too many times... 
++!getToFacility(F) : newStep & enoughCharge		<- -newStep; action(goto(F)); !getToFacility(F).
 +!getToFacility(F) : not enoughCharge 			<- .print("Need to charge"); !charge; !getToFacility(F).
 +!getToFacility(F) 								<- !getToFacility(F).
 
