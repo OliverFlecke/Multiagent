@@ -89,7 +89,7 @@ public class EIArtifact extends Artifact {
 					public void handlePercept(String agentName, Percept percept) 
 					{
 						if (percept.getName().equals("step"))
-						{							
+						{
 							execInternalOp("perceiveUpdate");
 						}
 					}
@@ -138,10 +138,12 @@ public class EIArtifact extends Artifact {
 			
 			agentPercepts.put(agentName, percepts);
 			
-			defineObsProperty("inFacility", 	agentName, null);
-			defineObsProperty("charge", 		agentName, null);
-			defineObsProperty("load", 			agentName, null);
-			defineObsProperty("routeLength",	agentName, null);
+			defineObsProperty("inFacility", 		agentName, null);
+			defineObsProperty("charge", 			agentName, null);
+			defineObsProperty("load", 				agentName, null);
+			defineObsProperty("routeLength", 		agentName, null);
+			defineObsProperty("lastAction", 		agentName, null);
+			defineObsProperty("lastActionResult", 	agentName, null);
 			
 			allPercepts.addAll(percepts);
 		}
@@ -195,12 +197,14 @@ public class EIArtifact extends Artifact {
 			for (Entry<String, CEntity> entry : AgentArtifact.getEntities().entrySet())
 			{				
 				String 		agentName 	= entry.getKey();
-				CEntity 	entity		= entry.getValue();				
+				CEntity 	entity		= entry.getValue();
 				
-				getObsPropertyByTemplate("inFacility", 	agentName, null).updateValue(1, entity.getFacilityName());
-				getObsPropertyByTemplate("charge", 		agentName, null).updateValue(1, entity.getCurrentBattery());
-				getObsPropertyByTemplate("load",   		agentName, null).updateValue(1, entity.getCurrentLoad());
-				getObsPropertyByTemplate("routeLength", agentName, null).updateValue(1, entity.getRouteLength());
+				getObsPropertyByTemplate("inFacility", 		 agentName, null).updateValue(1, entity.getFacilityName());
+				getObsPropertyByTemplate("charge", 			 agentName, null).updateValue(1, entity.getCurrentBattery());
+				getObsPropertyByTemplate("load",   			 agentName, null).updateValue(1, entity.getCurrentLoad());
+				getObsPropertyByTemplate("routeLength", 	 agentName, null).updateValue(1, entity.getRouteLength());
+				getObsPropertyByTemplate("lastAction",  	 agentName, null).updateValue(1, entity.getLastAction().getActionType());
+				getObsPropertyByTemplate("lastActionResult", agentName, null).updateValue(1, entity.getLastActionResult());
 			}
 			
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());

@@ -47,7 +47,7 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	public static Map<String, Integer> getBaseItem(String name)
+	public static Map<String, Integer> getBaseItems(String name)
 	{	
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));				
@@ -75,7 +75,7 @@ public class ItemArtifact extends Artifact {
 		}
 		
 		ret.set(items.stream()
-				.map(item -> getBaseItem((String) item).entrySet()).flatMap(Collection::stream)
+				.map(item -> getBaseItems((String) item).entrySet()).flatMap(Collection::stream)
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
 	}
 	
@@ -86,10 +86,18 @@ public class ItemArtifact extends Artifact {
 				.collect(Collectors.toMap(x -> x.getKey().getName(), Map.Entry::getValue)));
 	}
 	
+	/**
+	 * @param item
+	 * @return A collection of all the shops selling the given item
+	 */
+	public static Collection<Shop> getShopSelling(String item)
+	{
+		return itemLocations.get(item).values();
+	}
 	
 	@OPERATION
 	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {
-		ret.set(itemLocations.get(item).values());
+		ret.set(getShopSelling(item));
 	}
 	
 	@OPERATION
@@ -125,6 +133,72 @@ public class ItemArtifact extends Artifact {
 		{
 			ret.set(false);
 		}
+	}
+	
+	@OPERATION
+	void getVolume(Object input, OpFeedbackParam<Integer> ret)
+	{
+		Map<Item, Integer> items = new HashMap<>();
+		
+		for (Object item : (Object[]) input) 
+		{
+			try {
+				Literal literal = ASSyntax.parseLiteral(item.toString());
+
+				String itemName = literal.getTerm(0).toString().replaceAll("\"", "");
+				
+				int amount = (int) ((NumberTerm) literal.getTerm(1)).solve();
+
+				items.put(ItemArtifact.getItem(itemName), amount);
+			} 
+			catch (NoValueException | ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		System.out.println(items + " has volume: " + items);
+		
+		ret.set(this.getVolume(items));
+	}
+	
+	/**
+	 * @param items Map of all the items
+	 * @return Get the total volume of all the items in the map
+	 */
+	public int getVolume(Map<Item, Integer> items)
+	{
+		int sum = 0;
+		
+		for (Entry<Item, Integer> item : items.entrySet())
+		{
+			sum += item.getKey().getVolume() * item.getValue();
+		}
+		
+		return sum;
+	}
+	
+	@OPERATION 
+	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(this.getVolume(getItem(item).getRequiredBaseItems()));
+	}
+	
+	/**
+	 * @param item
+	 * @return Get the best price for an item on the market
+	 */
+	public static int itemPrice(Item item)
+	{
+		Collection<Shop> shops = getShopSelling(item.getName());
+		
+		if (shops.isEmpty()) return 0;
+		
+		int bestPrice = Integer.MAX_VALUE;
+		
+		for (Shop shop : shops)
+			bestPrice = bestPrice > shop.getPrice(item) ? shop.getPrice(item) : bestPrice;
+		
+		return bestPrice;
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)

@@ -49,6 +49,7 @@ public class JobArtifact extends Artifact {
 		Job job = jobs.get(jobId);
 		
 		storage.set(job.getStorage().getName());
+
 		items.set(CUtil.extractItems(job));
 	}
 	
@@ -64,15 +65,29 @@ public class JobArtifact extends Artifact {
 		{
 			int currentPrice = 0;
 			
-			for (Entry<String, Integer> entry : ItemArtifact.getBaseItem(itemData.getName()).entrySet())
+			for (Entry<String, Integer> entry : ItemArtifact.getBaseItems(itemData.getName()).entrySet())
 			{
 				Item item = ItemArtifact.getItem(entry.getKey());
-				currentPrice += item.getValue() * entry.getValue();
+				
+				currentPrice += ItemArtifact.itemPrice(item) * entry.getValue();
 			}
 			
 			price += currentPrice * itemData.getAmount();
 		}
 		return price;
+	}
+	
+	/**
+	 * @param job
+	 * @return The possible amount of money one can earn from this job
+	 */
+	public static int possibleEarning(Job job)
+	{
+		int price = priceForItems(job);
+		
+		// TODO: Add some estimate for the charge cost
+		
+		return job.getReward() - price;
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
@@ -163,8 +178,9 @@ public class JobArtifact extends Artifact {
 			job.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
 		
-		if (!jobs.containsKey(id))
+		if (!jobs.containsKey(id) && possibleEarning(job) > 0)
 			TaskArtifact.announce(id, storage.getName(), CUtil.extractItems(job), "new");
+		
 		jobs.put(id, job); 
 	}
 	
