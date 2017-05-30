@@ -47,10 +47,10 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	public static Map<String, Integer> getBaseItems(String name)
+	public static Map<Item, Integer> getBaseItems(String name)
 	{	
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));				
+				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));				
 	}
 
 	@OPERATION
@@ -76,7 +76,7 @@ public class ItemArtifact extends Artifact {
 		
 		ret.set(items.stream()
 				.map(item -> getBaseItems((String) item).entrySet()).flatMap(Collection::stream)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
+				.collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue, Integer::sum)));
 	}
 	
 	@OPERATION 
@@ -158,14 +158,14 @@ public class ItemArtifact extends Artifact {
 		
 		System.out.println(items + " has volume: " + items);
 		
-		ret.set(this.getVolume(items));
+		ret.set(ItemArtifact.getVolume(items));
 	}
 	
 	/**
 	 * @param items Map of all the items
 	 * @return Get the total volume of all the items in the map
 	 */
-	public int getVolume(Map<Item, Integer> items)
+	public static int getVolume(Map<Item, Integer> items)
 	{
 		int sum = 0;
 		
@@ -180,7 +180,7 @@ public class ItemArtifact extends Artifact {
 	@OPERATION 
 	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
 	{
-		ret.set(this.getVolume(getItem(item).getRequiredBaseItems()));
+		ret.set(ItemArtifact.getVolume(getItem(item).getRequiredBaseItems()));
 	}
 	
 	/**

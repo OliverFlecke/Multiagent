@@ -1,11 +1,14 @@
 package cnp;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.OPERATION;
+import env.Translator;
+import jason.asSyntax.StringTermImpl;
 
 public class TaskArtifact extends Artifact {
 
@@ -37,6 +40,16 @@ public class TaskArtifact extends Artifact {
 		{
 			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
 		}		
+	}
+	
+	public Object toItemMap(Object items)
+	{
+			 if (items instanceof Map<?, ?>) 		return items;
+		else if (items instanceof StringTermImpl)
+		{
+			
+			
+		}
 	}
 	
 	@OPERATION

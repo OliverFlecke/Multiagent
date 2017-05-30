@@ -38,6 +38,8 @@ contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory).
 
 have(I) :- .my_name(Me) & getAgentInventory(Agent, Inv) & .member(I, Inv).
 
+bid(Item, Bid) :- speed(S) & charge(C) & load(L) & maxLoad(M) & jia.bid(S, C, L, M, Item, Bid) & .print(Bid).
+
 enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshold) & 
 				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
 				
@@ -57,9 +59,9 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	!focusArtifact("EIArtifact").	
 -!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
 
-+task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & .my_name(agentA1) <-
++task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & .print(Item) & bid(Item, Bid) <-
 	lookupArtifact(CNPName, CNPId);
-	bid(20)[artifact_id(CNPId)];
+	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
 	if ( myName(Name) )
 	{
@@ -75,17 +77,17 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	!solvePartialJob(TaskId, DeliveryLocation, Item);
 	+free.
 	
-+free : task(TaskId, DeliveryLocation, Items, "partial", CNPName) & .my_name(agentA1) <-
++free : task(TaskId, DeliveryLocation, [Item|Items], "partial", CNPName) & .print(Item) & bid(Item, _) <-
 	.print("Partial");
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
-	!solveJob(TaskId, DeliveryLocation, Items).
+	!solveJob(TaskId, DeliveryLocation, [Item|Items]).
 	
-+free : task(TaskId, DeliveryLocation, Items, _, CNPName) & .my_name(agentA1) <-
++free : task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) & .print(Item) & bid(Item, _) <-
 	.print("Non-Partial");
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
-	!solveJob(TaskId, DeliveryLocation, Items).
+	!solveJob(TaskId, DeliveryLocation, [Item|Items]).
 	
 +!solvePartialJob(Job, DeliveryLocation, Item) : .my_name(Me) <- 
 	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
