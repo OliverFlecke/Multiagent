@@ -11,7 +11,8 @@
 	!assembleItems([map(Item, Amount - 1) | Items]).
 // Get to workshop
 +!assembleItems(Items) <-	
-	!getToFacility("workshop");
+	getClosestFacility("workshop", F);
+	!getToFacility(F);
 	!assembleItems(Items).
 	
 // Recursively assemble required items
@@ -36,14 +37,17 @@
 +!retrieveTool(Tool) : canUseTool(Tool) 		<- !retrieveItems([map(Tool, 1)]).
 +!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
 	
-+!getToFacility(S) : string(S) 										<- getClosestFacility(S, F); !getToFacility(F).
+//+!getToFacility(S) : string(S) 										<- getClosestFacility(S, F); !getToFacility(F).
 +!getToFacility(F) : inFacility(F). 
 +!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation <- !doAction(charge); !charge.
-+!charge <- !getToFacility("chargingStation"); !charge.
++!charge <-
+	getClosestFacility("chargingStation", F);
+	!getToFacility(F); 
+	!charge.
 	 
 +!doAction(Action) : step(X) <-
 //	.wait(step(X));
