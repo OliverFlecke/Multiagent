@@ -32,7 +32,7 @@ public class ItemArtifact extends Artifact {
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(ITEM)));
 
-    private static Map<String, Tool> 				tools 			= new HashMap<>();
+	private static Map<String, Tool> 				tools 			= new HashMap<>();
 	private static Map<String, Item>				items 			= new HashMap<>();
 	private static Map<String, Map<String, Shop>> 	itemLocations 	= new HashMap<>();	
 	
@@ -164,8 +164,6 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	/**
-<<<<<<< HEAD
-=======
 	 * Format: [map("item1", 10),...]
 	 * @param input An AS map of items and amount
 	 * @param ret The total volume of all the items' base items
@@ -177,7 +175,6 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	/**
->>>>>>> 7c779c007a7f4a1b47627a8512ef79613cfb0649
 	 * @param item
 	 * @return Get the best price for an item on the market
 	 */
@@ -234,27 +231,34 @@ public class ItemArtifact extends Artifact {
 		String     id		= (String) args[0];
 		int 	   volume	= (int)    args[1];
 		
-		Item item = new Item(id, volume, 0, Collections.emptySet());
-
-		for (Object toolArg : ((Object[]) ((Object[]) args[2])[0]))
+		if (id.contains("tool"))
 		{
-			String toolId = (String) toolArg;
-			
-			if (!tools.containsKey(toolId))
+			tools.put(id, new Tool(id, volume, 0));
+		}
+		else 
+		{
+			Item item = new Item(id, volume, 0, Collections.emptySet());
+	
+			for (Object toolArg : ((Object[]) ((Object[]) args[2])[0]))
 			{
-				tools.put(toolId, new Tool(toolId, 0, 0));
-			}				
-			item.addRequiredTool(tools.get(toolId));
+				String toolId = (String) toolArg;
+				
+				if (!tools.containsKey(toolId))
+				{
+					tools.put(toolId, new Tool(toolId, 0, 0));
+				}				
+				item.addRequiredTool(tools.get(toolId));
+			}
+			
+			Set<Object[]> parts = new HashSet<>();
+	
+			for (Object part : ((Object[]) ((Object[]) args[3])[0]))
+			{			
+				parts.add((Object[]) part);	
+			}
+			items.put(id, item);
+			requirements.put(item, parts);
 		}
-		
-		Set<Object[]> parts = new HashSet<>();
-
-		for (Object part : ((Object[]) ((Object[]) args[3])[0]))
-		{			
-			parts.add((Object[]) part);	
-		}
-		items.put(id, item);
-		requirements.put(item, parts);
 	}
 	
 	// Used by the FacilityArtifact when adding items to shops.
@@ -265,6 +269,15 @@ public class ItemArtifact extends Artifact {
         	return items.get(itemId);
         }
         return tools.get(itemId);
+	}
+	
+	/**
+	 * @param toolName Name of the tool
+	 * @return The tool with the given name
+	 */
+	public static Tool getTool(String toolName)
+	{
+		return tools.get(toolName);
 	}
 	
 	// Used by the FacilityArtifact when adding shops
@@ -278,6 +291,14 @@ public class ItemArtifact extends Artifact {
 		{			
 			itemLocations.put(itemId, new HashMap<>());
 			itemLocations.get(itemId).put(shop.getName(), shop);
+		}
+	}
+
+	public static void addToolPermession(String toolName, String role) 
+	{
+		if (tools.containsKey(toolName))
+		{
+			tools.get(toolName).getRoles().add(role);
 		}
 	}
 }

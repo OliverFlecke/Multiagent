@@ -33,17 +33,12 @@
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
 +!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
-+!retrieveTool(Tool) <-
-	canUseTool(Tool, CanUse);
-	if (CanUse)
-	{
-		!retrieveItems([map(Tool, 1)]);
-	}
-	else { .print("Can't use the tool"); } // Need help from someone that can use this tool
-	.
++!retrieveTool(Tool) : canUseTool(Tool) 		<- !retrieveItems([map(Tool, 1)]).
++!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
+	
 +!getToFacility(S) : string(S) 										<- getClosestFacility(S, F); !getToFacility(F).
 +!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- .print("Need to charge"); !charge; !getToFacility(F).
++!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).

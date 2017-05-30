@@ -21,6 +21,7 @@ import env.Translator;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Role;
 import massim.scenario.city.data.Route;
+import massim.scenario.city.data.Tool;
 
 public class StaticInfoArtifact extends Artifact {
 	
@@ -171,7 +172,13 @@ public class StaticInfoArtifact extends Artifact {
 				.map(String.class::cast)
 				.collect(Collectors.toSet());
 		
-		roles.put(name, new Role(name, speed, battery, load, permissions));
+		Role role = new Role(name, speed, battery, load, permissions);
+		
+		permissions.forEach(tool -> ItemArtifact.addToolPermession(tool, name));
+		
+		role.addTools(permissions.stream().map(x -> ItemArtifact.getTool(x)).collect(Collectors.toList()));
+		
+		roles.put(name, role);
 	}
 
 	// Literal(int)

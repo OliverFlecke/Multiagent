@@ -45,7 +45,7 @@ public class EIArtifact extends Artifact {
      */
     void init() 
     {
-    	logger.setLevel(Level.FINE);
+    	logger.setLevel(Level.INFO);
 		logger.info("init");
 		
 		try 
@@ -107,7 +107,7 @@ public class EIArtifact extends Artifact {
 	{
 		String agentName = getOpUserName();
 		
-		logger.info(agentName + " doing: " + action);
+		logger.fine(agentName + " doing: " + action);
 		
 		try 
 		{	
@@ -167,7 +167,7 @@ public class EIArtifact extends Artifact {
 			Role role = agent.getValue().getRole();
 			
 			defineObsProperty("myRole", agent.getKey(), role.getName());
-			defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), role.getMaxBattery(), role.getTools());
+			defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), role.getMaxBattery(), role.getPermissions().toArray());
 		}
 	}
 	

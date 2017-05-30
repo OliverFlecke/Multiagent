@@ -13,6 +13,8 @@ lastActionResult(R) :- myName(Name) & lastActionResult(Name, R).
 speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
 maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
+canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
+
 chargeThreshold(100). // Should the threshold be dependent on the type of vehicle (properly) 
 // Don't know if we will need to know if they travel by road or air
 
