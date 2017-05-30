@@ -50,9 +50,20 @@ public class ItemArtifact extends Artifact {
 	public static Map<Item, Integer> getBaseItems(String name)
 	{	
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));				
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));				
+	}
+	
+	public static Map<String, Integer> toStringMap(Map<Item, Integer> itemMap) 
+	{
+		return itemMap.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey().getName(), Entry::getValue));
 	}
 
+	/**
+	 * Format: [map("item0", 2),...]
+	 * @param itemMap
+	 * @param ret
+	 */
 	@OPERATION
 	void getBaseItems(Object[] itemMap, OpFeedbackParam<Object> ret)
 	{	
@@ -87,7 +98,7 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	/**
-	 * @param item
+	 * @param item The item for which a shop selling it should be found
 	 * @return A collection of all the shops selling the given item
 	 */
 	public static Collection<Shop> getShopSelling(String item)
@@ -115,51 +126,27 @@ public class ItemArtifact extends Artifact {
 	@OPERATION
 	void getClosestFacilitySelling(String item, OpFeedbackParam<String> ret)
 	{
-		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
+		Location agentLocation = AgentArtifact.getEntity(getOpUserName()).getLocation();
 		
 		Collection<Shop> shops = itemLocations.get(item).values();
 		
-		ret.set(FacilityArtifact.getClosestFacility(agLoc, shops));
+		ret.set(FacilityArtifact.getClosestFacility(agentLocation, shops));
 	}
 	
+	/**
+	 * Checks if the agent can use the given tool
+	 * @param toolName The tool which should be tested
+	 * @param ret True if the agent can use the tool
+	 */
 	@OPERATION
-	void canUseTool(String toolName, String agentName, OpFeedbackParam<Boolean> ret)
+	void canUseTool(String toolName, OpFeedbackParam<Boolean> ret)
 	{
 		if (tools.containsKey(toolName))
-		{
-			ret.set(((Tool) getItem(toolName)).getRoles().contains(agentName));
-		}
+			ret.set(((Tool) getItem(toolName)).getRoles().contains(getOpUserName()));
 		else 
-		{
 			ret.set(false);
-		}
 	}
 	
-	@OPERATION
-	void getVolume(Object input, OpFeedbackParam<Integer> ret)
-	{
-		Map<Item, Integer> items = new HashMap<>();
-		
-		for (Object item : (Object[]) input) 
-		{
-			try {
-				Literal literal = ASSyntax.parseLiteral(item.toString());
-
-				String itemName = literal.getTerm(0).toString().replaceAll("\"", "");
-				
-				int amount = (int) ((NumberTerm) literal.getTerm(1)).solve();
-
-				items.put(ItemArtifact.getItem(itemName), amount);
-			} 
-			catch (NoValueException | ParseException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		System.out.println(items + " has volume: " + items);
-		
-		ret.set(ItemArtifact.getVolume(items));
-	}
 	
 	/**
 	 * @param items Map of all the items
@@ -177,10 +164,37 @@ public class ItemArtifact extends Artifact {
 		return sum;
 	}
 	
+	/**
+	 * Format: [map("item1", 10),...]
+	 * @param input A AS map of item names and amount
+	 * @param ret The total volume of all the items in the input
+	 */
+	@OPERATION
+	void getVolume(Object[] input, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
+	}
+	
+	
+	/**
+	 * @param item Name of the item
+	 * @param ret The volume of all the base items required to assemble this item
+	 */
 	@OPERATION 
 	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(ItemArtifact.getVolume(getItem(item).getRequiredBaseItems()));
+	}
+	
+	/**
+	 * Format: [map("item1", 10),...]
+	 * @param input An AS map of items and amount
+	 * @param ret The total volume of all the items' base items
+	 */
+	@OPERATION
+	void getBaseItemVolume(Object[] input, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
 	}
 	
 	/**

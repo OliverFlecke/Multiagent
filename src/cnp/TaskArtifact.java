@@ -8,7 +8,7 @@ import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.OPERATION;
 import env.Translator;
-import jason.asSyntax.StringTermImpl;
+import info.ItemArtifact;
 
 public class TaskArtifact extends Artifact {
 
@@ -34,7 +34,7 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty("task", taskId, deliveryLocation, items, type, artifactName);
+			defineObsProperty("task", taskId, deliveryLocation, toItemMap(items), type, artifactName);
 		} 
 		catch (Throwable e) 
 		{
@@ -42,14 +42,10 @@ public class TaskArtifact extends Artifact {
 		}		
 	}
 	
-	public Object toItemMap(Object items)
+	private Object toItemMap(Object items)
 	{
-			 if (items instanceof Map<?, ?>) 		return items;
-		else if (items instanceof StringTermImpl)
-		{
-			
-			
-		}
+		if (items instanceof Map<?, ?>) return items;
+		else return ItemArtifact.toStringMap(Translator.convertASObjectToMap((Object[]) items));
 	}
 	
 	@OPERATION

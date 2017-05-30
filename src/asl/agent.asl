@@ -93,6 +93,8 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
 	
 	getBaseItems([Item], BaseItems);
+//	getBaseItemVolume(BaseItems, Volume);
+	.print("Volume: ", Volume);
 	.print("Base items needed: ", BaseItems);
 	
 	!retrieveItems(BaseItems);
@@ -157,7 +159,7 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
 +!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
 +!retrieveTool(Tool) <-
-	.my_name(Me); canUseTool(Tool, Me, CanUse);
+	canUseTool(Tool, CanUse);
 	if (CanUse)
 	{
 		getShopSelling(Tool, Shop);
@@ -185,5 +187,5 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	 
 +!doAction(Action) : step(X) <-
 //	.wait(step(X));
-	.print(X);	
+//	.print(X);	
 	action(Action).
