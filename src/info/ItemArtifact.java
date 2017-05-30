@@ -46,12 +46,6 @@ public class ItemArtifact extends Artifact {
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));				
 	}
-	
-	public static Map<String, Integer> toStringMap(Map<Item, Integer> itemMap) 
-	{
-		return itemMap.entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey().getName(), Entry::getValue));
-	}
 
 	/**
 	 * Format: [map("item0", 2),...]

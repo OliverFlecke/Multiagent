@@ -10,50 +10,42 @@ free.
 !register.
 !focusArtifacts.
 
-// Strategy
-
+// Percepts
 +task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
 	if ( myName(Name) )
 	{
-		!solveJob(TaskId, DeliveryLocation, [Item|Items])
+		!solveTask(TaskId, DeliveryLocation, [Item|Items])
 	}.
-	
-+!solveJob(TaskId, DeliveryLocation, [Item|Items]) <-
-	-free;
-	if ( not Items = [] )
-	{
-		announce(TaskId, DeliveryLocation, Items, "partial");
-	}
-	!solvePartialJob(TaskId, DeliveryLocation, Item);
-	+free.
 	
 +free : task(TaskId, DeliveryLocation, [Item|Items], "partial", CNPName) & bid(Item, _) <-
 	.print("Partial");
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
-	!solveJob(TaskId, DeliveryLocation, [Item|Items]).
+	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
 	
-+free : task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) & bid(Item, _) <-
-	.print("Non-Partial");
-	lookupArtifact(CNPName, CNPId);
-	takeTask[artifact_id(CNPId)];
-	!solveJob(TaskId, DeliveryLocation, [Item|Items]).
+//+free : task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) & bid(Item, _) <-
+//	.print("Non-Partial");
+//	lookupArtifact(CNPName, CNPId);
+//	takeTask[artifact_id(CNPId)];
+//	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
 	
-+!solvePartialJob(Job, DeliveryLocation, Item) : .my_name(Me) <- 
-	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
+// Plans	
++!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
+	-free;
+	!delegateTask(TaskId, DeliveryLocation, Items);
+	!solvePartialTask(TaskId, DeliveryLocation, Item);
+	+free.
 	
-	getBaseItems([Item], BaseItems);
-	.print("Base items needed: ", BaseItems);
++!delegateTask(_, _, []).
++!delegateTask(TaskId, DeliveryLocation, Items) : not free <-
+	announce(TaskId, DeliveryLocation, Items, "partial").
 	
-	?getBaseItemVolume(BaseItems, V);
-	.print("The volume is ", V);
-	
++!solvePartialTask(TaskId, DeliveryLocation, Item) <- 
+	.print(TaskId, ": Delivering ", Item, " to ", DeliveryLocation);
+	getBaseItems([Item], BaseItems);	
 	!retrieveItems(BaseItems);
-
 	!assembleItems([Item]);
-
-	!delieverItems(Job, DeliveryLocation);
-	.print("Job done!").
+	!delieverItems(TaskId, DeliveryLocation).
