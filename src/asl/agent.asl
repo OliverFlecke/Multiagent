@@ -1,65 +1,18 @@
+// Includes
 { include("connections.asl") }
+{ include("rules.asl") }
+{ include("plans.asl") }
+
 // Initial beliefs
 free.
 
-// Rules
-myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
-myRole(Role) 	:- myName(Name) & myRole(Name, Role).
-
-// Personal percepts
-inFacility(F) 		:- myName(Name) & inFacility(Name, F).
-charge(C) 			:- myName(Name) & charge(Name, C).
-load(L)				:- myName(Name) & load(Name, L).
-routeLength(L)		:- myName(Name) & routeLength(Name, L).
-lastAction(A)		:- myName(Name) & lastAction(Name, A).
-lastActionResult(R) :- myName(Name) & lastActionResult(Name, R).
-
-speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
-maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
-maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
-chargeThreshold(100). // Should the threshold be dependent on the type of vehicle (properly) 
-// Don't know if we will need to know if they travel by road or air
-
-// Check facility type
-isChargingStation(F)	:- .substring("chargingStation", F).
-isWorkshop(F)			:- .substring("workshop", F).
-isStorage(F)			:- .substring("storage",  F).
-isShop(F)				:- .substring("shop",     F).
-
-// Check if agent is in this type of facility
-inChargingStation 	:- inFacility(F) & isChargingStation(F).
-inWorkshop 			:- inFacility(F) & isWorkshop(F).
-inStorage 			:- inFacility(F) & isStorage(F).
-inShop	    		:- inFacility(F) & isShop(F).
-inShop(X)			:- inFacility(F) & inShop & .substring(X, F).
-
-contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
-contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 
-
-have(I) :- .my_name(Me) & getAgentInventory(Agent, Inv) & .member(I, Inv).
-
-bid(Item, Bid) :- speed(S) & charge(C) & load(L) & maxLoad(M) & jia.bid(S, C, L, M, Item, Bid) & .print(Bid).
-
-enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshold) & 
-				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
-				
 // Initial goals
 !register.
 !focusArtifacts.
 
-// Plans 
-//+step(X) <- +newStep.
+// Strategy
 
-+!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
-+!focusArtifacts <-
-//	!focusArtifact("AgentArtifact");
-//	!focusArtifact("ItemArtifact");
-//	!focusArtifact("FacilityArtifact");
-	!focusArtifact("TaskArtifact");
-	!focusArtifact("EIArtifact").	
--!focusArtifacts <- .print("Failed focusing artifacts"); .wait(500); !focusArtifacts.
-
-+task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & .print(Item) & bid(Item, Bid) <-
++task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
@@ -77,13 +30,13 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	!solvePartialJob(TaskId, DeliveryLocation, Item);
 	+free.
 	
-+free : task(TaskId, DeliveryLocation, [Item|Items], "partial", CNPName) & .print(Item) & bid(Item, _) <-
++free : task(TaskId, DeliveryLocation, [Item|Items], "partial", CNPName) & bid(Item, _) <-
 	.print("Partial");
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
 	!solveJob(TaskId, DeliveryLocation, [Item|Items]).
 	
-+free : task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) & .print(Item) & bid(Item, _) <-
++free : task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) & bid(Item, _) <-
 	.print("Non-Partial");
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
@@ -93,8 +46,6 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
 	
 	getBaseItems([Item], BaseItems);
-//	getBaseItemVolume(BaseItems, Volume);
-	.print("Volume: ", Volume);
 	.print("Base items needed: ", BaseItems);
 	
 	!retrieveItems(BaseItems);
@@ -105,87 +56,3 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	.print("Job done!").
 	
 	
-+!delieverItems(Job, Facility) <- 
-	!getToFacility(Facility);
- 	!doAction(deliver_job(Job)).
- 	
-+!assembleItems([]).
-+!assembleItems([map(Item, Amount) | Items]) : inWorkshop 
-	<- !assembleItem(Item); 
-	if (Amount > 1) { !assembleItems([map(Item, Amount - 1) | Items]); }
-	else 			{ !assembleItems(Items); }.
-+!assembleItems(Items) <- 
-	getClosestFacility("workshop", Workshop); 
-	
-	!getToFacility(Workshop);
-	!assembleItems(Items).
-	
-+!assembleItem(Item) : inWorkshop & .my_name(Agent) 
-	<- .print("Assembling item: ", Item);
-	getRequiredItems(Item, ReqItems);
-	getAgentInventory(Agent, Inv);
-	?contains(ReqItems, Inv, Missing);
-	if (Missing = []) { !doAction(assemble(Item)); }
-	else {
-		!assembleItems(Missing);
-		!assembleItem(Item);	
-	}.
--!assembleItem(Item) <- .print("Could not assemble item").
-
-+?contains([], _, _).
-+?contains([Item | Rest], Inventory, Missing) : contains(Item, Inventory)
-	<- ?contains(Rest, Inventory, Missing). 
-+?contains([Item | Rest], Inventory, [Item | Missing]) 	
- 	<- ?contains(Rest, Inventory, Missing).
-
-
-+!retrieveItems([]).
-+!retrieveItems([map(Item, Amount) | Items]) <- 
-	getShopSelling(Item, Amount, Shop, AmountAvailable);
-	.print("Retriving ", Amount, " of ", Item, " in ", Shop);
-	
-	!getToFacility(Shop);
-  	!buyItem(Item, AmountAvailable);
-  	
-  	AmountRemaining = Amount - AmountAvailable;
-  	
-	if (AmountRemaining > 0) { 
-		.concat(Items, [map(Item, AmountRemaining)], NewItems);
-		!retrieveItems(NewItems);
-	}
-	else { !retrieveItems(Items); }.
-	
-+!retrieveTools([]).
-+!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
-+!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
-+!retrieveTool(Tool) <-
-	canUseTool(Tool, CanUse);
-	if (CanUse)
-	{
-		getShopSelling(Tool, Shop);
-		.print(Tool, " can be bougth in ", Shop);
-		
-		!getToFacility(Shop);
-		!buyItem(Tool, 1);
-	}
-	else { .print("Can't use the tool"); } // Need help from someone that can use this tool
-	.
-	
-+!buyItem(Item, Amount) : inShop 	<- !doAction(buy(Item, Amount)). // Should maybe check if the shop sells the item
--!buyItem(Item, Amount) 			<- .print("Not in a shop while buying ", Item).
-	
-+!getToFacility(F) : inFacility(F). 
-+!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- .print("Need to charge"); !charge; !getToFacility(F).
-+!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
-
-+!charge : charge(X) & maxCharge(X).
-+!charge : inChargingStation <- !doAction(charge); !charge.
-+!charge <- 
-	getClosestFacility("chargingStation", ChargingStation);
-	!getToFacility(ChargingStation);
-	!charge.
-	 
-+!doAction(Action) : step(X) <-
-//	.wait(step(X));
-//	.print(X);	
-	action(Action).

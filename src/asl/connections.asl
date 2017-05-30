@@ -22,3 +22,9 @@ connection(agentA16, connectionA16).
 +!register : connection(C) <- register(C).
 -!register <- .wait(100); !register.
 
++!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
++!focusArtifacts <-
+	!focusArtifact("TaskArtifact");
+	!focusArtifact("EIArtifact");
+	.print("Successfully focused artifacts").
+-!focusArtifacts <- .wait(500); !focusArtifacts.
