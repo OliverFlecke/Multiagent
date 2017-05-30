@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,11 +18,6 @@ import cartago.OpFeedbackParam;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
-import jason.NoValueException;
-import jason.asSyntax.ASSyntax;
-import jason.asSyntax.Literal;
-import jason.asSyntax.NumberTerm;
-import jason.asSyntax.parser.ParseException;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Tool;
@@ -61,27 +55,16 @@ public class ItemArtifact extends Artifact {
 	@OPERATION
 	void getBaseItems(Object[] itemMap, OpFeedbackParam<Object> ret)
 	{	
-		List<String> items = new LinkedList<>();
-		for (Object item : itemMap)
-		{
-			try {
-				Literal literal = ASSyntax.parseLiteral(item.toString());
-				String itemName = literal.getTerm(0).toString().replaceAll("\"", "");
-				double number = ((NumberTerm) literal.getTerm(1)).solve();
-				
-				for (int i = 0; i < number; i++)
-				{
-					items.add(itemName);
-				}
-			} catch (ParseException | NoValueException e) {
-				logger.warning("Could not parse literal in getBaseItems");
-				e.printStackTrace();
-			}
-		}
-		
-		ret.set(items.stream()
-				.map(item -> getBaseItems((String) item).entrySet()).flatMap(Collection::stream)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
+		// Map each item to its base item,
+		// where each base item amount is multiplied with the amount of items needed.
+		// Flat mapped and same items is combined using SUM
+		ret.set(Translator.convertASObjectToMap(itemMap).entrySet().stream()
+			.map(item -> getBaseItems(item.getKey().getName()).entrySet().stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, 
+							entry -> entry.getValue() * item.getValue()))
+					.entrySet())
+			.flatMap(Collection::stream)
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
 	}
 	
 	@OPERATION 
@@ -177,17 +160,6 @@ public class ItemArtifact extends Artifact {
 	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(this.getVolume(getItem(item).getRequiredBaseItems()));
-	}
-	
-	/**
-	 * Format: [map("item1", 10),...]
-	 * @param input An AS map of items and amount
-	 * @param ret The total volume of all the items' base items
-	 */
-	@OPERATION
-	void getBaseItemVolume(Object[] input, OpFeedbackParam<Integer> ret)
-	{
-		ret.set(this.getVolume(Translator.convertASObjectToMap(input)));
 	}
 	
 	/**

@@ -91,9 +91,10 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	.print(Me, " doing ", Job, " to ", DeliveryLocation, " with: ", Item);
 	
 	getBaseItems([Item], BaseItems);
-	getBaseItemVolume(BaseItems, Volume);
-	.print("Volume: ", Volume);
 	.print("Base items needed: ", BaseItems);
+	
+	?getBaseItemVolume(BaseItems, V);
+	.print("The volume is ", V);
 	
 	!retrieveItems(BaseItems);
 
@@ -135,7 +136,6 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	<- ?contains(Rest, Inventory, Missing). 
 +?contains([Item | Rest], Inventory, [Item | Missing]) 	
  	<- ?contains(Rest, Inventory, Missing).
-
 
 +!retrieveItems([]).
 +!retrieveItems([map(Item, Amount) | Items]) <- 
