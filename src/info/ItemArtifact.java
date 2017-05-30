@@ -135,6 +135,11 @@ public class ItemArtifact extends Artifact {
 		}
 	}
 	
+	/**
+	 * Format: [map("item1", 10),...]
+	 * @param input A AS map of item names and amount
+	 * @param ret The total volume of all the items in the input
+	 */
 	@OPERATION
 	void getVolume(Object input, OpFeedbackParam<Integer> ret)
 	{
@@ -156,8 +161,6 @@ public class ItemArtifact extends Artifact {
 			}
 		}
 		
-		System.out.println(items + " has volume: " + items);
-		
 		ret.set(this.getVolume(items));
 	}
 	
@@ -177,10 +180,43 @@ public class ItemArtifact extends Artifact {
 		return sum;
 	}
 	
+	/**
+	 * @param item Name of the item
+	 * @param ret The volume of all the base items required to assemble this item
+	 */
 	@OPERATION 
 	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(this.getVolume(getItem(item).getRequiredBaseItems()));
+	}
+	
+	/**
+	 * Format: [map("item1", 10),...]
+	 * @param input An AS map of items and amount
+	 * @param ret The total volume of all the items' base items
+	 */
+	@OPERATION
+	void getBaseItemVolume(Object input, OpFeedbackParam<Integer> ret)
+	{
+		Map<Item, Integer> items = new HashMap<>();
+		
+		for (Object item : (Object[]) input) 
+		{
+			try {
+				Literal literal = ASSyntax.parseLiteral(item.toString());
+
+				String itemName = literal.getTerm(0).toString().replaceAll("\"", "");
+				
+				int amount = (int) ((NumberTerm) literal.getTerm(1)).solve();
+
+				items.put(ItemArtifact.getItem(itemName), amount);
+			} 
+			catch (NoValueException | ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		ret.set(this.getVolume(items));
 	}
 	
 	/**
