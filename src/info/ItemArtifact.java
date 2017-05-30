@@ -70,7 +70,7 @@ public class ItemArtifact extends Artifact {
 							entry -> entry.getValue() * item.getValue()))
 					.entrySet())
 			.flatMap(Collection::stream)
-			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)));
+			.collect(Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue, Integer::sum)));
 	}
 	
 	@OPERATION 
