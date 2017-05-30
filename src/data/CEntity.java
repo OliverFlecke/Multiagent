@@ -1,6 +1,7 @@
 package data;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import massim.protocol.messagecontent.Action;
@@ -27,6 +28,7 @@ public class CEntity {
 
     private Action lastAction = Action.STD_NO_ACTION;
     private String lastActionResult = ActionExecutor.SUCCESSFUL;
+    private List<String> lastActionParam;
 
     public CEntity(Role role, Location location){
         this.role = role;
@@ -261,5 +263,15 @@ public class CEntity {
 	public String getFacilityName()
 	{
 		return facility == null ? "none" : facility.getName();
+	}
+
+	public void setLastActionParam(List<String> lastActionParam) 
+	{
+		this.lastActionParam = lastActionParam;
+	}
+	
+	public List<String> getLastActionParam()
+	{
+		return this.lastActionParam;
 	}
 }

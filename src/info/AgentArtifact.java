@@ -87,7 +87,7 @@ public class AgentArtifact extends Artifact {
 			case FACILITY:				getInstance().perceiveFacility(agentName, percept); break;
 			case HAS_ITEM:				perceiveHasItem(agentName, percept); break;
 			case LAST_ACTION : 			perceiveLastAction(agentName, percept); break;
-//			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
+			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
 			case LAST_ACTION_RESULT: 	perceiveLastActionResult(agentName, percept); break;
 			case LAT: 					perceiveLat(agentName, percept); break;
 			case LON: 					perceiveLon(agentName, percept); break;
@@ -101,6 +101,15 @@ public class AgentArtifact extends Artifact {
 		{
 			logger.info(agentName + " perceived");
 		}
+	}
+
+	private static void perceiveLastActionParams(String agentName, Percept percept) 
+	{
+		Object[] args = Translator.perceptToObject(percept);
+
+		AgentArtifact.getEntity(agentName).setLastActionParam(Arrays.stream((Object[]) args[0])
+				.map(x -> x.toString())
+				.collect(Collectors.toList()));
 	}
 
 	/**
