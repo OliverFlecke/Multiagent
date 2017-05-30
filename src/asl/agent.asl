@@ -22,6 +22,7 @@ free.
 // Strategy
 
 +task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
+	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
