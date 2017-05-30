@@ -148,8 +148,13 @@ public class JobArtifact extends Artifact {
 			
 			auction.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
-		
-		auctions.put(id, auction);
+
+		if (!auctions.containsKey(id))
+		{
+			auctions.put(id, auction);
+			TaskArtifact.announce(id, "auction");			
+		}
+		else auctions.put(id, auction);
 	}
 	
 	private static void perceiveJob(Percept percept)
@@ -176,10 +181,12 @@ public class JobArtifact extends Artifact {
 			job.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
 		
-		if (!jobs.containsKey(id) && possibleEarning(job) > 0)
-			TaskArtifact.announce(id, storage.getName(), CUtil.extractItems(job), "new");
-		
-		jobs.put(id, job); 
+		if (!jobs.containsKey(id))
+		{
+			jobs.put(id, job); 			
+			TaskArtifact.announce(id, "job");
+		}
+		else jobs.put(id, job); 		
 	}
 	
 	private static void perceiveMission(Percept percept)
@@ -211,8 +218,13 @@ public class JobArtifact extends Artifact {
 			
 			mission.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
+		if (!missions.containsKey(id))
+		{			
+			missions.put(id, mission);
+			TaskArtifact.announce(id, "mission");
+		}
+		else missions.put(id, mission);
 		
-		missions.put(id, mission);
 	}
 	
 	private static void perceivePosted(Percept percept)
@@ -238,7 +250,33 @@ public class JobArtifact extends Artifact {
 			
 			job.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
+
+		if (!postedJobs.containsKey(id))
+		{
+			postedJobs.put(id, job);
+			TaskArtifact.announce(id, "postedJob");
+		}
+		else postedJobs.put(id, job);
+	}
+	
+	public static Job getJob(String taskId)
+	{
+		if (jobs.containsKey(taskId))
+		{
+			return jobs.get(taskId);
+		}
+		else if (missions.containsKey(taskId))
+		{
+			return missions.get(taskId);
+		}
+		else if (auctions.containsKey(taskId))
+		{
+			return auctions.get(taskId);
+		}
+		else
+		{
+			return postedJobs.get(taskId);			
+		}
 		
-		postedJobs.put(id, job);
 	}
 }
