@@ -49,6 +49,8 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 
 // Plans 
 //+step(X) <- +newStep.
++lastActionResult(Name, "successful") 	: myName(Name) & lastAction(Action).
++lastActionResult(Name, _) 				: myName(Name) & lastAction(Action) 	<- .print("Last action failed. Action was ", Action).
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
@@ -95,9 +97,6 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 	getBaseItems([Item], BaseItems);
 	.print("Base items needed: ", BaseItems);
 	
-	?getBaseItemVolume(BaseItems, V);
-	.print("The volume is ", V);
-	
 	!retrieveItems(BaseItems);
 
 	!assembleItems([Item]);
@@ -124,13 +123,19 @@ enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshol
 +!assembleItem(Item) : inWorkshop & .my_name(Agent) 
 	<- .print("Assembling item: ", Item);
 	getRequiredItems(Item, ReqItems);
-	getAgentInventory(Agent, Inv);
-	?contains(ReqItems, Inv, Missing);
-	if (Missing = []) { !doAction(assemble(Item)); }
+	if (ReqItems = []) { !retrieveItems([Item]); }
 	else {
-		!assembleItems(Missing);
-		!assembleItem(Item);	
-	}.
+		getAgentInventory(Agent, Inv);
+		?contains(ReqItems, Inv, Missing);
+		if (Missing = []) { 
+			!doAction(assemble(Item));
+		}
+		else {
+			!assembleItems(Missing);
+			!assembleItem(Item);	
+		}
+	}
+	.
 -!assembleItem(Item) <- .print("Could not assemble item").
 
 +?contains([], _, _).
