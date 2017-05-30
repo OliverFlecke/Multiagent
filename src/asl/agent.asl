@@ -48,11 +48,12 @@ free.
 	getBaseItems([Item], BaseItems);
 	.print("Base items needed: ", BaseItems);
 	
+	?getBaseItemVolume(BaseItems, V);
+	.print("The volume is ", V);
+	
 	!retrieveItems(BaseItems);
 
 	!assembleItems([Item]);
 
 	!delieverItems(Job, DeliveryLocation);
 	.print("Job done!").
-	
-	
