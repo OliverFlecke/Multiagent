@@ -41,10 +41,16 @@ public class ItemArtifact extends Artifact {
 		ret.set(items.values());
 	}
 	
-	public static Map<String, Integer> getBaseItems(String name)
+	public static Map<Item, Integer> getBaseItems(String name)
 	{	
 		return items.get(name).getRequiredBaseItems().entrySet().stream()
-				.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));				
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));				
+	}
+	
+	public static Map<String, Integer> toStringMap(Map<Item, Integer> itemMap) 
+	{
+		return itemMap.entrySet().stream()
+				.collect(Collectors.toMap(e -> e.getKey().getName(), Entry::getValue));
 	}
 
 	/**
@@ -124,11 +130,12 @@ public class ItemArtifact extends Artifact {
 			ret.set(false);
 	}
 	
+	
 	/**
 	 * @param items Map of all the items
 	 * @return Get the total volume of all the items in the map
 	 */
-	public int getVolume(Map<Item, Integer> items)
+	public static int getVolume(Map<Item, Integer> items)
 	{
 		int sum = 0;
 		
@@ -148,7 +155,7 @@ public class ItemArtifact extends Artifact {
 	@OPERATION
 	void getVolume(Object[] input, OpFeedbackParam<Integer> ret)
 	{
-		ret.set(this.getVolume(Translator.convertASObjectToMap(input)));
+		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
 	}
 	
 	
@@ -159,10 +166,24 @@ public class ItemArtifact extends Artifact {
 	@OPERATION 
 	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
 	{
-		ret.set(this.getVolume(getItem(item).getRequiredBaseItems()));
+		ret.set(ItemArtifact.getVolume(getItem(item).getRequiredBaseItems()));
 	}
 	
 	/**
+<<<<<<< HEAD
+=======
+	 * Format: [map("item1", 10),...]
+	 * @param input An AS map of items and amount
+	 * @param ret The total volume of all the items' base items
+	 */
+	@OPERATION
+	void getBaseItemVolume(Object[] input, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
+	}
+	
+	/**
+>>>>>>> 7c779c007a7f4a1b47627a8512ef79613cfb0649
 	 * @param item
 	 * @return Get the best price for an item on the market
 	 */

@@ -1,11 +1,14 @@
 package cnp;
 
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.OPERATION;
+import env.Translator;
+import info.ItemArtifact;
 
 public class TaskArtifact extends Artifact {
 
@@ -31,12 +34,18 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty("task", taskId, deliveryLocation, items, type, artifactName);
+			defineObsProperty("task", taskId, deliveryLocation, toItemMap(items), type, artifactName);
 		} 
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
 		}		
+	}
+	
+	private Object toItemMap(Object items)
+	{
+		if (items instanceof Map<?, ?>) return items;
+		else return ItemArtifact.toStringMap(Translator.convertASObjectToMap((Object[]) items));
 	}
 	
 	@OPERATION

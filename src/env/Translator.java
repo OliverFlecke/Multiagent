@@ -134,6 +134,25 @@ public class Translator
 		return (Object[]) termToObject(perceptToLiteral(p));
 	}
 	
+	public static Literal stringToLiteral(String str) {
+		return Literal.parseLiteral(str);
+	}
+	
+	public static Object[] stringToObject(String str) {
+		return (Object[]) termToObject(stringToLiteral(str));
+	}
+	
+	public static Object[] termsToObject(Term[] terms)
+	{
+		Object[] objs = new Object[terms.length];
+		
+		for (int i = 0; i < terms.length; i++)
+		{
+			objs[i] = termToObject(terms[i]);
+		}
+		return objs;
+	}
+	
 	/**
 	 * Convert a Jason term into a CArtAgO/Java Object
 	 * 
