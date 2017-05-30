@@ -10,6 +10,15 @@ free.
 !register.
 !focusArtifacts.
 
+//+lastAction(Name, Action) : myName(Name) & lastActionResult(Result) <- .print(Name, " did ", Action, " which was ", Result).
++lastAction(Name, "deliver_job") : myName(Name) & lastActionResult("successful") 	<- .print("Job successful!").
+//+lastAction(Name, "randomFail")  : myName(Name) 									<- .print("Random failure").
+
++lastActionResult(Name, "successful") 			: myName(Name).
++lastActionResult(Name, "successful_partial") 	: myName(Name)						<- .print("successful_partial").
++lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
+
+
 // Strategy
 
 +task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
