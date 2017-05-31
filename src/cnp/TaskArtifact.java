@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
+import cartago.ArtifactId;
 import cartago.OPERATION;
 import data.CUtil;
 import env.Translator;
@@ -33,7 +34,10 @@ public class TaskArtifact extends Artifact implements Comparator<Job> {
 		instance.execInternalOp("announce", taskId, job.getStorage().getName(), CUtil.extractItems(job), type); 
 	}
 	
-	public static void clear	(Object... args) { instance.execInternalOp("clear", 	args); }
+	public static void clear(ArtifactId artifactId) 
+	{ 
+		instance.execInternalOp("clear", artifactId.getName()); 
+	}
 	
 	@OPERATION
 	void announce(String taskId, String deliveryLocation, Object items, String type)

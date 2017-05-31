@@ -48,8 +48,3 @@
 	getClosestFacility("chargingStation", F);
 	!getToFacility(F); 
 	!charge.
-	 
-+!doAction(Action) : step(X) <-
-//	.wait(step(X));
-//	.print(X);	
-	action(Action).

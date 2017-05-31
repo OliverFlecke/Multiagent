@@ -18,8 +18,8 @@ public class bid extends DefaultInternalAction {
 		Object[] args = Translator.termsToObject(terms);
 		
 		int speed 	= (int) args[0];
-		int charge 	= (int) args[1];
-		int load 	= (int) args[2];
+//		int charge 	= (int) args[1];
+//		int load 	= (int) args[2];
 		int maxLoad = (int) args[3];
 		
 		Object[] 	itemTuple 	= (Object[]) 	args[4];		

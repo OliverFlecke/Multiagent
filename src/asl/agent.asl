@@ -20,7 +20,7 @@ free.
 +lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
 
 +task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
-	.print("New task ", TaskId);
+//	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
@@ -30,16 +30,9 @@ free.
 	}.
 	
 +free : task(TaskId, DeliveryLocation, [Item|Items], "partial", CNPName) & bid(Item, _) <-
-	.print("Partial");
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
 	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
-	
-//+free : task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) & bid(Item, _) <-
-//	.print("Non-Partial");
-//	lookupArtifact(CNPName, CNPId);
-//	takeTask[artifact_id(CNPId)];
-//	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
 	
 // Plans	
 +!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
@@ -58,3 +51,9 @@ free.
 	!retrieveItems(BaseItems);
 	!assembleItems([Item]);
 	!delieverItems(TaskId, DeliveryLocation).
+	
++!doAction(Action) <-	
+//	.wait(step(X));
+//	.print(X);	
+	action(Action);
+	.

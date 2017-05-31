@@ -119,7 +119,7 @@ public class EIArtifact extends Artifact {
 		{
 			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
 		}
-	}	
+	}
 	
 	@INTERNAL_OPERATION
 	void perceiveInitial() throws PerceiveException, NoEnvironmentException
@@ -210,6 +210,7 @@ public class EIArtifact extends Artifact {
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
 //			FacilityArtifact.logShops();
+//			FacilityArtifact.logShop("shop6");
 		} 
 		catch (Throwable e) 
 		{

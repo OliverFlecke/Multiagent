@@ -57,7 +57,7 @@ public class FacilityArtifact extends Artifact {
 	
 	void init()
 	{
-		logger.setLevel(Level.OFF);
+		logger.setLevel(Level.WARNING);
 	}
 	
 	@OPERATION
@@ -148,6 +148,11 @@ public class FacilityArtifact extends Artifact {
 	public static void logShops() 
 	{
 		logFacilities("Shops perceived:", shops.values());
+	}
+	
+	public static void logShop(String id)
+	{
+		logger.warning(shops.get(id).toString());
 	}
 	
 	// Literal(String, double, double, int)

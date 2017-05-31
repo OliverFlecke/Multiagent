@@ -82,7 +82,10 @@ public class CNPArtifact extends Artifact {
 		{
 			agent.set(bestBid.get().getAgent());
 			
-			TaskArtifact.clear(getId());
+			if (agent.get().equals(getOpUserName()))
+			{
+				TaskArtifact.clear(getId());
+			}
 		}
 	}
 	
