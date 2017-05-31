@@ -37,10 +37,11 @@ public class JobArtifact extends Artifact {
 	public static final Set<String>	PERCEPTS = Collections.unmodifiableSet(
 		new HashSet<String>(Arrays.asList(AUCTION, JOB, MISSION, POSTED)));
 
-	private static Map<String, AuctionJob> 	auctions 	= new HashMap<>();
-	private static Map<String, Job> 		jobs 		= new HashMap<>();
-	private static Map<String, Mission> 	missions 	= new HashMap<>();
-	private static Map<String, Job> 		postedJobs 	= new HashMap<>();
+	private static Map<String, AuctionJob> 	auctions 		= new HashMap<>();
+	private static Map<String, Job> 		jobs 			= new HashMap<>();
+	private static Map<String, Mission> 	missions 		= new HashMap<>();
+	private static Map<String, Job> 		postedJobs 		= new HashMap<>();	
+	private static Map<String, String>		toBeAnnounced	= new HashMap<>();
 	
 	@OPERATION
 	void getJob(String jobId, OpFeedbackParam<String> storage, 
@@ -150,11 +151,9 @@ public class JobArtifact extends Artifact {
 		}
 
 		if (!auctions.containsKey(id))
-		{
-			auctions.put(id, auction);
-			TaskArtifact.announce(id, "auction");			
-		}
-		else auctions.put(id, auction);
+			toBeAnnounced.put(id, "auction");		
+		
+		auctions.put(id, auction);
 	}
 	
 	private static void perceiveJob(Percept percept)
@@ -182,11 +181,9 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-		{
-			jobs.put(id, job); 			
-			TaskArtifact.announce(id, "job");
-		}
-		else jobs.put(id, job); 		
+			toBeAnnounced.put(id, "job");
+		
+		jobs.put(id, job); 		
 	}
 	
 	private static void perceiveMission(Percept percept)
@@ -218,12 +215,11 @@ public class JobArtifact extends Artifact {
 			
 			mission.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
+		
 		if (!missions.containsKey(id))
-		{			
-			missions.put(id, mission);
-			TaskArtifact.announce(id, "mission");
-		}
-		else missions.put(id, mission);
+			toBeAnnounced.put(id, "mission");	
+		
+		missions.put(id, mission);
 		
 	}
 	
@@ -252,11 +248,9 @@ public class JobArtifact extends Artifact {
 		}
 
 		if (!postedJobs.containsKey(id))
-		{
-			postedJobs.put(id, job);
-			TaskArtifact.announce(id, "postedJob");
-		}
-		else postedJobs.put(id, job);
+			toBeAnnounced.put(id, "postedJob");
+		
+		postedJobs.put(id, job);
 	}
 	
 	public static Job getJob(String taskId)
@@ -277,7 +271,6 @@ public class JobArtifact extends Artifact {
 		{
 			return postedJobs.get(taskId);			
 		}
-		
 	}
 
 	/**
@@ -287,4 +280,11 @@ public class JobArtifact extends Artifact {
 	{
 		return jobs.values();
 	}
+	
+	public static void announceJobs()
+	{
+		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announce(e.getKey(), e.getValue()));
+		toBeAnnounced.clear();
+	}
+	
 }

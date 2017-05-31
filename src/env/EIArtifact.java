@@ -18,6 +18,7 @@ import cartago.OPERATION;
 import data.CEntity;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
+import eis.exceptions.ActException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import info.AgentArtifact;
@@ -41,12 +42,16 @@ public class EIArtifact extends Artifact {
     private EnvironmentInterfaceStandard ei;
     
     private Map<String, String> connections = new HashMap<>();
+    
+    private static EIArtifact instance;
 
     /**
      * Instantiates and starts the environment interface.
      */
     void init() 
     {
+    	instance = this;
+    	
     	logger.setLevel(Level.INFO);
 		logger.info("init");
 		
@@ -101,13 +106,23 @@ public class EIArtifact extends Artifact {
 			logger.log(Level.SEVERE, "Failure in register: " + e.getMessage(), e);
 		}
 	}
+	
+	public static void executeAction(String agentName, Action action)
+	{
+		try {
+			instance.ei.performAction(agentName, action);
+		} catch (ActException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@OPERATION
 	void action(String action) 
 	{
 		String agentName = getOpUserName();
 		
-		logger.fine(agentName + " doing: " + action);
+		logger.info("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
 		
 		try 
 		{	
@@ -121,11 +136,14 @@ public class EIArtifact extends Artifact {
 				
 				Shop shop = (Shop) FacilityArtifact.getFacility(agent.getFacilityName());
 				
-				Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
-				
-				int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
-				
-				shop.buy(item, amount);
+				if (shop != null)
+				{
+					Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
+					
+					int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
+					
+					shop.buy(item, amount);					
+				}				
 			}
 			
 			ei.performAction(agentName, ac);
@@ -232,6 +250,11 @@ public class EIArtifact extends Artifact {
 				String 		agentName 	= entry.getKey();
 				CEntity 	entity		= entry.getValue();
 				
+				if (agentName.equals("agentA1"))
+				{
+					System.out.println("Step " + DynamicInfoArtifact.getStep() + ": " + entity.getFacilityName());
+				}
+				
 				getObsPropertyByTemplate("inFacility", 		 agentName, null).updateValue(1, entity.getFacilityName());
 				getObsPropertyByTemplate("charge", 			 agentName, null).updateValue(1, entity.getCurrentBattery());
 				getObsPropertyByTemplate("load",   			 agentName, null).updateValue(1, entity.getCurrentLoad());
@@ -244,8 +267,8 @@ public class EIArtifact extends Artifact {
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
 			logData();
-//			FacilityArtifact.logShops();
-//			FacilityArtifact.logShop("shop6");
+
+			JobArtifact.announceJobs();
 		} 
 		catch (Throwable e) 
 		{

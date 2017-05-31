@@ -249,6 +249,8 @@ public class FacilityArtifact extends Artifact {
 	
 	public static Facility getFacility(String facilityName)
 	{
+		if (facilityName == "none") return null;
+		
 		return allFacilities.stream().filter(facilities -> facilities.containsKey(facilityName))
 				.findFirst().get().get(facilityName);
 	}

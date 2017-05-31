@@ -58,15 +58,22 @@ free.
 	!assembleItems([Item]);
 	!delieverItems(TaskId, DeliveryLocation).
 	
-+!doAction(Action) <-
-	action(Action);
++!doAction(Action) : .my_name(Me) <-
+	jia.action(Me, Action);
+//	action(Action);
+	.wait(step(_));
 	.
 
-+step(X) : lastActionResult(R) & not lastActionResult("successful") 
++step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
 	if (A = "buy")
 	{
 		P = [Item, Amount|_];
 		!retrieveItems([map(Item, Amount)]);
-	}.
-	
+	}
+	if (A = "deliver_job")
+	{
+		P = [TaskId|_];
+		
+	}
+	.
