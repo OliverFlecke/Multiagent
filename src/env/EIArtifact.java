@@ -26,11 +26,8 @@ import info.FacilityArtifact;
 import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
-import jason.asSyntax.Literal;
 import massim.eismassim.EnvironmentInterface;
-import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Role;
-import massim.scenario.city.data.facilities.Shop;
 
 public class EIArtifact extends Artifact {
 
@@ -104,53 +101,15 @@ public class EIArtifact extends Artifact {
 	
 	public static void performAction(String agentName, Action action)
 	{
+		logger.fine("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
+		
 		try 
-		{
+		{			
 			ei.performAction(agentName, action);
 		} 
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in performAction: " + e.getMessage(), e);
-		}
-	}
-	
-	@OPERATION
-	void action(String action) {
-		execInternalOp("doAction", getOpUserName(), action);
-	}
-
-	@INTERNAL_OPERATION
-	void doAction(String agentName, String action) 
-	{		
-		logger.info("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
-		
-		try 
-		{	
-			Action ac = Translator.stringToAction(action);
-			
-			if (ac.getName().equals("buy"))
-			{
-				Literal actionLiteral = Literal.parseLiteral(action);
-				
-				CEntity agent = AgentArtifact.getEntity(agentName);
-				
-				Shop shop = (Shop) FacilityArtifact.getFacility(agent.getFacilityName());
-				
-				if (shop != null)
-				{
-					Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
-					
-					int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
-					
-					shop.buy(item, amount);					
-				}				
-			}
-			
-			ei.performAction(agentName, ac);
-		}
-		catch (Throwable e) 
-		{
-			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
 		}
 	}
 	
@@ -249,11 +208,6 @@ public class EIArtifact extends Artifact {
 			{				
 				String 		agentName 	= entry.getKey();
 				CEntity 	entity		= entry.getValue();
-				
-				if (agentName.equals("agentA1"))
-				{
-					System.out.println("Step " + DynamicInfoArtifact.getStep() + ": " + entity.getFacilityName());
-				}
 				
 				getObsPropertyByTemplate("inFacility", 		 agentName, null).updateValue(1, entity.getFacilityName());
 				getObsPropertyByTemplate("charge", 			 agentName, null).updateValue(1, entity.getCurrentBattery());
