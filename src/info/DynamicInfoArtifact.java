@@ -65,6 +65,11 @@ public class DynamicInfoArtifact extends Artifact {
 		return step;
 	}
 	
+	public static int getMoney()
+	{
+		return money;
+	}
+	
 	public static void perceiveUpdate(Collection<Percept> percepts)
 	{		
 		for (Percept percept : percepts)

@@ -1,0 +1,39 @@
+package Logging;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LoggerFactory {
+
+	public static Logger createFileLogger()
+	{
+		Logger logger = Logger.getLogger("DataLogger");
+
+		logger.setLevel(Level.OFF);
+		
+		Handler handler;
+		try {
+			LocalDateTime date = LocalDateTime.now();
+			
+			String dateString = date.getYear() + "-" + date.getMonthValue() + "-" 
+					+ date.getDayOfMonth() + " " 
+					+ date.getHour() + "-" + date.getMinute();
+			
+			handler = new FileHandler("logs\\client\\sim " + dateString + ".log");
+			
+			handler.setLevel(Level.ALL);
+			
+			logger.addHandler(handler);
+		} 
+		catch (SecurityException | IOException e) 
+		{
+			e.printStackTrace();
+		}
+		
+		return logger;
+	}
+}

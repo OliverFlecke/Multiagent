@@ -29,7 +29,7 @@
 +!retrieveItems([map(Item, Amount) | Items]) <- 
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	!getToFacility(Shop);
-	.print("Buy ", AmountAvailable, " of ", Item);
+//	.print("Buy ", AmountAvailable, " of ", Item);
 	!doAction(buy(Item, AmountAvailable));
   	!retrieveItems([map(Item, Amount - AmountAvailable) | Items]).
 	

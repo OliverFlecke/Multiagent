@@ -279,4 +279,12 @@ public class JobArtifact extends Artifact {
 		}
 		
 	}
+
+	/**
+	 * @return All the current jobs
+	 */
+	public static Collection<Job> getJobs() 
+	{
+		return jobs.values();
+	}
 }

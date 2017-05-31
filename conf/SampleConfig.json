@@ -31,8 +31,8 @@
 
       "roles" : {
         "car" : {
-          "speed" : 30,
-          "load" : 1000000,
+          "speed" : 3,
+          "load" : 550,
           "battery" : 500,
           "roads" : ["road"]
         },
@@ -133,9 +133,10 @@
             "auctionTimeMin" : 2,
             "auctionTimeMax" : 10
           },
-		  "missions" : {
-			"missionDifficultyMax" : 10
-		  }
+  		  "missions" : {
+          "rate" : 0,
+  			  "missionDifficultyMax" : 10
+  		  }
         }
       }
     }

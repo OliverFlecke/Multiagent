@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import Logging.LoggerFactory;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
@@ -242,6 +243,7 @@ public class EIArtifact extends Artifact {
 			
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
+			logData();
 //			FacilityArtifact.logShops();
 //			FacilityArtifact.logShop("shop6");
 		} 
@@ -250,4 +252,11 @@ public class EIArtifact extends Artifact {
 			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
 	}	
+	
+	static Logger fileLogger = LoggerFactory.createFileLogger();
+	
+	private void logData()
+	{
+		fileLogger.info("Step: " + DynamicInfoArtifact.getStep() + " - Money: " + DynamicInfoArtifact.getMoney());
+	}
 }

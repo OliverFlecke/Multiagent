@@ -19,7 +19,9 @@ free.
 +lastActionResult(Name, "successful_partial") 	: myName(Name)						<- .print("successful_partial").
 +lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
 
-+task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
++task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
+	: free & bid(Item, Bid) & (Type == "job" | Type == "partial" | Type == "mission")
+	<-
 //	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
