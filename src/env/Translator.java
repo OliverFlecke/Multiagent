@@ -20,6 +20,7 @@ import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Atom;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.Literal;
+import jason.asSyntax.LiteralImpl;
 import jason.asSyntax.NumberTerm;
 import jason.asSyntax.StringTerm;
 import jason.asSyntax.Term;
@@ -75,6 +76,14 @@ public class Translator
 			}
 		}
 		return new Identifier(term.toString());
+	}
+	
+	public static Action termToAction(Term term)
+	{
+		if (term.isAtom()) return literalToAction((Atom) term);
+		else if (term.isLiteral()) return literalToAction((LiteralImpl) term);
+		
+		return null;
 	}
 	
 	/**
