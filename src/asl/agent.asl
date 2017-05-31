@@ -22,7 +22,6 @@ free.
 +task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
 	: free & bid(Item, Bid) & (Type == "job" | Type == "partial" | Type == "mission")
 	<-
-//	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
@@ -60,11 +59,9 @@ free.
 	
 +!doAction(Action) : .my_name(Me) <-
 	jia.action(Me, Action);
-//	action(Action);
-	.wait(step(_));
-	.
+	.wait(step(_)).
 
-+step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
++step(X) : lastActionResult(R) & not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
 	if (A = "buy")
 	{
