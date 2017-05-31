@@ -5,7 +5,6 @@
 
 // Initial beliefs
 free.
-lastStep(0).
 
 // Initial goals
 !register.
