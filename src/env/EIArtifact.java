@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +17,6 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import data.CEntity;
-import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.exceptions.ActException;
 import eis.iilang.Action;
@@ -86,19 +86,20 @@ public class EIArtifact extends Artifact {
 			{
 				// Perceive initial perceptions when all agents have connected
 				execInternalOp("perceiveInitial");
+				execInternalOp("receive");
 				
 				// Attach listener for perceiving the following steps
-				ei.attachAgentListener(agentName, new AgentListener() 
-				{				
-					@Override
-					public void handlePercept(String agentName, Percept percept) 
-					{
-						if (percept.getName().equals("step"))
-						{
-							execInternalOp("perceiveUpdate");
-						}
-					}
-				});
+//				ei.attachAgentListener(agentName, new AgentListener() 
+//				{				
+//					@Override
+//					public void handlePercept(String agentName, Percept percept) 
+//					{
+//						if (percept.getName().equals("step"))
+//						{
+//							execInternalOp("perceiveUpdate");
+//						}
+//					}
+//				});
 			}
 		}
 		catch (Throwable e) 
@@ -114,6 +115,41 @@ public class EIArtifact extends Artifact {
 		} catch (ActException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	@INTERNAL_OPERATION
+	void receive()
+	{
+		int lastStep = -1;
+		
+		try 
+		{
+			while (true)
+			{
+				await_time(100);
+				
+				for (Entry<String, String> entry : connections.entrySet())
+				{					
+					Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
+					
+					Optional<Percept> stepPercept = percepts.stream().filter(p -> p.getName().equals("step")).findAny();
+					
+					if (!stepPercept.isPresent()) continue;
+					
+					int currentStep = (int) Translator.perceptToObject(stepPercept.get())[0];
+					
+					if (lastStep != currentStep) { // only updates if it is a new step
+						lastStep = currentStep;
+						execInternalOp("perceiveUpdate");
+						break;
+					}
+				}
+			}			
+		}
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in receive: " + e.getMessage(), e);
 		}
 	}
 
