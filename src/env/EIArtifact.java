@@ -27,8 +27,11 @@ import info.FacilityArtifact;
 import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
+import jason.asSyntax.Literal;
 import massim.eismassim.EnvironmentInterface;
+import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Role;
+import massim.scenario.city.data.facilities.Shop;
 
 public class EIArtifact extends Artifact {
 
@@ -112,6 +115,21 @@ public class EIArtifact extends Artifact {
 		try 
 		{	
 			Action ac = Translator.stringToAction(action);
+			
+			if (ac.getName().equals("buy"))
+			{
+				Literal actionLiteral = Literal.parseLiteral(action);
+				
+				CEntity agent = AgentArtifact.getEntity(agentName);
+				
+				Shop shop = (Shop) FacilityArtifact.getFacility(agent.getFacilityName());
+				
+				Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
+				
+				int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
+				
+				shop.buy(item, amount);
+			}
 			
 			ei.performAction(agentName, ac);
 		}

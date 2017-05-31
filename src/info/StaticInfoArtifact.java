@@ -21,7 +21,6 @@ import env.Translator;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Role;
 import massim.scenario.city.data.Route;
-import massim.scenario.city.data.Tool;
 
 public class StaticInfoArtifact extends Artifact {
 	
