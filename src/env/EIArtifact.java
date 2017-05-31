@@ -250,11 +250,6 @@ public class EIArtifact extends Artifact {
 				String 		agentName 	= entry.getKey();
 				CEntity 	entity		= entry.getValue();
 				
-				if (agentName.equals("agentA1"))
-				{
-					System.out.println("Step " + DynamicInfoArtifact.getStep() + ": " + entity.getFacilityName());
-				}
-				
 				getObsPropertyByTemplate("inFacility", 		 agentName, null).updateValue(1, entity.getFacilityName());
 				getObsPropertyByTemplate("charge", 			 agentName, null).updateValue(1, entity.getCurrentBattery());
 				getObsPropertyByTemplate("load",   			 agentName, null).updateValue(1, entity.getCurrentLoad());
@@ -276,7 +271,7 @@ public class EIArtifact extends Artifact {
 		}
 	}	
 	
-	static Logger fileLogger = LoggerFactory.createFileLogger();
+	private static Logger fileLogger = LoggerFactory.createFileLogger();
 	
 	private void logData()
 	{

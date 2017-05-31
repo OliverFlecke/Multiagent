@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -279,6 +280,12 @@ public class JobArtifact extends Artifact {
 	public static Collection<Job> getJobs() 
 	{
 		return jobs.values();
+	}
+	
+	public static Map<Job, Integer> getJobsAndEarnings()
+	{
+		return jobs.values().stream()
+				.collect(Collectors.toMap(x -> x, x -> possibleEarning(x)));
 	}
 	
 	public static void announceJobs()

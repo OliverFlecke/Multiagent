@@ -32,13 +32,14 @@ free.
 	}.
 	
 +free : task(_, _, _, "partial", _) <- !getTask("partial").
-+free : task(_, _, _, "mission", _) <- !getTask("mission").
++free : task(_, _, _, "mission", _) <- .print("Doing a mission!"); !getTask("mission").
 +free : task(_, _, _, "job", _)		<- !getTask("job").
 	
 +!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
 	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
+-!getTask(_) <- -+free.
 	
 // Plans	
 +!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
@@ -64,7 +65,7 @@ free.
 	.wait(step(_));
 	.
 
-+step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
++step(X) : lastActionResult(R) & not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
 	if (A = "buy")
 	{

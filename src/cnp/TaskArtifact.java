@@ -1,6 +1,7 @@
 package cnp;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,10 +22,18 @@ public class TaskArtifact extends Artifact implements Comparator<Job> {
 	
 	private static TaskArtifact instance;
 	private static int 			cnpId;
+	private static Map<String, String> artifacts;
 	
 	void init()
 	{
 		instance = this;
+		
+		artifacts = new HashMap<String, String>();
+	}
+	
+	public static String getArtifactName(String taskId)
+	{
+		return artifacts.get(taskId);
 	}
 	
 	public static void announce(String taskId, String type) 
@@ -46,6 +55,8 @@ public class TaskArtifact extends Artifact implements Comparator<Job> {
 			String artifactName = "CNPArtifact" + (++cnpId);
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
+			
+			artifacts.put(taskId, artifactName);
 			
 			defineObsProperty("task", taskId, deliveryLocation, toItemMap(items), type, artifactName);
 		} 
