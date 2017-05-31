@@ -247,7 +247,7 @@ public class FacilityArtifact extends Artifact {
 				new ResourceNode(name, new Location(lon, lat), ItemArtifact.getItem(itemId), 0));
 	}
 	
-	protected static Facility getFacility(String facilityName)
+	public static Facility getFacility(String facilityName)
 	{
 		return allFacilities.stream().filter(facilities -> facilities.containsKey(facilityName))
 				.findFirst().get().get(facilityName);

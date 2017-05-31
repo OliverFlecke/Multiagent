@@ -20,7 +20,7 @@ lastStep(0).
 +lastActionResult(Name, "successful_partial") 	: myName(Name)						<- .print("successful_partial").
 +lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
 
-+task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) & .my_name(agentA1) <-
++task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
 //	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
@@ -53,15 +53,11 @@ lastStep(0).
 	!assembleItems([Item]);
 	!delieverItems(TaskId, DeliveryLocation).
 	
-+!doAction(Action) : step(X) <-
++!doAction(Action) <-
 	action(Action);
-	.print("action ", X);
-	.wait({+step(_)});
-	.wait(500); 
-//	.print("Next Step ", X);
 	.
 
-+step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
++step(X) : lastActionResult(R) & not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
 	if (A = "buy")
 	{

@@ -39,8 +39,8 @@
 +!retrieveTool(Tool) : canUseTool(Tool) 		<- !retrieveItems([map(Tool, 1)]).
 +!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
 	
-//+!getToFacility(S) : string(S) 										<- getClosestFacility(S, F); !getToFacility(F).
-+!getToFacility(F) : inFacility(F). 
++!getToFacility(F) : inFacility(F).
++!getToFacility(F) : routeDuration(1).
 +!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
