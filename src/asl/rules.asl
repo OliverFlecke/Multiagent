@@ -7,6 +7,7 @@ inFacility(F) 		:- myName(Name) & inFacility(Name, F).
 charge(C) 			:- myName(Name) & charge(Name, C).
 load(L)				:- myName(Name) & load(Name, L).
 routeLength(L)		:- myName(Name) & routeLength(Name, L).
+routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 lastAction(A)		:- myName(Name) & lastAction(Name, A).
 lastActionResult(R) :- myName(Name) & lastActionResult(Name, R).
 lastActionParam(P)  :- myName(Name) & lastActionParam(Name, P).
