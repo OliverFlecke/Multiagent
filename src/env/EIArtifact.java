@@ -17,6 +17,7 @@ import cartago.OPERATION;
 import data.CEntity;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
+import eis.exceptions.ActException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import info.AgentArtifact;
@@ -40,12 +41,16 @@ public class EIArtifact extends Artifact {
     private EnvironmentInterfaceStandard ei;
     
     private Map<String, String> connections = new HashMap<>();
+    
+    private static EIArtifact instance;
 
     /**
      * Instantiates and starts the environment interface.
      */
     void init() 
     {
+    	instance = this;
+    	
     	logger.setLevel(Level.INFO);
 		logger.info("init");
 		
@@ -98,6 +103,16 @@ public class EIArtifact extends Artifact {
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in register: " + e.getMessage(), e);
+		}
+	}
+	
+	public static void executeAction(String agentName, Action action)
+	{
+		try {
+			instance.ei.performAction(agentName, action);
+		} catch (ActException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

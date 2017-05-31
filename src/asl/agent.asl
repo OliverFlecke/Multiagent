@@ -52,12 +52,10 @@ free.
 	!assembleItems([Item]);
 	!delieverItems(TaskId, DeliveryLocation).
 	
-+!doAction(Action) <-
-	?step(Before);
-	.print("Before ", Before);
-	action(Action);
-	?step(After);
-	.print("After ", After);
++!doAction(Action) : .my_name(Me) <-
+	jia.action(Me, Action);
+//	action(Action);
+	.wait(step(_));
 	.
 
 +step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
