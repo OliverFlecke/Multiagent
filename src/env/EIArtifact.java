@@ -17,8 +17,6 @@ import cartago.OPERATION;
 import data.CEntity;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
-import eis.exceptions.NoEnvironmentException;
-import eis.exceptions.PerceiveException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import info.AgentArtifact;
@@ -53,8 +51,6 @@ public class EIArtifact extends Artifact {
 			ei = new EnvironmentInterface("conf/eismassimconfig.json");
 			
 			ei.start();
-			
-			defineObsProperty("step", 0);
 		} 
 		catch (Throwable e) 
 		{
@@ -122,53 +118,70 @@ public class EIArtifact extends Artifact {
 	}
 	
 	@INTERNAL_OPERATION
-	void perceiveInitial() throws PerceiveException, NoEnvironmentException
+	void perceiveInitial()
 	{
 		logger.finest("perceiveInitial");
 		
-		Set<Percept> allPercepts = new HashSet<>();
-		
-		Map<String, Collection<Percept>> agentPercepts = new HashMap<>();
-
-		for (Entry<String, String> entry : connections.entrySet())
+		try 
 		{
-			String agentName = entry.getKey();
+			Set<Percept> allPercepts = new HashSet<>();
 			
-			Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entry.getValue());
+			Map<String, Collection<Percept>> agentPercepts = new HashMap<>();
+	
+			for (Entry<String, String> entry : connections.entrySet())
+			{
+				String agentName = entry.getKey();
+				
+				Collection<Percept> percepts = ei.getAllPercepts(agentName).get(entry.getValue());
+				
+				agentPercepts.put(agentName, percepts);
+				
+				allPercepts.addAll(percepts);
+			}
 			
-			agentPercepts.put(agentName, percepts);
+			// Perceive static info
+			ItemArtifact        .perceiveInitial(allPercepts);
+			StaticInfoArtifact  .perceiveInitial(allPercepts);
+			// Perceive dynamic info
+			FacilityArtifact	.perceiveUpdate(allPercepts);
+			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
+			JobArtifact			.perceiveUpdate(allPercepts);
+	
+			// Perceive agent info
+			for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
+			{			
+				AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
+			}
 			
-			defineObsProperty("inFacility", 		agentName, null);
-			defineObsProperty("charge", 			agentName, null);
-			defineObsProperty("load", 				agentName, null);
-			defineObsProperty("routeLength", 		agentName, null);
-			defineObsProperty("lastAction", 		agentName, null);
-			defineObsProperty("lastActionResult", 	agentName, null);
-			defineObsProperty("lastActionParam", 	agentName, null);
+			// Define agent properties
+			for (Entry<String, CEntity> entry : AgentArtifact.getEntities().entrySet())
+			{
+				String 		agentName 	= entry.getKey();
+				CEntity 	entity		= entry.getValue();
+	
+				defineObsProperty("inFacility", 		agentName, entity.getFacilityName());               
+				defineObsProperty("charge", 			agentName, entity.getCurrentBattery());             
+				defineObsProperty("load", 				agentName, entity.getCurrentLoad());                
+				defineObsProperty("routeLength", 		agentName, entity.getRouteLength());                
+				defineObsProperty("lastAction", 		agentName, entity.getLastAction().getActionType()); 
+				defineObsProperty("lastActionResult", 	agentName, entity.getLastActionResult());           
+				defineObsProperty("lastActionParam", 	agentName, entity.getLastActionParam());            
+				defineObsProperty("myRole", 			agentName, entity.getRole().getName());
+			}
 			
-			allPercepts.addAll(percepts);
+			// Define roles
+			for (Role role : StaticInfoArtifact.getRoles())
+			{
+				defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), 
+										  role.getMaxBattery(), role.getPermissions().toArray());
+			}
+			
+			// Define step
+			defineObsProperty("step", DynamicInfoArtifact.getStep());
 		}
-		
-		// Important to perceive items before facilities
-		ItemArtifact        .perceiveInitial(allPercepts);
-		StaticInfoArtifact  .perceiveInitial(allPercepts);
-		
-		FacilityArtifact	.perceiveUpdate(allPercepts);
-		DynamicInfoArtifact	.perceiveUpdate(allPercepts);
-		JobArtifact			.perceiveUpdate(allPercepts);
-		
-		// Important to perceive agent perceptions after static info
-		for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
-		{					
-			AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
-		}
-		
-		for (Entry<String, CEntity> agent : AgentArtifact.getEntities().entrySet())
+		catch (Throwable e) 
 		{
-			Role role = agent.getValue().getRole();
-			
-			defineObsProperty("myRole", agent.getKey(), role.getName());
-			defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), role.getMaxBattery(), role.getPermissions().toArray());
+			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
 	}
 	
@@ -206,7 +219,7 @@ public class EIArtifact extends Artifact {
 				getObsPropertyByTemplate("routeLength", 	 agentName, null).updateValue(1, entity.getRouteLength());
 				getObsPropertyByTemplate("lastAction",  	 agentName, null).updateValue(1, entity.getLastAction().getActionType());
 				getObsPropertyByTemplate("lastActionResult", agentName, null).updateValue(1, entity.getLastActionResult());
-				getObsPropertyByTemplate("lastActionParam",  agentName, null).updateValue(1, entity.getLastActionParam().toArray());
+				getObsPropertyByTemplate("lastActionParam",  agentName, null).updateValue(1, entity.getLastActionParam());
 			}
 			
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());

@@ -23,12 +23,13 @@
 	!doAction(assemble(Item)).
 -!assembleItem(Item) <- .print("Could not assemble item").
 
+//+!retrieveItems(Items) : lastAction("buy") & lastActionParam([Item, Amount|_]) & lastActionResult(R) & .print(R, " ", Item, " ", Amount) & false.
 +!retrieveItems([]).
 +!retrieveItems([map(	_, 		0) | Items]) <- !retrieveItems(Items).
 +!retrieveItems([map(Item, Amount) | Items]) <- 
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	!getToFacility(Shop);
-	.print("buy ", AmountAvailable, " of ", Item);
+	.print("Buy ", AmountAvailable, " of ", Item);
 	!doAction(buy(Item, AmountAvailable));
   	!retrieveItems([map(Item, Amount - AmountAvailable) | Items]).
 	

@@ -5,6 +5,7 @@
 
 // Initial beliefs
 free.
+lastStep(0).
 
 // Initial goals
 !register.
@@ -19,7 +20,7 @@ free.
 +lastActionResult(Name, "successful_partial") 	: myName(Name)						<- .print("successful_partial").
 +lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
 
-+task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
++task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) & .my_name(agentA1) <-
 //	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
@@ -52,8 +53,19 @@ free.
 	!assembleItems([Item]);
 	!delieverItems(TaskId, DeliveryLocation).
 	
-+!doAction(Action) <-	
-//	.wait(step(X));
-//	.print(X);	
++!doAction(Action) : step(X) <-
 	action(Action);
+	.print("action ", X);
+	.wait({+step(_)});
+	.wait(500); 
+//	.print("Next Step ", X);
 	.
+
++step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
+		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
+	if (A = "buy")
+	{
+		P = [Item, Amount|_];
+		!retrieveItems([map(Item, Amount)]);
+	}.
+	

@@ -1,12 +1,15 @@
 package data;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import massim.protocol.messagecontent.Action;
 import massim.scenario.city.ActionExecutor;
-import massim.scenario.city.data.*;
+import massim.scenario.city.data.Entity;
+import massim.scenario.city.data.Item;
+import massim.scenario.city.data.Location;
+import massim.scenario.city.data.Role;
+import massim.scenario.city.data.Route;
 import massim.scenario.city.data.facilities.Facility;
 import massim.scenario.city.util.GraphHopperManager;
 
@@ -28,7 +31,7 @@ public class CEntity {
 
     private Action lastAction = Action.STD_NO_ACTION;
     private String lastActionResult = ActionExecutor.SUCCESSFUL;
-    private List<String> lastActionParam;
+    private Object[] lastActionParam;
 
     public CEntity(Role role, Location location){
         this.role = role;
@@ -265,12 +268,12 @@ public class CEntity {
 		return facility == null ? "none" : facility.getName();
 	}
 
-	public void setLastActionParam(List<String> lastActionParam) 
+	public void setLastActionParam(Object[] lastActionParam) 
 	{
 		this.lastActionParam = lastActionParam;
 	}
 	
-	public List<String> getLastActionParam()
+	public Object[] getLastActionParam()
 	{
 		return this.lastActionParam;
 	}

@@ -107,9 +107,7 @@ public class AgentArtifact extends Artifact {
 	{
 		Object[] args = Translator.perceptToObject(percept);
 
-		AgentArtifact.getEntity(agentName).setLastActionParam(Arrays.stream((Object[]) args[0])
-				.map(x -> x.toString())
-				.collect(Collectors.toList()));
+		AgentArtifact.getEntity(agentName).setLastActionParam((Object[]) args[0]);
 	}
 
 	/**
