@@ -24,7 +24,7 @@ itemsToRetrieve([]).
 	}.
 	
 +free : task(_, _, _, "partial", _) <- !getTask("partial").
-+free : task(_, _, _, "mission", _) <- !getTask("mission").
++free : task(_, _, _, "mission", _) <- .print("Doing a mission!"); !getTask("mission").
 +free : task(_, _, _, "job", _)		<- !getTask("job").
 	
 +!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-

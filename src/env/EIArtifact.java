@@ -230,7 +230,7 @@ public class EIArtifact extends Artifact {
 		}
 	}	
 	
-	static Logger fileLogger = LoggerFactory.createFileLogger();
+	private static Logger fileLogger = LoggerFactory.createFileLogger();
 	
 	private void logData()
 	{
