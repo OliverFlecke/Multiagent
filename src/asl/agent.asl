@@ -39,7 +39,6 @@ free.
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
 	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
--!getTask(_) <- -+free.
 	
 // Plans	
 +!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
