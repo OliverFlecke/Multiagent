@@ -31,7 +31,11 @@ free.
 		!solveTask(TaskId, DeliveryLocation, [Item|Items])
 	}.
 	
-+free : task(TaskId, DeliveryLocation, [Item|Items], "partial", CNPName) & bid(Item, _) <-
++free : task(_, _, _, "partial", _) <- !getTask("partial").
++free : task(_, _, _, "mission", _) <- !getTask("mission").
++free : task(_, _, _, "job", _)		<- !getTask("job").
+	
++!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
 	takeTask[artifact_id(CNPId)];
 	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
