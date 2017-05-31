@@ -144,6 +144,7 @@ public class EIArtifact extends Artifact {
 			defineObsProperty("routeLength", 		agentName, null);
 			defineObsProperty("lastAction", 		agentName, null);
 			defineObsProperty("lastActionResult", 	agentName, null);
+			defineObsProperty("lastActionParam", 	agentName, null);
 			
 			allPercepts.addAll(percepts);
 		}
@@ -205,6 +206,7 @@ public class EIArtifact extends Artifact {
 				getObsPropertyByTemplate("routeLength", 	 agentName, null).updateValue(1, entity.getRouteLength());
 				getObsPropertyByTemplate("lastAction",  	 agentName, null).updateValue(1, entity.getLastAction().getActionType());
 				getObsPropertyByTemplate("lastActionResult", agentName, null).updateValue(1, entity.getLastActionResult());
+				getObsPropertyByTemplate("lastActionParam",  agentName, null).updateValue(1, entity.getLastActionParam().toArray());
 			}
 			
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());

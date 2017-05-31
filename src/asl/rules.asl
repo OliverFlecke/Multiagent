@@ -9,6 +9,7 @@ load(L)				:- myName(Name) & load(Name, L).
 routeLength(L)		:- myName(Name) & routeLength(Name, L).
 lastAction(A)		:- myName(Name) & lastAction(Name, A).
 lastActionResult(R) :- myName(Name) & lastActionResult(Name, R).
+lastActionParam(P)  :- myName(Name) & lastActionParam(Name, P).
 
 speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
