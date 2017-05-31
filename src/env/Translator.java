@@ -175,7 +175,6 @@ public class Translator
 			try {
 				double d = ((NumberTerm) t).solve();			
 					 if ((int)   d == d) return (int)   d;
-				else if ((float) d == d) return (float) d;
 				else if ((long)  d == d) return (long)  d;
 				else					 return 		d;				
 			} catch (NoValueException e) 

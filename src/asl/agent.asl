@@ -19,7 +19,7 @@ free.
 +lastActionResult(Name, "successful_partial") 	: myName(Name)						<- .print("successful_partial").
 +lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
 
-+task(TaskId, DeliveryLocation, [Item|Items], _, CNPName) : free & bid(Item, Bid) <-
++task(TaskId, DeliveryLocation, [Item|Items], "job", CNPName) : free & bid(Item, Bid) & .my_name(agentA1) <-
 //	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
@@ -53,14 +53,23 @@ free.
 	!delieverItems(TaskId, DeliveryLocation).
 	
 +!doAction(Action) <-
+	?step(Before);
+	.print("Before ", Before);
 	action(Action);
+	?step(After);
+	.print("After ", After);
 	.
 
-+step(X) : lastActionResult(R) & not lastActionResult("successful") 
++step(X) : .my_name(agentA1) & .print("step ", X) & lastActionResult(R) & not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
 	if (A = "buy")
 	{
 		P = [Item, Amount|_];
 		!retrieveItems([map(Item, Amount)]);
-	}.
-	
+	}
+	if (A = "deliver_job")
+	{
+		P = [TaskId|_];
+		
+	}
+	.

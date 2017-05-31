@@ -106,7 +106,7 @@ public class EIArtifact extends Artifact {
 	{
 		String agentName = getOpUserName();
 		
-		logger.fine(agentName + " doing: " + action);
+		logger.info("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
 		
 		try 
 		{	
@@ -120,11 +120,14 @@ public class EIArtifact extends Artifact {
 				
 				Shop shop = (Shop) FacilityArtifact.getFacility(agent.getFacilityName());
 				
-				Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
-				
-				int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
-				
-				shop.buy(item, amount);
+				if (shop != null)
+				{
+					Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
+					
+					int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
+					
+					shop.buy(item, amount);					
+				}				
 			}
 			
 			ei.performAction(agentName, ac);
@@ -231,6 +234,11 @@ public class EIArtifact extends Artifact {
 				String 		agentName 	= entry.getKey();
 				CEntity 	entity		= entry.getValue();
 				
+				if (agentName.equals("agentA1"))
+				{
+					System.out.println("Step " + DynamicInfoArtifact.getStep() + ": " + entity.getFacilityName());
+				}
+				
 				getObsPropertyByTemplate("inFacility", 		 agentName, null).updateValue(1, entity.getFacilityName());
 				getObsPropertyByTemplate("charge", 			 agentName, null).updateValue(1, entity.getCurrentBattery());
 				getObsPropertyByTemplate("load",   			 agentName, null).updateValue(1, entity.getCurrentLoad());
@@ -241,6 +249,8 @@ public class EIArtifact extends Artifact {
 			}
 			
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
+			
+			JobArtifact.announceJobs();
 			
 //			FacilityArtifact.logShops();
 //			FacilityArtifact.logShop("shop6");
