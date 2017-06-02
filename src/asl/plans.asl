@@ -22,15 +22,6 @@
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
 -!assembleItem(Item) <- .print("Could not assemble item").
-
-//+!retrieveItems(Items) : lastAction("buy") & lastActionParam([Item, Amount|_]) & lastActionResult(R) & .print(R, " ", Item, " ", Amount) & false.
-//+!retrieveItems([]).
-//+!retrieveItems([map(	_, 		0) | Items]) <- !retrieveItems(Items).
-//+!retrieveItems([map(Item, Amount) | Items]) <- 
-//	getShopSelling(Item, Amount, Shop, AmountAvailable);
-//	!getToFacility(Shop);
-//	!doAction(buy(Item, AmountAvailable));
-//  	!retrieveItems([map(Item, Amount - AmountAvailable) | Items]).
   	
 +!retrieveItems : itemsToRetrieve([]).
 +!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- -+itemsToRetrieve(Items); !retrieveItems.

@@ -17,6 +17,18 @@ connection(agentA13, connectionA13).
 connection(agentA14, connectionA14).
 connection(agentA15, connectionA15).
 connection(agentA16, connectionA16).
+connection(agentA17, connectionA17).
+connection(agentA18, connectionA18).
+connection(agentA19, connectionA19).
+connection(agentA20, connectionA20).
+connection(agentA21, connectionA21).
+connection(agentA22, connectionA22).
+connection(agentA23, connectionA23).
+connection(agentA24, connectionA24).
+connection(agentA25, connectionA25).
+connection(agentA26, connectionA26).
+connection(agentA27, connectionA27).
+connection(agentA28, connectionA28).
 
 // Plans
 +!register : connection(C) <- register(C).

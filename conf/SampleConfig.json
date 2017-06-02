@@ -57,10 +57,10 @@
       },
 
       "entities" : [
-        {"car" : 2}, 
-        {"drone" : 2}, 
-        {"motorcycle" : 1}, 
-        {"truck" : 1}
+        {"car" : 8}, 
+        {"drone" : 4}, 
+        {"motorcycle" : 8}, 
+        {"truck" : 8}
       ],
 
       "generate" : {
