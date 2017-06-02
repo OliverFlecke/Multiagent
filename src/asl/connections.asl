@@ -30,13 +30,16 @@ connection(agentA26, connectionA26).
 connection(agentA27, connectionA27).
 connection(agentA28, connectionA28).
 
+readyToStart :- registered & focused.
+
 // Plans
-+!register : connection(C) <- register(C).
++!register : connection(C) <- register(C); +registered.
 -!register <- .wait(100); !register.
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("EIArtifact");
-	.print("Successfully focused artifacts").
+	.print("Successfully focused artifacts");
+	+focused.
 -!focusArtifacts <- .wait(500); !focusArtifacts.

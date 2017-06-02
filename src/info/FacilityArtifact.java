@@ -63,7 +63,7 @@ public class FacilityArtifact extends Artifact {
 	@OPERATION
 	void getClosestFacility(String facilityType, OpFeedbackParam<String> ret)
 	{		
-		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
+		Location agentLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
 		
 		Collection<? extends Facility> facilities = Collections.emptySet();
 
@@ -78,7 +78,14 @@ public class FacilityArtifact extends Artifact {
 		}
 		
 		// What happens if the feedback parameter is null?
-		ret.set(getClosestFacility(agLoc, facilities));
+		if (facilities.isEmpty())
+		{
+			ret.set("none");
+		}
+		else
+		{
+			ret.set(getClosestFacility(agentLoc, facilities));
+		}
 	}
 	
 	@OPERATION
@@ -96,7 +103,7 @@ public class FacilityArtifact extends Artifact {
 	}
 	
 	@OPERATION 
-	void distanceToNearestFacility(String facilityType, OpFeedbackParam<Integer> distance)
+	void distanceToClosestFacility(String facilityType, OpFeedbackParam<Integer> distance)
 	{
 		OpFeedbackParam<String> facility = new OpFeedbackParam<>();
 		
