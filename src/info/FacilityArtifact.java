@@ -20,6 +20,7 @@ import data.CEntity;
 import eis.iilang.Percept;
 import env.Translator;
 import massim.scenario.city.data.Location;
+import massim.scenario.city.data.Route;
 import massim.scenario.city.data.facilities.ChargingStation;
 import massim.scenario.city.data.facilities.Dump;
 import massim.scenario.city.data.facilities.Facility;
@@ -91,7 +92,9 @@ public class FacilityArtifact extends Artifact {
 	@OPERATION
 	void distanceToFacility(String facilityName, OpFeedbackParam<Integer> distance)
 	{
-		distance.set(StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation()).getRouteLength());
+		Route route = StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation());
+		if (route != null)	distance.set(route.getRouteLength());
+		else 				distance.set(0);
 	}
 	
 	@OPERATION
