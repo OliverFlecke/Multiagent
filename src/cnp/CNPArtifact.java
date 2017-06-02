@@ -25,7 +25,7 @@ public class CNPArtifact extends Artifact {
 		this.bids	= new ArrayList<>();
 		this.isOpen = true;
 		
-		execInternalOp("awaitBids", 1000);
+		execInternalOp("awaitBids", 100);
 	}
 	
 	/**

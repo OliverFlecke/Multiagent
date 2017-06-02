@@ -18,7 +18,7 @@ public class action extends DefaultInternalAction {
 		String agentName = (String) Translator.termToObject(terms[0]);
 		Action action = Translator.termToAction(terms[1]);
 
-		EIArtifact.executeAction(agentName, action);
+		EIArtifact.performAction(agentName, action);
 		
 		return true;
 	}

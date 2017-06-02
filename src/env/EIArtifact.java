@@ -17,7 +17,6 @@ import cartago.OPERATION;
 import data.CEntity;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
-import eis.exceptions.ActException;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import info.AgentArtifact;
@@ -26,12 +25,9 @@ import info.FacilityArtifact;
 import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
-import jason.asSyntax.Literal;
 import logging.LoggerFactory;
 import massim.eismassim.EnvironmentInterface;
-import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Role;
-import massim.scenario.city.data.facilities.Shop;
 
 public class EIArtifact extends Artifact {
 
@@ -39,19 +35,15 @@ public class EIArtifact extends Artifact {
     
     public static final boolean LOGGING_ENABLED = false;
     
-    private EnvironmentInterfaceStandard ei;
+    private static EnvironmentInterfaceStandard ei;
     
-    private Map<String, String> connections = new HashMap<>();
-    
-    private static EIArtifact instance;
+    private static Map<String, String> connections = new HashMap<>();
 
     /**
      * Instantiates and starts the environment interface.
      */
     void init() 
-    {
-    	instance = this;
-    	
+    {    	
     	logger.setLevel(Level.INFO);
 		logger.info("init");
 		
@@ -107,50 +99,17 @@ public class EIArtifact extends Artifact {
 		}
 	}
 	
-	public static void executeAction(String agentName, Action action)
+	public static void performAction(String agentName, Action action)
 	{
-		try {
-			instance.ei.performAction(agentName, action);
-		} catch (ActException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@OPERATION
-	void action(String action) 
-	{
-		String agentName = getOpUserName();
-		
-		logger.info("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
+		logger.fine("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
 		
 		try 
-		{	
-			Action ac = Translator.stringToAction(action);
-			
-			if (ac.getName().equals("buy"))
-			{
-				Literal actionLiteral = Literal.parseLiteral(action);
-				
-				CEntity agent = AgentArtifact.getEntity(agentName);
-				
-				Shop shop = (Shop) FacilityArtifact.getFacility(agent.getFacilityName());
-				
-				if (shop != null)
-				{
-					Item item = ItemArtifact.getItem((String) Translator.termToObject(actionLiteral.getTerm(0)));
-					
-					int amount = (int) Translator.termToObject(actionLiteral.getTerm(1));
-					
-					shop.buy(item, amount);					
-				}				
-			}
-			
-			ei.performAction(agentName, ac);
-		}
+		{			
+			ei.performAction(agentName, action);
+		} 
 		catch (Throwable e) 
 		{
-			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
+			logger.log(Level.SEVERE, "Failure in performAction: " + e.getMessage(), e);
 		}
 	}
 	

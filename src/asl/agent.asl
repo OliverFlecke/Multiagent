@@ -5,24 +5,16 @@
 
 // Initial beliefs
 free.
+itemsToRetrieve([]).
 
 // Initial goals
 !register.
 !focusArtifacts.
 
 // Percepts
-//+lastAction(Name, Action) : myName(Name) & lastActionResult(Result) <- .print(Name, " did ", Action, " which was ", Result).
-+lastAction(Name, "deliver_job") : myName(Name) & lastActionResult("successful") 	<- .print("Job successful!").
-//+lastAction(Name, "randomFail")  : myName(Name) 									<- .print("Random failure").
-
-+lastActionResult(Name, "successful") 			: myName(Name).
-+lastActionResult(Name, "successful_partial") 	: myName(Name)						<- .print("successful_partial").
-+lastActionResult(Name, Result) 				: myName(Name) & lastAction(Action)	<- .print(Action, "		-	  ", Result).
-
 +task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
 	: free & bid(Item, Bid) & (Type == "job" | Type == "partial" | Type == "mission")
 	<-
-//	.print("New task ", TaskId);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
@@ -54,26 +46,26 @@ free.
 +!solvePartialTask(TaskId, DeliveryLocation, Item) <- 
 	.print(TaskId, ": Delivering ", Item, " to ", DeliveryLocation);
 	getBaseItems([Item], BaseItems);
-	!retrieveItems(BaseItems);
+	!addItemsToRetrieve(BaseItems);
+	!retrieveItems;
 	!assembleItems([Item]);
 	!delieverItems(TaskId, DeliveryLocation).
 	
 +!doAction(Action) : .my_name(Me) <-
 	jia.action(Me, Action);
-//	action(Action);
-	.wait(step(_));
-	.
+	.wait(step(_)).
 
-+step(X) : lastActionResult(R) & not lastActionResult("successful") 
++step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!").
++step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
 	if (A = "buy")
 	{
-		P = [Item, Amount|_];
-		!retrieveItems([map(Item, Amount)]);
+		P = [Item, Amount];
+		!addItemsToRetrieve([map(Item, Amount)]);
 	}
 	if (A = "deliver_job")
 	{
-		P = [TaskId|_];
+		P = [TaskId];
 		
 	}
 	.

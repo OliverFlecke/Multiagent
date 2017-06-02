@@ -24,29 +24,25 @@
 -!assembleItem(Item) <- .print("Could not assemble item").
 
 //+!retrieveItems(Items) : lastAction("buy") & lastActionParam([Item, Amount|_]) & lastActionResult(R) & .print(R, " ", Item, " ", Amount) & false.
-+!retrieveItems([]).
-+!retrieveItems([map(	_, 		0) | Items]) <- 
-	!otherItemsInCurrentShop(Items, ItemsLeft); 
-	!retrieveItems(LeftItems).
-+!retrieveItems([map(Item, Amount) | Items]) <- 
+//+!retrieveItems([]).
+//+!retrieveItems([map(	_, 		0) | Items]) <- !retrieveItems(Items).
+//+!retrieveItems([map(Item, Amount) | Items]) <- 
+//	getShopSelling(Item, Amount, Shop, AmountAvailable);
+//	!getToFacility(Shop);
+//	!doAction(buy(Item, AmountAvailable));
+//  	!retrieveItems([map(Item, Amount - AmountAvailable) | Items]).
+  	
++!retrieveItems : itemsToRetrieve([]).
++!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- 
+	-+itemsToRetrieve(Left); 
+	!retrieveItems.
++!retrieveItems : itemsToRetrieve([map(Item, Amount) | Items]) <- 
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	!getToFacility(Shop);
-//	.print("Buy ", AmountAvailable, " of ", Item);
 	!doAction(buy(Item, AmountAvailable));
   	!retrieveItems([map(Item, Amount - AmountAvailable) | Items]).
 
-+!otherItemsInCurrentShop([], []).
-+!otherItemsInCurrentShop([map(Item, Amount) | Items], ItemsLeft) : inFacility(F) <-
-	getNearestShopSelling(Item, Shop);
-	if (Shop == F)
-	{
-		!retrieveItems([map(Item, Amount)]);
-		!otherItemsInCurrentShop(Items, ItemsLeft);
-	}
-	else {
-		!otherItemsInCurrentShop(Items, Other);
-		ItemsLeft = [map(Item, Amount) | Other];
-	}.
++!addItemsToRetrieve(ItemsToAdd) : itemsToRetrieve(Items) <- .concat(Items, ItemsToAdd, NewItems); -+itemsToRetrieve(NewItems).
 	
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
