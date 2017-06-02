@@ -95,6 +95,16 @@ public class FacilityArtifact extends Artifact {
 		duration.set(StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation()).getRouteDuration(agent.getRole().getSpeed()));
 	}
 	
+	@OPERATION 
+	void distanceToNearestFacility(String facilityType, OpFeedbackParam<Integer> distance)
+	{
+		OpFeedbackParam<String> facility = new OpFeedbackParam<>();
+		
+		getClosestFacility(facilityType, facility);
+		
+		distanceToFacility(facility.get(), distance);
+	}
+	
 	/**
 	 * @param l location to search from
 	 * @param facilities to search

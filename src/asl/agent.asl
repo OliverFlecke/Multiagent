@@ -15,6 +15,7 @@ itemsToRetrieve([]).
 +task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
 	: free & bid(Item, Bid) & (Type == "job" | Type == "partial" | Type == "mission")
 	<-
+	.drop_desire(charge);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Name)[artifact_id(CNPId)];
@@ -26,6 +27,8 @@ itemsToRetrieve([]).
 +free : task(_, _, _, "partial", _) <- !getTask("partial").
 +free : task(_, _, _, "mission", _) <- .print("Doing a mission!"); !getTask("mission").
 +free : task(_, _, _, "job", _)		<- !getTask("job").
++free : charge(C) & maxCharge(Max) & C < Max * 0.8 <- !charge.
+
 	
 +!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
@@ -69,3 +72,11 @@ itemsToRetrieve([]).
 		
 	}
 	.
++step(X) : charge(C) & speed(S) <- 
+	distanceToNearestFacility("chargingStation", Dist);
+	if (not enoughCharge(Dist))
+	{
+		.suspend(getToFacility(_));
+		!charge;
+		.resume(getToFacility(_));
+	}.

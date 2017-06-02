@@ -22,7 +22,7 @@
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
 -!assembleItem(Item) <- .print("Could not assemble item").
-  	
+
 +!retrieveItems : itemsToRetrieve([]).
 +!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- 
 	-+itemsToRetrieve(Items); 
@@ -35,7 +35,7 @@
   	!retrieveItems.
 
 +!addItemsToRetrieve(ItemsToAdd) : itemsToRetrieve(Items) <- .concat(Items, ItemsToAdd, NewItems); -+itemsToRetrieve(NewItems).
-	
+
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
 +!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
@@ -43,11 +43,10 @@
 +!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
 	
 +!getToFacility(F) : inFacility(F).
-//+!getToFacility(F) : routeDuration(1).
-+!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
+//+!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
-+!charge : charge(X) & maxCharge(X).
++!charge : charge(X) & maxCharge(X)						<- .print("Fully charged").
 +!charge : charge(X) & X < 10 & not inChargingStation 	<- !doAction(recharge); !charge.
 +!charge : inChargingStation 							<- !doAction(charge); !charge.
 +!charge <-

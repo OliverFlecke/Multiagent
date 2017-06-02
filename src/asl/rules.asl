@@ -18,9 +18,13 @@ maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
 canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
 
 chargeThreshold(X) :- myRole(Role) & chargeThreshold(Role, X). 
-chargeThreshold("drone", 40).
-chargeThreshold("motorcycle", 60).
-chargeThreshold("car", 80).
+//chargeThreshold("drone", 40).
+//chargeThreshold("motorcycle", 60).
+//chargeThreshold("car", 80).
+//chargeThreshold("truck", 100).
+chargeThreshold("drone", 100).
+chargeThreshold("motorcycle", 100).
+chargeThreshold("car", 100).
 chargeThreshold("truck", 100).
 
 // Don't know if we will need to know if they travel by road or air
@@ -45,5 +49,7 @@ have(I) :- .my_name(Me) & getAgentInventory(Agent, Inv) & .member(I, Inv).
 
 bid(Item, Bid) :- speed(S) & charge(C) & load(L) & maxLoad(M) & jia.bid(S, C, L, M, Item, Bid). // & .print(Bid).
 
-enoughCharge :- routeLength(L) & speed(S) & charge(C) & chargeThreshold(Threshold) & 
+enoughCharge :- routeLength(L) & enoughCharge(L).
+enoughCharge(L) :- speed(S) & charge(C) & chargeThreshold(Threshold) & 
 				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
+				
