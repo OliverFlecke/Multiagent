@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Logging.LoggerFactory;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
@@ -28,6 +27,7 @@ import info.ItemArtifact;
 import info.JobArtifact;
 import info.StaticInfoArtifact;
 import jason.asSyntax.Literal;
+import logging.LoggerFactory;
 import massim.eismassim.EnvironmentInterface;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Role;
