@@ -11,7 +11,6 @@
 	
 	if (Won) 
 	{
-		.print("WON!");
 		clearShops(CNPName);
 		
 		+shop(Shop);
