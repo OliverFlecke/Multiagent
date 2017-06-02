@@ -17,11 +17,7 @@ maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
 maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
 canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
 
-chargeThreshold(X) :- myRole(Role) & chargeThreshold(Role, X). 
-chargeThreshold("drone", 40).
-chargeThreshold("motorcycle", 60).
-chargeThreshold("car", 80).
-chargeThreshold("truck", 100).
+chargeThreshold(X) :- maxCharge(C) & X = 0.2 * C.
 
 // Don't know if we will need to know if they travel by road or air
 

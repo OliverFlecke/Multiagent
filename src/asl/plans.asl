@@ -4,6 +4,8 @@
  	!doAction(deliver_job(TaskId)).
  	
 +!assembleItems([]).
+//+!assembleItems(_) : itemsToRetrieve(Items) & not Items = [] <- !retrieveItems; !assembleItems.
++!assembleItems(Items) : not itemsToRetrieve([]) <- !retrieveItems; !assembleItems(Items).
 +!assembleItems([map(	_, 		0) | Items]) <- !assembleItems(Items).
 +!assembleItems([map(Item, Amount) | Items]) : inWorkshop <- 
 	getRequiredItems(Item, ReqItems);
