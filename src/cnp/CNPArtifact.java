@@ -13,8 +13,9 @@ import cartago.OpFeedbackParam;
 
 public class CNPArtifact extends Artifact {
 	
-	private List<Bid> 	bids;	
-	private boolean 	isOpen;
+	private List<Bid> 		bids;	
+	private Optional<Bid> 	bestBid;
+	private boolean 		isOpen;
 	
 	/**
 	 * 
@@ -37,7 +38,7 @@ public class CNPArtifact extends Artifact {
 	{		
 		await_time(duration);
 		
-		this.isOpen = false;
+		this.isOpen = false;		
 	}
 	
 	/**
@@ -72,20 +73,20 @@ public class CNPArtifact extends Artifact {
 	 * @param id - ID of the best bid.
 	 */
 	@OPERATION
-	void winner(OpFeedbackParam<String> agent)
+	void winner(OpFeedbackParam<Boolean> won)
 	{		
 		await("biddingClosed");
 		
-		Optional<Bid> bestBid = bids.stream().min(Comparator.comparingInt(Bid::getBid));
+		String winner = getWinner();
 		
-		if (bestBid.isPresent())
+		if (winner != null && winner.equals(getOpUserName()))
 		{
-			agent.set(bestBid.get().getAgent());
-			
-			if (agent.get().equals(getOpUserName()))
-			{
-				TaskArtifact.clear(getId());
-			}
+			TaskArtifact.clear(getId());
+			won.set(true);
+		}
+		else
+		{
+			won.set(false);
 		}
 	}
 	
@@ -94,14 +95,33 @@ public class CNPArtifact extends Artifact {
 	 * bid for, but not received any bids.
 	 */
 	@OPERATION
-	void takeTask()
+	void takeTask(OpFeedbackParam<Boolean> canTake)
 	{
 		await("biddingClosed");
 		
 		if (bids.isEmpty())
 		{
 			TaskArtifact.clear(getId());
+			canTake.set(true);
 		}
+		else
+		{
+			canTake.set(false);
+		}
+	}
+	
+	private String getWinner()
+	{
+		if (bestBid == null)
+		{
+			bestBid = bids.stream().min(Comparator.comparingInt(Bid::getBid));
+		}
+		if (bestBid.isPresent())
+		{
+			return bestBid.get().getAgent();
+		}
+		return null;
+		
 	}
 	
 	static class Bid {

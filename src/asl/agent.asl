@@ -18,22 +18,24 @@ itemsToRetrieve([]).
 	.drop_desire(charge);
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
-	winner(Name)[artifact_id(CNPId)];
-	if ( myName(Name) )
+	winner(Won)[artifact_id(CNPId)];
+	if (Won)
 	{
-		!solveTask(TaskId, DeliveryLocation, [Item|Items])
+		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
-+free : task(_, _, _, "partial", _) <- !getTask("partial").
-+free : task(_, _, _, "mission", _) <- .print("Doing a mission!"); !getTask("mission").
-+free : task(_, _, _, "job", _)		<- !getTask("job").
-+free : charge(C) & maxCharge(Max) & C < Max * 0.8 <- !charge.
-
++free : task(_, _, _, Type, _) & Type = "partial" 	<- !getTask(Type).
++free : task(_, _, _, Type, _) & Type = "mission" 	<- .print("Doing a mission!"); !getTask(Type).
++free : task(_, _, _, Type, _) & Type = "job"	  	<- !getTask(Type).
++free : charge(C) & maxCharge(Max) & C < Max * 0.8 	<- !charge.
 	
 +!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
-	takeTask[artifact_id(CNPId)];
-	!solveTask(TaskId, DeliveryLocation, [Item|Items]).
+	takeTask(CanTake)[artifact_id(CNPId)];
+	if (CanTake)
+	{
+		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
+	}.
 	
 // Plans	
 +!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
@@ -70,6 +72,12 @@ itemsToRetrieve([]).
 	{
 		P = [TaskId];
 		
+	}
+	if (A = "assemble")
+	{
+		P = [Item];
+		?itemsToRetrieve(Items);
+		.print("Missing items: ", Items);		
 	}
 	.
 +step(X) : charge(C) & speed(S) <- 
