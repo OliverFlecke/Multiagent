@@ -17,5 +17,17 @@
     "agentA14" : {"entity" : "connectionA14", "team" : "A", "iilang": false, "xml": true},
     "agentA15" : {"entity" : "connectionA15", "team" : "A", "iilang": false, "xml": true},
     "agentA16" : {"entity" : "connectionA16", "team" : "A", "iilang": false, "xml": true},
+    "agentA17" : {"entity" : "connectionA17", "team" : "A", "iilang": false, "xml": true},
+    "agentA18" : {"entity" : "connectionA18", "team" : "A", "iilang": false, "xml": true},
+    "agentA19" : {"entity" : "connectionA19", "team" : "A", "iilang": false, "xml": true},
+    "agentA20" : {"entity" : "connectionA20", "team" : "A", "iilang": false, "xml": true},
+    "agentA21" : {"entity" : "connectionA21", "team" : "A", "iilang": false, "xml": true},
+    "agentA22" : {"entity" : "connectionA22", "team" : "A", "iilang": false, "xml": true},
+    "agentA23" : {"entity" : "connectionA23", "team" : "A", "iilang": false, "xml": true},
+    "agentA24" : {"entity" : "connectionA24", "team" : "A", "iilang": false, "xml": true},
+    "agentA25" : {"entity" : "connectionA25", "team" : "A", "iilang": false, "xml": true},
+    "agentA26" : {"entity" : "connectionA26", "team" : "A", "iilang": false, "xml": true},
+    "agentA27" : {"entity" : "connectionA27", "team" : "A", "iilang": false, "xml": true},
+    "agentA28" : {"entity" : "connectionA28", "team" : "A", "iilang": false, "xml": true},
   }
 }
