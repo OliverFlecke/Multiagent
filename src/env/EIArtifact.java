@@ -37,7 +37,8 @@ public class EIArtifact extends Artifact {
     
     private static EnvironmentInterfaceStandard ei;
     
-    private static Map<String, String> connections = new HashMap<>();
+    private static Map<String, String> connections 	= new HashMap<>();
+    private static Map<String, String> entities		= new HashMap<>();
 
     /**
      * Instantiates and starts the environment interface.
@@ -60,19 +61,20 @@ public class EIArtifact extends Artifact {
     }
 	
 	@OPERATION
-	void register(String entity)  
+	void register(String entity, String connection)  
 	{
 		String agentName = getOpUserName();
 		
-		logger.fine("register " + agentName + " on " + entity);
+		logger.fine("register " + agentName + " on " + connection);
 		
 		try 
 		{			
 			ei.registerAgent(agentName);
 			
-			ei.associateEntity(agentName, entity);
+			ei.associateEntity(agentName, connection);
 			
-			connections.put(agentName, entity);
+			connections	.put(agentName, connection);
+			entities	.put(entity, agentName);			
 
 			if (connections.size() == ei.getEntities().size())
 			{
@@ -235,5 +237,10 @@ public class EIArtifact extends Artifact {
 	private void logData()
 	{
 		fileLogger.info("Step: " + DynamicInfoArtifact.getStep() + " - Money: " + DynamicInfoArtifact.getMoney());
+	}
+	
+	public static String getAgentName(String entity)
+	{
+		return entities.get(entity);
 	}
 }

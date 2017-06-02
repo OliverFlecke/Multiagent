@@ -49,6 +49,13 @@
 +!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
++!gather : inResourceNode <- !doAction(gather); !gather.
++!gather <-
+	getClosestFacility("resourceNode", F);
+	.print("ResourceNode: ", F);
+	!getToFacility(F);
+	!gather.
+
 +!charge : charge(X) & maxCharge(X).
 +!charge : charge(X) & X < 10 & not inChargingStation 	<- !doAction(recharge); !charge.
 +!charge : inChargingStation 							<- !doAction(charge); !charge.

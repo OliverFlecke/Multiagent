@@ -4,7 +4,10 @@ MAS multiagent_jason {
 
     agents:  
     	initializer agentArchClass c4jason.CAgentArch;
-   	 	agentA agent agentArchClass c4jason.CAgentArch #28;
+   	 	car 		agentArchClass c4jason.CAgentArch #8;
+   	 	drone 		agentArchClass c4jason.CAgentArch #4;
+   	 	motorcycle 	agentArchClass c4jason.CAgentArch #8;
+   	 	truck 		agentArchClass c4jason.CAgentArch #8;
 
 	aslSourcePath: "src/asl";
 }

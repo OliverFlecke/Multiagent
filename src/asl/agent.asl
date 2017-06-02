@@ -73,8 +73,6 @@ itemsToRetrieve([]).
 	}
 	if (A = "assemble")
 	{
-		P = [Item];
-		?itemsToRetrieve(Items);
-		.print("Missing items: ", Items);		
+		P = [Item];	
 	}
 	.
