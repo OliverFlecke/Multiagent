@@ -1,65 +1,57 @@
 package cnp;
 
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
-import cartago.ArtifactId;
 import cartago.OPERATION;
 import data.CUtil;
 import env.Translator;
 import info.JobArtifact;
 import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Job;
+import massim.scenario.city.data.facilities.Shop;
 
-public class TaskArtifact extends Artifact implements Comparator<Job> {
+public class TaskArtifact extends Artifact {
 
 	private static final Logger logger = Logger.getLogger(TaskArtifact.class.getName());
 
 	
 	private static TaskArtifact instance;
 	private static int 			cnpId;
-	private static Map<String, String> artifacts;
 	
 	void init()
 	{
 		instance = this;
-		
-		artifacts = new HashMap<String, String>();
 	}
 	
-	public static String getArtifactName(String taskId)
-	{
-		return artifacts.get(taskId);
-	}
-	
-	public static void announce(String taskId, String type) 
+	public static void announceJob(String taskId, String type) 
 	{
 		Job job = JobArtifact.getJob(taskId);
 		
-		instance.execInternalOp("announce", taskId, job.getStorage().getName(), CUtil.extractItems(job), type); 
+		instance.execInternalOp("announceJob", taskId, job.getStorage().getName(), CUtil.extractItems(job), type); 
 	}
 	
-	public static void clear(ArtifactId artifactId) 
-	{ 
-		instance.execInternalOp("clear", artifactId.getName()); 
+	public static void announceShops(Collection<Shop> shops)
+	{
+		Object shopNames = shops.stream().map(Shop::getName).toArray(String[]::new);
+				
+		instance.execInternalOp("announceShops", shopNames);
 	}
 	
 	@OPERATION
-	void announce(String taskId, String deliveryLocation, Object items, String type)
+	void announceJob(String taskId, String deliveryLocation, Object items, String type)
 	{
-		try {
-			String artifactName = "CNPArtifact" + (++cnpId);
+		try 
+		{
+			String cnpName = "CNPArtifact" + (++cnpId);
 			
-			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
+			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			artifacts.put(taskId, artifactName);
-			
-			defineObsProperty("task", taskId, deliveryLocation, toItemMap(items), type, artifactName);
+			defineObsProperty("task", taskId, deliveryLocation, toItemMap(items), type, cnpName);
 		} 
 		catch (Throwable e) 
 		{
@@ -79,8 +71,6 @@ public class TaskArtifact extends Artifact implements Comparator<Job> {
 			
 			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			artifacts.put(taskId, artifactName);
-			
 			defineObsProperty("auction", taskId, artifactName);
 		} 
 		catch (Throwable e) 
@@ -89,29 +79,39 @@ public class TaskArtifact extends Artifact implements Comparator<Job> {
 		}	
 	}
 	
-	private Object toItemMap(Object items)
+
+	@OPERATION
+	void announceShops(Object shops)
 	{
-		if (items instanceof Map<?, ?>) return items;
-		else return CUtil.toStringMap(Translator.convertASObjectToMap((Object[]) items));
+		try 
+		{
+			String cnpName = "CNPArtifact" + (++cnpId);
+			
+			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
+			
+			defineObsProperty("shops", shops, cnpName);
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
+		}		
 	}
 	
 	@OPERATION
-	void clear(String artifactName)
+	void clearTask(String artifactName)
 	{
 		removeObsPropertyByTemplate("task", null, null, null, null, artifactName); 
 	}
 	
-	private int evaluateJob(Job job)
+	@OPERATION
+	void clearShops(String cnpName)
 	{
-		int value = 0;
-		
-		
-		
-		return value;
+		removeObsPropertyByTemplate("shops", null, cnpName);
 	}
-
-	@Override
-	public int compare(Job job1, Job job2) {
-		return evaluateJob(job1) - evaluateJob(job2);
+	
+	private static Object toItemMap(Object items)
+	{
+		if (items instanceof Map<?, ?>) return items;
+		else return CUtil.toStringMap(Translator.convertASObjectToMap((Object[]) items));
 	}
 }

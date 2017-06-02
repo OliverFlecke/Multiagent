@@ -1,5 +1,6 @@
 // Includes
 { include("connections.asl") }
+{ include("stdlib.asl") }
 { include("rules.asl") }
 { include("plans.asl") }
 
@@ -12,7 +13,7 @@ itemsToRetrieve([]).
 
 // Percepts
 +task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
-	: free & bid(Item, Bid) 
+	: free & bid(Item, Bid) & not myRole("truck")
 //	& (Type == "job" | Type == "partial" | Type == "mission")
 	<-
 	lookupArtifact(CNPName, CNPId);
@@ -21,6 +22,7 @@ itemsToRetrieve([]).
 	if (Won)
 	{
 		.drop_desire(charge); .drop_desire(gather);
+		clearTask(CNPName);
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
@@ -42,6 +44,7 @@ itemsToRetrieve([]).
 	takeTask(CanTake)[artifact_id(CNPId)];
 	if (CanTake)
 	{
+		clearTask(CNPName);
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 -!getTask(_) <- -+free. // The agent could not solve the task given, so try find something else
@@ -55,7 +58,7 @@ itemsToRetrieve([]).
 	
 +!delegateTask(_, _, []).
 +!delegateTask(TaskId, DeliveryLocation, Items) : not free <-
-	announce(TaskId, DeliveryLocation, Items, "partial").
+	announceJob(TaskId, DeliveryLocation, Items, "partial").
 	
 +!solvePartialTask(TaskId, DeliveryLocation, Item) <- 
 	.print(TaskId, ": Delivering ", Item, " to ", DeliveryLocation);

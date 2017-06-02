@@ -314,7 +314,7 @@ public class JobArtifact extends Artifact {
 	
 	public static void announceJobs()
 	{
-		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announce(e.getKey(), e.getValue()));
+		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
 		toBeAnnounced.clear();
 	}
 	
