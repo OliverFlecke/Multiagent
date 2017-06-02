@@ -25,13 +25,14 @@
   	
 +!retrieveItems : itemsToRetrieve([]).
 +!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- 
-	-+itemsToRetrieve(Left); 
+	-+itemsToRetrieve(Items); 
 	!retrieveItems.
 +!retrieveItems : itemsToRetrieve([map(Item, Amount) | Items]) <- 
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	!getToFacility(Shop);
 	!doAction(buy(Item, AmountAvailable));
-  	!retrieveItems([map(Item, Amount - AmountAvailable) | Items]).
+	-+itemsToRetrieve([map(Item, Amount - AmountAvailable) | Items]);
+  	!retrieveItems.
 
 +!addItemsToRetrieve(ItemsToAdd) : itemsToRetrieve(Items) <- .concat(Items, ItemsToAdd, NewItems); -+itemsToRetrieve(NewItems).
 	

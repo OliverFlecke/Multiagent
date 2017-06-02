@@ -14,12 +14,10 @@ public class LoggerFactory {
 	{
 		Logger logger = Logger.getLogger("DataLogger");
 
-		LogManager.getLogManager().reset();
-		
 		for (Handler handler : logger.getHandlers())
 			handler.setLevel(Level.OFF);
 		
-//		logger.setUseParentHandlers(false);
+		logger.setUseParentHandlers(false);
 		
 		Handler handler;
 		try {
