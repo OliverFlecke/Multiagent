@@ -45,11 +45,12 @@
 +!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
 	
 +!getToFacility(F) : inFacility(F).
-+!getToFacility(F) : charge(X) & X < 20 & not inChargingStation 	<- .print("Recharging with solar"); !doAction(recharge); !getToFacility(F).
++!getToFacility(F) : charge(X) & X < 20 & not inChargingStation 	<- !charge; !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
-+!charge : charge(X) & maxCharge(X)						<- -charging.
-+!charge : inChargingStation 							<- !doAction(charge); !charge.
++!charge : charge(X) & maxCharge(X)		<- -charging.
++!charge : charge(0) 					<- !doAction(recharge).
++!charge : inChargingStation 			<- !doAction(charge); !charge.
 +!charge <-
 	+charging;
 	getClosestFacility("chargingStation", F);

@@ -70,7 +70,7 @@ itemsToRetrieve([]).
 	jia.action(Me, Action);
 	.wait(step(_)).
 
-+step(X) : readyToStart <- +free.
++step(0) <- +free.
 +step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!").
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
@@ -93,7 +93,7 @@ itemsToRetrieve([]).
 	.
 +step(X) : charge(C) & speed(S) & not charging <- 
 	distanceToClosestFacility("chargingStation", Dist);
-	if (not enoughCharge(Dist))
+	if (not enoughCharge(Dist) & not .desire(charge))
 	{
 		.suspend(getToFacility(_));
 		!charge;
