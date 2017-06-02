@@ -24,8 +24,9 @@ itemsToRetrieve([]).
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
-+auction(TaskId, CNPName) : free
++auction(TaskId, CNPName) : .my_name(car1)
 	<- 
+	.print("Auction!");
 	takeTask(_)[artifact_id(CNPId)];
 	getAuctionBid(TaskId, Bid);
 	!doAction(bid_for_job(TaskId, Bid)).
@@ -43,6 +44,7 @@ itemsToRetrieve([]).
 	{
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
+-!getTask(_) <- -+free. // The agent could not solve the task given, so try find something else
 	
 // Plans	
 +!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
