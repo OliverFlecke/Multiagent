@@ -12,7 +12,8 @@ itemsToRetrieve([]).
 
 // Percepts
 +task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
-	: free & bid(Item, Bid) & (Type == "job" | Type == "partial" | Type == "mission")
+	: free & bid(Item, Bid) 
+//	& (Type == "job" | Type == "partial" | Type == "mission")
 	<-
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
@@ -23,23 +24,19 @@ itemsToRetrieve([]).
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
-+free : task(_, _, _, Type, _) & Type = "partial" 	<- !getTask(Type).
-+free : task(_, _, _, Type, _) & Type = "mission" 	<- .print("Doing a mission!"); !getTask(Type).
-+free : task(_, _, _, Type, _) & Type = "job"	  	<- !getTask(Type).
-+free : charge(C) & maxCharge(Max) & C < Max * 0.8 	<- !charge.
-+free <- 
-	getClosestFacility("resourceNode", F);
-	if (not (F == "none"))
-	{
-		!getToFacility(F);
-		!gather;
-	}
-	else {
-		getClosestFacility("shop", S);
-		!getToFacility(S);
-	}.
++auction(TaskId, CNPName) : free
+	<- 
+	takeTask(_)[artifact_id(CNPId)];
+	getAuctionBid(TaskId, Bid);
+	!doAction(bid_for_job(TaskId, Bid)).
 	
-+!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
++free : task(_, _, _, Type, CNPName) & Type = "partial" 	<- !getTask(CNPName).
++free : task(_, _, _, Type, CNPName) & Type = "mission" 	<- !getTask(CNPName).
++free : task(_, _, _, Type, CNPName) & Type = "auction"		<- !getTask(CNPName).
++free : task(_, _, _, Type, CNPName) & Type = "job"	  		<- !getTask(CNPName).
++free : charge(C) & maxCharge(Max) & C < Max * 0.8 			<- !charge.
+	
++!getTask(CNPName) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
 	takeTask(CanTake)[artifact_id(CNPId)];
 	if (CanTake)
@@ -86,9 +83,7 @@ itemsToRetrieve([]).
 	}
 	if (A = "assemble")
 	{
-		P = [Item];
-		?itemsToRetrieve(Items);
-		.print("Missing items: ", Items);		
+		P = [Item];	
 	}
 	.
 +step(X) : charge(C) & speed(S) & not charging <- 

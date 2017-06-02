@@ -55,6 +55,21 @@ public class JobArtifact extends Artifact {
 		items.set(CUtil.extractItems(job));
 	}
 	
+	@OPERATION
+	void getAuctionBid(String auctionId, OpFeedbackParam<Integer> bid)
+	{
+		AuctionJob auction = auctions.get(auctionId);
+		
+		if (auction.getLowestBid() != null)
+		{
+			bid.set(auction.getLowestBid().intValue() - 1);
+		}
+		else 
+		{
+			bid.set(Integer.MAX_VALUE);
+		}
+	}
+	
 	/**
 	 * Computes the price to by all the necessary items needed to complete this job
 	 * @param job
@@ -150,11 +165,20 @@ public class JobArtifact extends Artifact {
 			
 			auction.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
-
-		if (!auctions.containsKey(id))
-			toBeAnnounced.put(id, "auction");		
 		
-		auctions.put(id, auction);
+		// We have won the auction
+		if (auction.getBeginStep() + auction.getAuctionTime() > DynamicInfoArtifact.getStep())
+		{
+			if (!auctions.containsKey(id))
+				toBeAnnounced.put(id, "auction");		
+			
+			auctions.put(id, auction);
+		}
+		else 
+		{
+			TaskArtifact.announceAuction(id, auction);
+		}
+
 	}
 	
 	private static void perceiveJob(Percept percept)

@@ -13,6 +13,7 @@ import cartago.OPERATION;
 import data.CUtil;
 import env.Translator;
 import info.JobArtifact;
+import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Job;
 
 public class TaskArtifact extends Artifact implements Comparator<Job> {
@@ -64,6 +65,28 @@ public class TaskArtifact extends Artifact implements Comparator<Job> {
 		{
 			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
 		}		
+	}
+	
+	public static void announceAuction(String taskId, AuctionJob auction) {
+		instance.execInternalOp("announceAuction", taskId);		
+	}
+	
+	@OPERATION
+	void announceAuction(String taskId)
+	{
+		try {
+			String artifactName = "CNPArtifact" + (++cnpId);
+			
+			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
+			
+			artifacts.put(taskId, artifactName);
+			
+			defineObsProperty("auction", taskId, artifactName);
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
+		}	
 	}
 	
 	private Object toItemMap(Object items)
