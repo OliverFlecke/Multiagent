@@ -66,7 +66,7 @@ public class FacilityArtifact extends Artifact {
 		Location agLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
 		
 		Collection<? extends Facility> facilities = Collections.emptySet();
-		
+
 		switch (facilityType)
 		{
 		case CHARGING_STATION: 	facilities = chargingStations	.values();	break;	
