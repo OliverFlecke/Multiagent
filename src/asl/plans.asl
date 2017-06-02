@@ -26,7 +26,9 @@
 -!assembleItem(Item) <- .print("Could not assemble item").
   	
 +!retrieveItems : itemsToRetrieve([]).
-+!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- -+itemsToRetrieve(Items); !retrieveItems.
++!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- 
+	-+itemsToRetrieve(Items); 
+	!retrieveItems.
 +!retrieveItems : itemsToRetrieve([map(Item, Amount) | Items]) <- 
 	getShopSelling(Item, Amount, Shop, AmountAvailable);
 	!getToFacility(Shop);
@@ -48,7 +50,8 @@
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
-+!charge : inChargingStation <- !doAction(charge); !charge.
++!charge : charge(X) & X < 10 & not inChargingStation 	<- !doAction(recharge); !charge.
++!charge : inChargingStation 							<- !doAction(charge); !charge.
 +!charge <-
 	getClosestFacility("chargingStation", F);
 	!getToFacility(F); 

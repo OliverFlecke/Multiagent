@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -84,7 +85,32 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) {
+	void getNearestShopSelling(String item, OpFeedbackParam<String> ret)
+	{
+		Location loc = AgentArtifact.getEntity(getOpUserName()).getLocation();
+		
+		Optional<Shop> shop = getShopSelling(item).stream().min((x, y) -> distance(x.getLocation(), loc) - distance(y.getLocation(), loc));
+		
+		if (shop.isPresent())
+		{
+			ret.set(shop.get().getName());
+		}
+		else 
+		{
+			ret.set("none");
+		}
+	}
+	
+	
+	public int distance(Location x, Location y)
+	{
+		return (int) (100000 * Math.sqrt(Math.pow(x.getLat() - y.getLat(), 2)
+				+ Math.pow(x.getLon() - y.getLon(), 2)));
+	}
+	
+	@OPERATION
+	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) 
+	{
 		ret.set(getShopSelling(item));
 	}
 	

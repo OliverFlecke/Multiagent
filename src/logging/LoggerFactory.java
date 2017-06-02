@@ -1,4 +1,4 @@
-package Logging;
+package logging;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -13,7 +13,10 @@ public class LoggerFactory {
 	{
 		Logger logger = Logger.getLogger("DataLogger");
 
-		logger.setLevel(Level.OFF);
+		for (Handler handler : logger.getHandlers())
+			handler.setLevel(Level.OFF);
+		
+		logger.setUseParentHandlers(false);
 		
 		Handler handler;
 		try {
@@ -26,6 +29,8 @@ public class LoggerFactory {
 			handler = new FileHandler("logs\\client\\sim " + dateString + ".log");
 			
 			handler.setLevel(Level.ALL);
+			
+			handler.setFormatter(new LoggingFormatter());
 			
 			logger.addHandler(handler);
 		} 
