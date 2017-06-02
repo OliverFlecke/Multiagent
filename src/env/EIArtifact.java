@@ -176,6 +176,8 @@ public class EIArtifact extends Artifact {
 			
 			// Define step
 			defineObsProperty("step", DynamicInfoArtifact.getStep());
+			
+			FacilityArtifact.announceShops();
 		}
 		catch (Throwable e) 
 		{

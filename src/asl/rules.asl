@@ -1,3 +1,4 @@
+
 // Rules
 myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
 myRole(Role) 	:- myName(Name) & myRole(Name, Role).
@@ -44,4 +45,3 @@ bid(Item, Bid) :- speed(S) & charge(C) & load(L) & maxLoad(M) & jia.bid(S, C, L,
 enoughCharge :- routeLength(L) & enoughCharge(L).
 enoughCharge(L) :- speed(S) & charge(C) & chargeThreshold(Threshold) & 
 				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
-				

@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
+import cnp.TaskArtifact;
 import data.CEntity;
 import eis.iilang.Percept;
 import env.Translator;
@@ -86,6 +88,19 @@ public class FacilityArtifact extends Artifact {
 		{
 			ret.set(getClosestFacility(agentLoc, facilities));
 		}
+	}
+	
+	@OPERATION
+	void getClosestShop(Object[] shopNames, OpFeedbackParam<String> ret)
+	{
+		Location agentLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
+		
+		Collection<? extends Facility> facilities = Arrays.stream(shopNames)
+														.map(String.class::cast)
+														.map(FacilityArtifact::getShop)
+														.collect(Collectors.toSet());
+		
+		ret.set(getClosestFacility(agentLoc, facilities));
 	}
 	
 	@OPERATION
@@ -271,6 +286,11 @@ public class FacilityArtifact extends Artifact {
 		return allFacilities.stream().filter(facilities -> facilities.containsKey(facilityName))
 				.findFirst().get().get(facilityName);
 	}
+	
+	private static Facility getShop(String shopName)
+	{
+		return getFacility("shop", shopName);
+	}
 
 	protected static Facility getFacility(String facilityType, String facilityName) 
 	{		
@@ -287,5 +307,9 @@ public class FacilityArtifact extends Artifact {
 		}
 		
 		return facilities.get(facilityName);
+	}
+
+	public static void announceShops() {
+		TaskArtifact.announceShops(shops.values());
 	}
 }

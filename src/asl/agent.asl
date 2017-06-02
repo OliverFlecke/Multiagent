@@ -1,5 +1,6 @@
 // Includes
 { include("connections.asl") }
+{ include("stdlib.asl") }
 { include("rules.asl") }
 { include("plans.asl") }
 
@@ -12,7 +13,8 @@ itemsToRetrieve([]).
 
 // Percepts
 +task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
-	: free & bid(Item, Bid) & (Type == "job" | Type == "partial" | Type == "mission")
+	: free & bid(Item, Bid) & not myRole("truck")
+	& (Type == "job" | Type == "partial" | Type == "mission")
 	<-
 	lookupArtifact(CNPName, CNPId);
 	bid(Bid)[artifact_id(CNPId)];
@@ -20,6 +22,7 @@ itemsToRetrieve([]).
 	if (Won)
 	{
 		.drop_desire(charge); .drop_desire(gather);
+		clearTask(CNPName);
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
@@ -27,23 +30,13 @@ itemsToRetrieve([]).
 +free : task(_, _, _, Type, _) & Type = "mission" 	<- .print("Doing a mission!"); !getTask(Type).
 +free : task(_, _, _, Type, _) & Type = "job"	  	<- !getTask(Type).
 +free : charge(C) & maxCharge(Max) & C < Max * 0.8 	<- !charge.
-+free <- 
-	getClosestFacility("resourceNode", F);
-	if (not (F == "none"))
-	{
-		!getToFacility(F);
-		!gather;
-	}
-	else {
-		getClosestFacility("shop", S);
-		!getToFacility(S);
-	}.
 	
 +!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
 	takeTask(CanTake)[artifact_id(CNPId)];
 	if (CanTake)
 	{
+		clearTask(CNPName);
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
@@ -56,7 +49,7 @@ itemsToRetrieve([]).
 	
 +!delegateTask(_, _, []).
 +!delegateTask(TaskId, DeliveryLocation, Items) : not free <-
-	announce(TaskId, DeliveryLocation, Items, "partial").
+	announceJob(TaskId, DeliveryLocation, Items, "partial").
 	
 +!solvePartialTask(TaskId, DeliveryLocation, Item) <- 
 	.print(TaskId, ": Delivering ", Item, " to ", DeliveryLocation);
@@ -70,7 +63,7 @@ itemsToRetrieve([]).
 	jia.action(Me, Action);
 	.wait(step(_)).
 
-+step(X) : readyToStart <- +free.
++step(0) <- +free.
 +step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!").
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);

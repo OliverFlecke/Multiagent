@@ -26,7 +26,7 @@ public class CNPArtifact extends Artifact {
 		this.bids	= new ArrayList<>();
 		this.isOpen = true;
 		
-		execInternalOp("awaitBids", 100);
+		execInternalOp("awaitBids", 250);
 	}
 	
 	/**
@@ -81,7 +81,6 @@ public class CNPArtifact extends Artifact {
 		
 		if (winner != null && winner.equals(getOpUserName()))
 		{
-			TaskArtifact.clear(getId());
 			won.set(true);
 		}
 		else
@@ -101,7 +100,6 @@ public class CNPArtifact extends Artifact {
 		
 		if (bids.isEmpty())
 		{
-			TaskArtifact.clear(getId());
 			canTake.set(true);
 		}
 		else
