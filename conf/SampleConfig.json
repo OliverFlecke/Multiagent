@@ -51,7 +51,7 @@
         "truck" : {
           "speed" : 2,
           "load" : 3000,
-          "battery" : 2000,
+          "battery" : 1000,
           "roads" : ["road"]
         }
       },

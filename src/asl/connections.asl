@@ -30,6 +30,8 @@ connection(truck6,      agentA26, connectionA26).
 connection(truck7,      agentA27, connectionA27).
 connection(truck8,      agentA28, connectionA28).
 
+readyToStart :- registered & focused.
+
 // Plans
 +!register : connection(A, C) <- register(A, C).
 -!register <- .wait(100); !register.
@@ -38,5 +40,6 @@ connection(truck8,      agentA28, connectionA28).
 +!focusArtifacts <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("EIArtifact");
-	.print("Successfully focused artifacts").
+	.print("Successfully focused artifacts");
+	+focused.
 -!focusArtifacts <- .wait(500); !focusArtifacts.

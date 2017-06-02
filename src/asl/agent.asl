@@ -4,7 +4,6 @@
 { include("plans.asl") }
 
 // Initial beliefs
-free.
 itemsToRetrieve([]).
 
 // Initial goals
@@ -20,12 +19,25 @@ itemsToRetrieve([]).
 	winner(Won)[artifact_id(CNPId)];
 	if (Won)
 	{
+		.drop_desire(charge); .drop_desire(gather);
 		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
 	}.
 	
-+free : task(_, _, _, Type, _) & Type = "partial" <- !getTask(Type).
-+free : task(_, _, _, Type, _) & Type = "mission" <- .print("Doing a mission!"); !getTask(Type).
-+free : task(_, _, _, Type, _) & Type = "job"	  <- !getTask(Type).
++free : task(_, _, _, Type, _) & Type = "partial" 	<- !getTask(Type).
++free : task(_, _, _, Type, _) & Type = "mission" 	<- .print("Doing a mission!"); !getTask(Type).
++free : task(_, _, _, Type, _) & Type = "job"	  	<- !getTask(Type).
++free : charge(C) & maxCharge(Max) & C < Max * 0.8 	<- !charge.
++free <- 
+	getClosestFacility("resourceNode", F);
+	if (not (F == "none"))
+	{
+		!getToFacility(F);
+		!gather;
+	}
+	else {
+		getClosestFacility("shop", S);
+		!getToFacility(S);
+	}.
 	
 +!getTask(Type) : task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) & bid(Item, _) <-
 	lookupArtifact(CNPName, CNPId);
@@ -58,6 +70,7 @@ itemsToRetrieve([]).
 	jia.action(Me, Action);
 	.wait(step(_)).
 
++step(X) : readyToStart <- +free.
 +step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!").
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P);
@@ -76,3 +89,11 @@ itemsToRetrieve([]).
 		P = [Item];	
 	}
 	.
++step(X) : charge(C) & speed(S) & not charging <- 
+	distanceToClosestFacility("chargingStation", Dist);
+	if (not enoughCharge(Dist))
+	{
+		.suspend(getToFacility(_));
+		!charge;
+		.resume(getToFacility(_));
+	}.

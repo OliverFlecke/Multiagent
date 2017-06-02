@@ -24,7 +24,7 @@
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
 -!assembleItem(Item) <- .print("Could not assemble item").
-  	
+
 +!retrieveItems : itemsToRetrieve([]).
 +!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- 
 	-+itemsToRetrieve(Items); 
@@ -37,7 +37,7 @@
   	!retrieveItems.
 
 +!addItemsToRetrieve(ItemsToAdd) : itemsToRetrieve(Items) <- .concat(Items, ItemsToAdd, NewItems); -+itemsToRetrieve(NewItems).
-	
+
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
 +!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
@@ -45,8 +45,7 @@
 +!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
 	
 +!getToFacility(F) : inFacility(F).
-//+!getToFacility(F) : routeDuration(1).
-+!getToFacility(F) : not enoughCharge & not isChargingStation(F) 	<- !charge; !getToFacility(F).
++!getToFacility(F) : charge(X) & X < 20 & not inChargingStation 	<- .print("Recharging with solar"); !doAction(recharge); !getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); !getToFacility(F).
 
 +!gather : inResourceNode <- !doAction(gather); !gather.
@@ -56,10 +55,13 @@
 	!getToFacility(F);
 	!gather.
 
-+!charge : charge(X) & maxCharge(X).
-+!charge : charge(X) & X < 10 & not inChargingStation 	<- !doAction(recharge); !charge.
++!charge : charge(X) & maxCharge(X)						<- -charging.
 +!charge : inChargingStation 							<- !doAction(charge); !charge.
 +!charge <-
+	+charging;
 	getClosestFacility("chargingStation", F);
 	!getToFacility(F); 
 	!charge.
+	
++!gather : inResourceNode <- !doAction(gather); !gather.
+-!gather <- .print("Not in a resource node").
