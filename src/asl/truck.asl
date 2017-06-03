@@ -9,7 +9,7 @@
 	bid(Distance)[artifact_id(CNPId)];
 	winner(Won)[artifact_id(CNPId)];
 	
-	if (Won) 
+	if (Won)
 	{
 		clearShops(CNPName);
 		
@@ -18,10 +18,13 @@
 		
 		if (not NewShops = []) 
 		{
-			announceShops(NewShops);			
+			announceShops(NewShops);
 		}
 	}.
 	
-+shop(Shop) <- !!getToFacility(Shop).
++shop(Shop) : .my_name(Me) <- !!getToFacility(Shop); .broadcast(tell, shop(Shop, Me)).
 
 +!buy(Item, Amount) : shop(Shop) & inFacility(Shop) <- !doAction(buy(Item, Amount)).
++!buy(Item, Amount) : shop(Shop) <- !getToFacility(Shop); !buy(Item, Amount).
+
++!give(Item, Amount) <- !doAction(give(Item, Amount)).

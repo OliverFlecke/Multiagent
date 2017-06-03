@@ -35,6 +35,11 @@ public class TaskArtifact extends Artifact {
 		instance.execInternalOp("announceJob", taskId, job.getStorage().getName(), CUtil.extractItems(job), type); 
 	}
 	
+	public static void announceAuction(String taskId, AuctionJob auction) 
+	{
+		instance.execInternalOp("announceAuction", taskId);		
+	}
+	
 	public static void announceShops(Collection<Shop> shops)
 	{
 		Object shopNames = shops.stream().map(Shop::getName).toArray(String[]::new);
@@ -45,43 +50,28 @@ public class TaskArtifact extends Artifact {
 	@OPERATION
 	void announceJob(String taskId, String deliveryLocation, Object items, String type)
 	{
-		try 
-		{
-			String cnpName = "CNPArtifact" + (++cnpId);
-			
-			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
-			
-			defineObsProperty("task", taskId, deliveryLocation, toItemMap(items), type, cnpName);
-		} 
-		catch (Throwable e) 
-		{
-			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
-		}		
-	}
-	
-	public static void announceAuction(String taskId, AuctionJob auction) {
-		instance.execInternalOp("announceAuction", taskId);		
+		instance.announce("task", taskId, deliveryLocation, toItemMap(items), type);
 	}
 	
 	@OPERATION
 	void announceAuction(String taskId)
 	{
-		try {
-			String artifactName = "CNPArtifact" + (++cnpId);
-			
-			makeArtifact(artifactName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
-			
-			defineObsProperty("auction", taskId, artifactName);
-		} 
-		catch (Throwable e) 
-		{
-			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
-		}	
+		instance.announce("auction", taskId);
 	}
 	
-
 	@OPERATION
 	void announceShops(Object shops)
+	{
+		instance.announce("shops", shops);
+	}
+	
+	@OPERATION
+	void announceBuy(String item, String amount, String shop)
+	{
+		instance.announce("buyRequest", item, amount, shop);
+	}
+	
+	private void announce(String property, Object... args)
 	{
 		try 
 		{
@@ -89,7 +79,7 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty("shops", shops, cnpName);
+			defineObsProperty("shops", args, cnpName);
 		} 
 		catch (Throwable e) 
 		{
@@ -98,9 +88,9 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void clearTask(String artifactName)
+	void clearTask(String cnpName)
 	{
-		removeObsPropertyByTemplate("task", null, null, null, null, artifactName); 
+		removeObsPropertyByTemplate("task", null, null, null, null, cnpName); 
 	}
 	
 	@OPERATION

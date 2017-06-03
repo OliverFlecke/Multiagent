@@ -101,7 +101,6 @@ public class ItemArtifact extends Artifact {
 		}
 	}
 	
-	
 	public int distance(Location x, Location y)
 	{
 		return (int) (100000 * Math.sqrt(Math.pow(x.getLat() - y.getLat(), 2)
@@ -135,22 +134,7 @@ public class ItemArtifact extends Artifact {
 		
 		ret.set(FacilityArtifact.getClosestFacility(agentLocation, shops));
 	}
-	
-	/**
-	 * Checks if the agent can use the given tool
-	 * @param toolName The tool which should be tested
-	 * @param ret True if the agent can use the tool
-	 */
-	@OPERATION
-	void canUseTool(String toolName, OpFeedbackParam<Boolean> ret)
-	{
-		if (tools.containsKey(toolName))
-			ret.set(((Tool) getItem(toolName)).getRoles().contains(getOpUserName()));
-		else 
-			ret.set(false);
-	}
-	
-	
+		
 	/**
 	 * @param items Map of all the items
 	 * @return Get the total volume of all the items in the map
@@ -198,6 +182,16 @@ public class ItemArtifact extends Artifact {
 	void getBaseItemVolume(Object[] input, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
+	}
+	
+	@OPERATION
+	void getShoppingList(Object[] input, OpFeedbackParam<Object> ret)
+	{
+		Map<Item, Integer> items = Translator.convertASObjectToMap(input);
+		
+		Map<String, Map<String, Integer>> shoppingList = new HashMap<>();
+		
+		
 	}
 	
 	/**
