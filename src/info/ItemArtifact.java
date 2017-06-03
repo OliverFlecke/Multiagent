@@ -236,16 +236,6 @@ public class ItemArtifact extends Artifact {
 		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
 	}
 	
-	@OPERATION
-	void getShoppingList(Object[] input, OpFeedbackParam<Object> ret)
-	{
-		Map<Item, Integer> items = Translator.convertASObjectToMap(input);
-		
-		Map<String, Map<String, Integer>> shoppingList = new HashMap<>();
-		
-		
-	}
-	
 	/**
 	 * @param item
 	 * @return Get the best price for an item on the market

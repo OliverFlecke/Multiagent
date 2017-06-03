@@ -1,5 +1,6 @@
 package cnp;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
@@ -62,7 +63,7 @@ public class TaskArtifact extends Artifact {
 	@OPERATION
 	void announceShops(Object shops)
 	{
-		instance.announce("shops", shops);
+		instance.announce("shops", (Object[]) shops);
 	}
 	
 	@OPERATION
@@ -79,7 +80,15 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty("shops", args, cnpName);
+			Object[] properties = new Object[args.length + 1];
+			
+			for (int i = 0; i < args.length; i++)
+			{
+				properties[i] = args[i];
+			}
+			properties[args.length] = cnpName;
+			
+			defineObsProperty(property, properties);
 		} 
 		catch (Throwable e) 
 		{
