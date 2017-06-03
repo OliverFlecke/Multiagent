@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
+import data.CUtil;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
@@ -112,6 +113,57 @@ public class ItemArtifact extends Artifact {
 	{
 		ret.set(getShopSelling(item));
 	}
+	
+	@OPERATION
+	void getShoppingList(Object[] itemsMap, OpFeedbackParam<Object> ret)
+	{
+		ret.set(getShoppingList(Translator.convertASObjectToMap(itemsMap)).entrySet().stream()
+				.collect(Collectors.toMap(shop -> shop.getKey().getName(), map -> map.getValue().entrySet().stream()
+						.collect(Collectors.toMap(item -> item.getKey().getName(), amount -> amount.getValue())))));
+	}
+	
+	/**
+	 * Converts a map of items to buy into a shopping list
+	 * @param items The items to buy along with the amount
+	 * @return A map of shops and what to buy where
+	 */
+	public Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
+	{	
+		Map<Shop, Map<Item, Integer>> shoppingList = new HashMap<>();
+		
+		for (Entry<Item, Integer> entry : items.entrySet())
+		{
+			Collection<Shop> shops = getShopSelling(entry.getKey().getName());
+			
+			Item item 	= entry.getKey();
+			int amount 	= entry.getValue();
+			
+			Optional<Shop> shop = shops.stream()
+					.filter(x -> x.getItemCount(item) > amount).findAny();
+			
+			if (shop.isPresent())
+			{
+				CUtil.addToMapOfMaps(shoppingList, shop.get(), item, amount);
+			}
+			else 
+			{
+				shop = shops.stream().max((x, y) -> x.getInitialAmount(item) - y.getInitialAmount(item));
+				
+				if (shop.isPresent())
+				{
+					CUtil.addToMapOfMaps(shoppingList, shop.get(), item, amount);
+				}
+				else
+				{
+					throw new UnsupportedOperationException("Could not find any shop selling " + item.getName());
+				}
+			}
+		}
+		
+		return shoppingList;
+	}
+
+
 	
 	@OPERATION
 	void getShopSelling(String itemName, int quantity, OpFeedbackParam<String> retShop, OpFeedbackParam<Integer> retQuantity) 
