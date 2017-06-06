@@ -1,5 +1,6 @@
 package cnp;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
@@ -79,7 +80,7 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty("shops", args, cnpName);
+			defineObsProperty(property, args, cnpName);
 		} 
 		catch (Throwable e) 
 		{

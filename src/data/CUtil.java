@@ -20,6 +20,10 @@ public class CUtil {
 		return items.entrySet().stream()
 				.collect(Collectors.toMap(e -> e.getKey().getName(), Entry::getValue));
 	}
+
+	public static String getName(Entry<Item, Integer> entry) {
+		return entry.getKey().getName();
+	}
 	
 	/**
 	 * @param map The map to add the content to

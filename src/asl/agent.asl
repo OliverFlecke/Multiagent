@@ -12,20 +12,6 @@ itemsToRetrieve([]).
 !focusArtifacts.
 
 // Percepts
-+task(TaskId, DeliveryLocation, [Item|Items], Type, CNPName) 
-	: free & bid(Item, Bid) & myRole("car")
-//	& (Type == "job" | Type == "partial" | Type == "mission")
-	<-
-	lookupArtifact(CNPName, CNPId);
-	bid(Bid)[artifact_id(CNPId)];
-	winner(Won)[artifact_id(CNPId)];
-	
-	if (Won)
-	{
-		.drop_desire(charge); .drop_desire(gather);
-		clearTask(CNPName);
-		!solveTask(TaskId, DeliveryLocation, [Item|Items]);
-	}.
 	
 +auction(TaskId, CNPName) : .my_name(car1)
 	<- 
@@ -50,75 +36,102 @@ itemsToRetrieve([]).
 	}.
 -!getTask(_) <- -+free. // The agent could not solve the task given, so try find something else
 	
-// Plans	
-//+!solveTask(TaskId, DeliveryLocation, [Item|Items]) : free <-
-//	-free;
-//	!delegateTask(TaskId, DeliveryLocation, Items);
-//	!solvePartialTask(TaskId, DeliveryLocation, Item);
-//	+free.
 	
-+!solveTask(TaskId, DeliveryLocation, Items) 
-	<-
-	getBaseItems(Items, BaseItems);
-	!buyItems(BaseItems);
-	getClosestFacility("workshop", Workshop);
-	announceRetrieval(BaseItems, Workshop);
-	!assembleItems(Items);
-	announceDelivery(Items, Workshop, TaskId, DeliveryLocation);
-	.
-	
-+retrievalRequest(Items, DeliveryLocation, CNPName) : capacity(C) <-
-	// Reqursively announce retrieval until all items have been retrieved.
-	.print("Not implemented");
-	.
-	
-+deliveryRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) : capacity(Capacity) 
++retrievalRequest([map(Shop,Items)|Shops], Workshop, CNPName) : free & capacity(Capacity) 
 	<-
 	getVolume(Items, Volume);
-	.max([Volume, Capacity], Max); 
+	.min([Volume, Capacity], Min); 
+	
+	distanceToFacility(Shop, Distance);
+	
+	lookupArtifact(CNPName, CNPId);
+	// TODO: Add weighting to distance or capacity
+	bid(Distance-Min)[artifact_id(CNPId)]; // Negative capacity since lower is better
+	winner(Won)[artifact_id(CNPId)];
+	
+	if (Won)
+	{
+		getItemsToCarry(Items, Capacity, Retrieve, Rest);
+		
+		-free;
+		.send(announcer, achieve, announceRetrieve([map(Shop,Rest)|Shops]));
+		
+		// Receive items from truck at shop
+		!getToFacility(Shop);
+		.my_name(Me);
+		?truckFacility(ShopTruck, Shop);
+		.send(ShopTruck, achieve, giveItems(Me, Retrieve));
+		!receiveItems(Retrieve);
+		
+		// Give items to truck at workshop
+		!getToFacility(Workshop);
+		?truckFacility(WorkshopTruck, Workshop);
+		.send(WorkshopTruck, achieve, receiveItems(Retrieve));
+		!giveItems(WorkshopTruck, Retrieve);
+		
+		+free;
+	}
+	.
+	
++assemblyRequest([Item|Items], Workshop, CNPName) : capacity(Capacity)
+	<-
+	getVolume([Item], Volume);
+	
+	if (Volume <= Capacity)
+	{	
+		distanceToFacility(Workshop, Distance);
+		
+		lookupArtifact(CNPName, CNPId);
+		bid(Distance)[artifact_id(CNPId)];
+		winner(Won)[artifact_id(CNPId)];
+		
+		if (Won)
+		{
+			!getToFacility(Workshop);
+			?truckFacility(WorkshopTruck, Workshop)
+			.send(WorkshopTruck, achieve, giveItems(Me, []));
+			!receiveItems(Items);			
+		}
+	}
+	
+	.
+	
++deliveryRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) : free & capacity(Capacity) 
+	<-
+	getVolume(Items, Volume);
+	.min([Volume, Capacity], Min); 
 	
 	distanceToFacility(Workshop, Distance);
 	
 	lookupArtifact(CNPName, CNPId);
 	// TODO: Add weighting to distance or capacity
-	bid(Distance-Max)[artifact_id(CNPId)]; // Negative capacity since lower is better
+	bid(Distance-Min)[artifact_id(CNPId)]; // Negative capacity since lower is better
 	winner(Won)[artifact_id(CNPId)];
 	
 	if (Won)
 	{
-		if (Capacity < Volume)
-		{
-			// Figure out which items can be carried and receive them
-			announceDelivery(Rest);
-		}
-		else
+		-free;
+		if (Volume <= Capacity)
 		{
 			// Receive items
 			!getToFacility(DeliveryLocation);
 			!doAction(deliver_job(TaskId));
+			
 		}
+		else
+		{
+			// Figure out which items can be carried and receive them
+			announceDelivery(Rest);
+		}
+		+free;
 	}
 	.
 	
-	
-	
-+!buyItems([]).
-+!buyItems([map(   _,      0) | Items]) <- !buyItems(Items).
-+!buyItems([map(Item, Amount) | Items]) <- 
-	getShopSelling(Item, Amount, Shop, AmountAvailable);
-	!buyItem(Item, AmountAvailable, Shop);
-	!buyItems([map(Item, Amount - AmountAvailable) | Items]).
-  	
-+!buyItem(Item, Amount, Shop) : shop(Shop, Agent) <-
-	.send(Agent, achieve, buy(Item, Amount)).
-+!buyItem(Item, Amount, Shop) <-
-	announceBuy(Item, Amount, Shop).
-	
-+buyRequest(Item, Amount, Shop, CNPName) : capacity(C) 
++buyRequest(Shop, Items, CNPName) : capacity(Capacity) 
 	<-
-	getVolume([map(Item, Amount)], V);
+	getVolume(Items, Volume);
 	
-	if (V < C)
+	if (Volume <= Capacity)
 	{
 		distanceToFacility(Shop, Distance);
 	
@@ -129,23 +142,27 @@ itemsToRetrieve([]).
 		if (Won)
 		{
 			!getToFacility(Shop);
-			!doAction(buy(Item, Amount));
+			!buyItems(Items);
 		}
 	}
 	.
 	
 	
-//+!delegateTask(_, _, []).
-//+!delegateTask(TaskId, DeliveryLocation, Items) : not free <-
-//	announceJob(TaskId, DeliveryLocation, Items, "partial").
-//	
-//+!solvePartialTask(TaskId, DeliveryLocation, Item) <- 
-//	.print(TaskId, ": Delivering ", Item, " to ", DeliveryLocation);
-//	getBaseItems([Item], BaseItems);
-//	!addItemsToRetrieve(BaseItems);
-//	!retrieveItems;
-//	!assembleItems([Item]);
-//	!delieverItems(TaskId, DeliveryLocation).
+
++!giveItems(_, []).
++!giveItems(Agent, [map(Item, Amount)|Items]) <-
+	!doAction(give(Agent, Item, Amount));
+	!giveItems(Items).
+	
++!receiveItems([]).
++!receiveItems([_|Items]) <-
+	!doAction(receive);
+	!receiveItems(Items).
+
++!buyItems([]).
++!buyItems([map(Item, Amount)|Items]) <- 
+	!doAction(buy(Item, Amount));
+	!buyItems(Items).
 	
 +!doAction(Action) : .my_name(Me) <-
 	jia.action(Me, Action);

@@ -66,14 +66,14 @@ public class ItemArtifact extends Artifact {
 							entry -> entry.getValue() * item.getValue()))
 					.entrySet())
 			.flatMap(Collection::stream)
-			.collect(Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue, Integer::sum)));
+			.collect(Collectors.toMap(CUtil::getName, Entry::getValue, Integer::sum)));
 	}
 	
 	@OPERATION 
 	void getRequiredItems(Object itemName, OpFeedbackParam<Object> ret)
 	{
 		ret.set(items.get(itemName).getRequiredItems().entrySet().stream()
-				.collect(Collectors.toMap(x -> x.getKey().getName(), Map.Entry::getValue)));
+				.collect(Collectors.toMap(x -> x.getKey().getName(), Entry::getValue)));
 	}
 	
 	/**
@@ -234,16 +234,6 @@ public class ItemArtifact extends Artifact {
 	void getBaseItemVolume(Object[] input, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
-	}
-	
-	@OPERATION
-	void getShoppingList(Object[] input, OpFeedbackParam<Object> ret)
-	{
-		Map<Item, Integer> items = Translator.convertASObjectToMap(input);
-		
-		Map<String, Map<String, Integer>> shoppingList = new HashMap<>();
-		
-		
 	}
 	
 	/**
