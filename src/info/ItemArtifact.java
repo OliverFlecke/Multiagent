@@ -254,6 +254,32 @@ public class ItemArtifact extends Artifact {
 		return bestPrice;
 	}
 	
+	@OPERATION
+	void getItemsToCarry(Object[] items, int capacity, OpFeedbackParam<Object> retRetrieve, OpFeedbackParam<Object> retRest)
+	{
+		Map<Item, Integer> retrieve 	= new HashMap<>();
+		Map<Item, Integer> rest			= new HashMap<>();
+		
+		for (Entry<Item, Integer> item : Translator.convertASObjectToMap(items).entrySet())
+		{
+			int volume = item.getKey().getVolume() * item.getValue();
+			
+			if (volume <= capacity)
+			{
+				capacity -= volume;
+				
+				retrieve.put(item.getKey(), item.getValue());
+			}
+			else 
+			{
+				rest.put(item.getKey(), item.getValue());
+			}
+		}
+		
+		retRetrieve.set(CUtil.toStringMap(retrieve));
+		retRest.set(CUtil.toStringMap(rest));
+	}
+	
 	public static void perceiveInitial(Collection<Percept> percepts)
 	{		
 		Map<Item, Set<Object[]>> requirements = new HashMap<>();
