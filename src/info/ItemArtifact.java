@@ -147,16 +147,31 @@ public class ItemArtifact extends Artifact {
 			}
 			else 
 			{
-				shop = shops.stream().max((x, y) -> x.getInitialAmount(item) - y.getInitialAmount(item));
-				
-				if (shop.isPresent())
+				int amountRemaining = amount;
+				do
 				{
-					CUtil.addToMapOfMaps(shoppingList, shop.get(), item, amount);
+					// If there is only one shop remaining, it should buy the rest
+					if (shops.size() == 1)
+					{
+						CUtil.addToMapOfMaps(shoppingList, shops.stream().findAny().get(), item, amountRemaining);
+						break;
+					}
+					
+					// Find the shop with the largest number of the item
+					shop = shops.stream().max((x, y) -> x.getItemCount(item) - y.getItemCount(item));
+					
+					if (shop.isPresent())
+					{
+						shops.remove(shop.get());
+						
+						int amountToBuy = Math.min(shop.get().getItemCount(item), amountRemaining);
+						
+						amountRemaining -= amountToBuy;
+						
+						CUtil.addToMapOfMaps(shoppingList, shop.get(), item, amountToBuy);
+					}
 				}
-				else
-				{
-					throw new UnsupportedOperationException("Could not find any shop selling " + item.getName());
-				}
+				while (amountRemaining > 0);
 			}
 		}
 		
