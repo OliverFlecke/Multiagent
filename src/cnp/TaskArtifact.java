@@ -1,6 +1,5 @@
 package cnp;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
@@ -12,6 +11,9 @@ import cartago.OPERATION;
 import data.CUtil;
 import env.Translator;
 import info.JobArtifact;
+import jason.asSyntax.ASSyntax;
+import jason.asSyntax.ListTerm;
+import jason.asSyntax.parser.ParseException;
 import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Job;
 import massim.scenario.city.data.facilities.Shop;
@@ -72,6 +74,12 @@ public class TaskArtifact extends Artifact {
 		instance.announce("buyRequest", item, amount, shop);
 	}
 	
+	@OPERATION
+	void announceRetrieve(Object shoppingList, String workshop)
+	{
+		instance.announce("retrieveRequest", toItemMap(shoppingList), workshop);
+	}
+	
 	private void announce(String property, Object... args)
 	{
 		try 
@@ -80,7 +88,15 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			defineObsProperty(property, args, cnpName);
+			Object[] properties = new Object[args.length + 1];
+			
+			for (int i = 0; i < args.length; i++)
+			{
+				properties[i] = args[i];
+			}
+			properties[args.length] = cnpName;
+			
+			defineObsProperty(property, properties);
 		} 
 		catch (Throwable e) 
 		{
@@ -103,6 +119,24 @@ public class TaskArtifact extends Artifact {
 	private static Object toItemMap(Object items)
 	{
 		if (items instanceof Map<?, ?>) return items;
-		else return CUtil.toStringMap(Translator.convertASObjectToMap((Object[]) items));
+		else
+		{
+			try 
+			{
+				ListTerm terms = ASSyntax.createList();
+				
+				for (Object item : (Object[]) items)
+				{
+					terms.add(ASSyntax.parseLiteral((String) item));
+				}
+				
+				return Translator.termToObject(terms);
+			} 
+			catch (ParseException e) 
+			{
+				e.printStackTrace();
+				return null;
+			}
+		}
 	}
 }

@@ -178,6 +178,15 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getAvailableAmount(String itemName, int quantity, String shopName, OpFeedbackParam<Integer> retQuantity) 
+	{
+		Item item 	= items.get(itemName);
+		Shop shop 	= (Shop) FacilityArtifact.getFacility("shop", shopName);
+		
+		retQuantity.set(Math.min(quantity, shop.getItemCount(item)));
+	}
+	
+	@OPERATION
 	void getClosestFacilitySelling(String item, OpFeedbackParam<String> ret)
 	{
 		Location agentLocation = AgentArtifact.getEntity(getOpUserName()).getLocation();
@@ -252,6 +261,32 @@ public class ItemArtifact extends Artifact {
 			bestPrice = bestPrice > shop.getPrice(item) ? shop.getPrice(item) : bestPrice;
 		
 		return bestPrice;
+	}
+	
+	@OPERATION
+	void getItemsToCarry(Object[] items, int capacity, OpFeedbackParam<Object> retRetrieve, OpFeedbackParam<Object> retRest)
+	{
+		Map<Item, Integer> retrieve 	= new HashMap<>();
+		Map<Item, Integer> rest			= new HashMap<>();
+		
+		for (Entry<Item, Integer> item : Translator.convertASObjectToMap(items).entrySet())
+		{
+			int volume = item.getKey().getVolume() * item.getValue();
+			
+			if (volume <= capacity)
+			{
+				capacity -= volume;
+				
+				retrieve.put(item.getKey(), item.getValue());
+			}
+			else 
+			{
+				rest.put(item.getKey(), item.getValue());
+			}
+		}
+		
+		retRetrieve.set(CUtil.toStringMap(retrieve));
+		retRest.set(CUtil.toStringMap(rest));
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)

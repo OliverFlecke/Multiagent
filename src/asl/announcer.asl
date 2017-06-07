@@ -1,10 +1,19 @@
 
-+task(TaskId, DeliveryLocation, Items, Type, CNPName) <-
+{ include("connections.asl") }
+{ include("stdlib.asl") }
+{ include("rules.asl") }
+
+!focusArtifacts.
+
++task(TaskId, _, Items, _, _) : shops([], _) <-
+	.print("New task: ", TaskId);
 	!announceShoppingList(Items);
 	.
+
+-task(_, _, Items, _, _) <-
+	.wait(shops([], _));
+	!announceShoppingList(Items).
 	
-//+retriever(Agent, [map(Shop,[])|ShoppingList]) 	<- !announceRetrieve(ShoppingList).
-//+retriever(Agent, ShoppingList)					<- !announceRetrieve(ShoppingList).
 
 +!announceShoppingList(Items) <- 
 	getBaseItems(Items, BaseItems);
@@ -14,17 +23,18 @@
 	
 +!announceRetrieve([map(Shop,[])|Rest]) <- !announceRetrieve(Rest).
 +!announceRetrieve(ShoppingList) : workshopTruck(WorkshopTruck, Workshop) <-
-	announceRetrieval(ShoppingList, Workshop).
+	announceRetrieve(ShoppingList, Workshop).
 	
 +!announceAssemble(Items) : workshopTruck(WorkshopTruck, Workshop) <-
-	announceAssembly(Items, Workshop).
+	announce("assemblyRequest", Items, Workshop).
 
 +!announceDeliver(Items, TaskId, DeliveryLocation) <-
-	announceDelivery(Items, Workshop, TaskId, DeliveryLocation).
+	announce("deliveryRequest", Items, Workshop, TaskId, DeliveryLocation).
 	
 +!requestBuyItems([]).
 +!requestBuyItems([map(Shop,Items)|Shops]) : truckFacility(Agent, Shop) <-
-	.send(Agent, achieve, buyItems(Items));
+	.print("Send buyItem to ", Agent, " ", Items);
+	.send(Agent, tell, buyItems(Items));
 	!requestBuyItems(Shops).
 +!requestBuyItems([map(Shop,Items)|Shops]) <-
-	announceBuy(Shop, Items).
+	announce("buyRequest", Shop, Items).

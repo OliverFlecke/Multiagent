@@ -201,6 +201,19 @@ public class Translator
 	    {
 			ListTerm lt = (ListTerm) t;
 			
+			if (!lt.isEmpty() && lt.get(0).isLiteral() && ((Literal) lt.get(0)).getFunctor().equals("map"))
+			{
+				Map<Object, Object> map = new HashMap<>();
+				
+				for (int i = 0; i < lt.size(); i++)
+				{
+					Object[] pair = (Object[]) termToObject(lt.get(i));
+					
+					map.put(pair[0], pair[1]);
+				}				
+				return map;
+			}
+			
 			Object[] list = new Object[lt.size()];
 			
 			for (int i = 0; i < lt.size(); i++)

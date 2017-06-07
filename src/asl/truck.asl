@@ -1,10 +1,8 @@
 { include("agent.asl") }
 
-free.
-
-+shops([], CNPName) : free <-
++shops([], CNPName) : not assigned <-
 	getClosestFacility("workshop", Workshop);
-	distanceToFacility(Shop, Distance);
+	distanceToFacility(Workshop, Distance);
 	
 	lookupArtifact(CNPName, CNPId);
 	bid(Distance)[artifact_id(CNPId)];
@@ -13,11 +11,10 @@ free.
 	if (Won)
 	{
 		!!assignFacility(Workshop);
-		clearShops(CNPName);
+//		clearShops(CNPName);
 	}.
 	
-+shops(Shops, CNPName) : free <-
-	
++shops(Shops, CNPName) : not assigned <-	
 	getClosestShop(Shops, Shop);
 	distanceToFacility(Shop, Distance);
 	
@@ -36,7 +33,37 @@ free.
 	
 
 +!assignFacility(F) : .my_name(Me) <- 
-	!!getToFacility(F); 
+	+assigned;
 	.broadcast(tell, truckFacility(Me, F));
-	-free.
+	-free;
+	!getToFacility(F); 
+	+free.
 	
++buyItems(Items) : free <-
+	-free;
+	!buyItems(Items);
+	+free.
++buyItems(Items) <-
+	.wait({+free});
+	!buyItems(Items).
+	
+//	.suspend(buyItems(Items)).
+	
+//+free <-
+//	.print("Resuming intentions");
+//	for ( .suspended(G, _) )
+//	{
+//		.resume(G);
+//	}.
+
+	
+//-!buyItems(Items) <- 
+//	.print("Suspending ", Items);
+//	.suspend(buyItems(Items)).
+
+//+inFacility(Me, Shop) : .my_name(Me) & truckFacility(Me, Shop) <-
+//	.print(Me, " in ", Shop);
+//	for ( .suspended(G) )
+//	{
+//		.resume(G);
+//	}.

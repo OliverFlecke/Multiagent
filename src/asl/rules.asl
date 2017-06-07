@@ -34,7 +34,7 @@ inChargingStation 	:- inFacility(F) & isChargingStation(F).
 inWorkshop 			:- inFacility(F) & isWorkshop(F).
 inStorage 			:- inFacility(F) & isStorage(F).
 inShop	    		:- inFacility(F) & isShop(F).
-inShop(X)			:- inFacility(F) & inShop & .substring(X, F).
+inShop(F)			:- inFacility(F) & inShop.
 
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
 contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 
@@ -48,3 +48,5 @@ enoughCharge(L) :- speed(S) & charge(C) & chargeThreshold(Threshold) &
 				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
 				
 workshopTruck(Truck, Facility) :- truckFacility(Truck, Facility) & isWorkshop(Facility).
+
+
