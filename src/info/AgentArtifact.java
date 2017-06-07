@@ -70,10 +70,15 @@ public class AgentArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void getAgentInventory(String agentName, OpFeedbackParam<Object> ret)
+	void getAgentInventory(OpFeedbackParam<Object> ret)
 	{
-		ret.set(getEntity(agentName).getInventory().toItemAmountData().stream()
-				.collect(Collectors.toMap(e -> e.getName(), e -> e.getAmount())));
+		ret.set(getAgentInventory(getOpUserName()));
+	}
+	
+	public static Map<String, Integer> getAgentInventory(String agentName) 
+	{
+		return getEntity(agentName).getInventory().toItemAmountData().stream()
+				.collect(Collectors.toMap(e -> e.getName(), e -> e.getAmount()));
 	}
 	
 	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)

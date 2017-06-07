@@ -10,5 +10,5 @@ MAS multiagent_jason {
    	 	motorcycle 	agentArchClass c4jason.CAgentArch #8;
    	 	truck 		agentArchClass c4jason.CAgentArch #8;
 
-	aslSourcePath: "src/asl";
+	aslSourcePath: "src/asl/roles";
 }

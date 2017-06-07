@@ -1,4 +1,4 @@
-{ include("agent.asl") }
+{ include("../agent.asl") }
 
 +shops([], CNPName) : not assigned <-
 	getClosestFacility("workshop", Workshop);
@@ -43,27 +43,7 @@
 	-free;
 	!buyItems(Items);
 	+free.
-+buyItems(Items) <-
-	.wait({+free});
-	!buyItems(Items).
++buyItems(Items) : intentions(List) <-
+	.concat(List, [buyItems(Items)], NewList);
+	-+intentions(NewList).
 	
-//	.suspend(buyItems(Items)).
-	
-//+free <-
-//	.print("Resuming intentions");
-//	for ( .suspended(G, _) )
-//	{
-//		.resume(G);
-//	}.
-
-	
-//-!buyItems(Items) <- 
-//	.print("Suspending ", Items);
-//	.suspend(buyItems(Items)).
-
-//+inFacility(Me, Shop) : .my_name(Me) & truckFacility(Me, Shop) <-
-//	.print(Me, " in ", Shop);
-//	for ( .suspended(G) )
-//	{
-//		.resume(G);
-//	}.

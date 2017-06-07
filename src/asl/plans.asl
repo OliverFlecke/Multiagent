@@ -1,10 +1,27 @@
 
++!giveItems(_, []).
++!giveItems(Agent, [map(Item, Amount)|Items]) : connection(Agent, Entity, _) <-
+	!doAction(give(Entity, Item, Amount));
+	!giveItems(Agent, Items).
+	
++!receiveItems([]).
++!receiveItems([_|Items]) <-
+	!doAction(receive);
+	!receiveItems(Items).
+	
++!buyItems([]).
++!buyItems([map(Item, 	   0)|Items]) <- !buyItems(Items).
++!buyItems([map(Item, Amount)|Items]) : inShop(Shop) <- 
+	getAvailableAmount(Item, Amount, Shop, AmountAvailable);
+	if (AmountAvailable > 0) { !doAction(buy(Item, AmountAvailable)); }
+	.concat(Items, [map(Item, Amount - AmountAvailable)], NewItems);
+	!buyItems(NewItems).
+	
 +!delieverItems(TaskId, Facility) <- 
 	!getToFacility(Facility);
  	!doAction(deliver_job(TaskId)).
  	
 +!assembleItems([]).
-//+!assembleItems(_) : itemsToRetrieve(Items) & not Items = [] <- !retrieveItems; !assembleItems.
 +!assembleItems(Items) : not itemsToRetrieve([]) <- !retrieveItems; !assembleItems(Items).
 +!assembleItems([map(	_, 		0) | Items]) <- !assembleItems(Items).
 +!assembleItems([map(Item, Amount) | Items]) : inWorkshop <- 
@@ -35,8 +52,6 @@
 	!doAction(buy(Item, AmountAvailable));
 	-+itemsToRetrieve([map(Item, Amount - AmountAvailable) | Items]);
   	!retrieveItems.
-
-+!addItemsToRetrieve(ItemsToAdd) : itemsToRetrieve(Items) <- .concat(Items, ItemsToAdd, NewItems); -+itemsToRetrieve(NewItems).
 
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).

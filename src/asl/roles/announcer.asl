@@ -1,12 +1,15 @@
 
-{ include("connections.asl") }
-{ include("stdlib.asl") }
-{ include("rules.asl") }
+{ include("../connections.asl") }
+{ include("../stdlib.asl") }
+{ include("../rules.asl") }
+
+tasks(0).
 
 !focusArtifacts.
 
-+task(TaskId, _, Items, _, _) : shops([], _) <-
++task(TaskId, _, Items, _, _) : shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
 	.print("New task: ", TaskId);
+	-+tasks(NumberOfTasks+1);
 	!announceShoppingList(Items);
 	.
 
