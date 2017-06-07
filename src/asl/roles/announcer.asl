@@ -10,13 +10,11 @@ tasks(0).
 +task(TaskId, _, Items, _, _) : shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
 	.print("New task: ", TaskId);
 	-+tasks(NumberOfTasks+1);
-	!announceShoppingList(Items);
-	.
+	!announceShoppingList(Items).
 
 -task(_, _, Items, _, _) <-
 	.wait(shops([], _));
 	!announceShoppingList(Items).
-	
 
 +!announceShoppingList(Items) <- 
 	getBaseItems(Items, BaseItems);
