@@ -9,6 +9,10 @@
 	!doAction(receive);
 	!receiveItems(Items).
 	
++!retrieveItems(map(Shop, Items)) <-
+	!getToFacility(Shop);
+	!buyItems(Items).
+	
 +!buyItems([]).
 +!buyItems([map(Item, 	   0)|Items]) <- !buyItems(Items).
 +!buyItems([map(Item, Amount)|Items]) : inShop(Shop) <- 
@@ -17,41 +21,27 @@
 	.concat(Items, [map(Item, Amount - AmountAvailable)], NewItems);
 	!buyItems(NewItems).
 	
-+!delieverItems(TaskId, Facility) <- 
++!deliverItems(TaskId, Facility) <- 
 	!getToFacility(Facility);
  	!doAction(deliver_job(TaskId)).
  	
 +!assembleItems([]).
-+!assembleItems(Items) : not itemsToRetrieve([]) <- !retrieveItems; !assembleItems(Items).
 +!assembleItems([map(	_, 		0) | Items]) <- !assembleItems(Items).
-+!assembleItems([map(Item, Amount) | Items]) : inWorkshop <- 
++!assembleItems([map(Item, Amount) | Items]) <- 
 	getRequiredItems(Item, ReqItems);
 	!assembleItem(Item, ReqItems); 
 	!assembleItems([map(Item, Amount - 1) | Items]).
-// Get to workshop
-+!assembleItems(Items) <-	
-	getClosestFacility("workshop", F);
-	!getToFacility(F);
-	!assembleItems(Items).
 	
 // Recursively assemble required items
 +!assembleItem(	  _, 	   []).
-+!assembleItem(Item, ReqItems) : inWorkshop <- 
-//	.print("Assembling item: ", Item);
++!assembleItem(Item, ReqItems) <-
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
--!assembleItem(Item) <- .print("Could not assemble item").
-
-+!retrieveItems : itemsToRetrieve([]).
-+!retrieveItems : itemsToRetrieve([map(   _,      0) | Items]) <- 
-	-+itemsToRetrieve(Items); 
-	!retrieveItems.
-+!retrieveItems : itemsToRetrieve([map(Item, Amount) | Items]) <- 
-	getShopSelling(Item, Amount, Shop, AmountAvailable);
-	!getToFacility(Shop);
-	!doAction(buy(Item, AmountAvailable));
-	-+itemsToRetrieve([map(Item, Amount - AmountAvailable) | Items]);
-  	!retrieveItems.
+	
++!assistAssemble(Agent) : getInventory([]) | assistComplete. // Cleanup everything
++!assistAssemble(Agent) : connection(Agent, Entity, _) <-
+	!doAction(assist_assemble(Entity));
+	!assistAssemble(Agent).
 
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).

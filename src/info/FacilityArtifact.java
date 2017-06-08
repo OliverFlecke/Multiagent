@@ -105,6 +105,14 @@ public class FacilityArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getClosestWorkshopToStorage(String storage, OpFeedbackParam<String> workshop)
+	{
+		Location storageLoc = ((Storage) getFacility("storage", storage)).getLocation();
+		
+		workshop.set(getClosestFacility(storageLoc, workshops.values()));
+	}
+	
+	@OPERATION
 	void distanceToFacility(String facilityName, OpFeedbackParam<Integer> distance)
 	{
 		Route route = StaticInfoArtifact.getRoute(getOpUserName(), getFacility(facilityName).getLocation());

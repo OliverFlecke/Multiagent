@@ -9,7 +9,6 @@ import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.OPERATION;
 import env.Translator;
-import info.JobArtifact;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.parser.ParseException;
@@ -71,9 +70,9 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void announceRetrieve(Object shoppingList, String workshop)
+	void announceRetrieve(String agent, Object shoppingList, String workshop)
 	{
-		instance.announce("retrieveRequest", toItemMap(shoppingList), workshop);
+		instance.announce("retrieveRequest", agent, toItemMap(shoppingList), workshop);
 	}
 	
 	@OPERATION

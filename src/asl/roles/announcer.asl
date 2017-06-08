@@ -7,54 +7,15 @@ tasks(0).
 
 !focusArtifacts.
 
-+task(TaskId, Type) : shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
-	.print("New task: ", TaskId);
-	-+tasks(NumberOfTasks+1);
-	!announce(TaskId, Type).
-
-+task(TaskId, Type) : not shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
-	.wait(shops([], _));
-	!announce(TaskId, Type).
++task(TaskId, Type) : Type \== "auction" & tasks(N) & N < 5 <-
+	.print("New task: ", TaskId); -+tasks(N+1);
+	getJob(TaskId, Storage, Items);
+	getClosestWorkshopToStorage(Storage, Workshop);
+	!announceAssemble(Items, Workshop, TaskId, Storage).
 	
-+!announce(TaskId, Type) <-
-	getJob(TaskId, DeliveryLocation, Items);
-	!announceShoppingList(Items);
-	!announceAssemble(Items, TaskId, DeliveryLocation).
-
-+!announceShoppingList(Items) <- 
-	getBaseItems(Items, BaseItems);
-	getShoppingList(BaseItems, ShoppingList);
-	!requestBuyItems(ShoppingList);
-	!announceRetrieve(ShoppingList).
++!announceAssemble([], _, _, _).
++!announceAssemble(Items, Workshop, TaskId, Storage) 	 <- announceAssemble(Items, Workshop, TaskId, Storage).
 	
-+!announceRetrieve([map(Shop,[])|Rest]) <- !announceRetrieve(Rest).
-+!announceRetrieve(ShoppingList) : workshopTruck(WorkshopTruck, Workshop) <-
-	announceRetrieve(ShoppingList, Workshop).
++!announceRetrieve(Agent, [map(Shop,[])|Rest], Workshop) <- !announceRetrieve(Agent, Rest, Workshop).
++!announceRetrieve(Agent, ShoppingList		 , Workshop) <- announceRetrieve(Agent, ShoppingList, Workshop).
 	
-//+!announceAssemble(Items, TaskId, DeliveryLocation) 
-//	
-//	&  <-
-//	announceAssemble(Items, Workshop, TaskId, DeliveryLocation).
-	
-+!announceAssemble([], _, _).
-+!announceAssemble([Item|Items], TaskId, DeliveryLocation) 
-	: workshopTruck(WorkshopTruck, Workshop) 
-	& hasBaseItems(WorkshopTruck, [Item]) <-
-	announceAssemble([Item], Workshop, TaskId, DeliveryLocation);
-	!announceAssemble(Items, TaskId, DeliveryLocation).
-	
--!announceAssemble([Item|Items], TaskId, DeliveryLocation) : step(X) <-
-	!announceAssemble(Items, TaskId, DeliveryLocation);
-	.wait(step(X+5));
-	!announceAssemble([Item], TaskId, DeliveryLocation).
-
-+!announceDeliver(Items, TaskId, DeliveryLocation) <-
-	announce("deliveryRequest", Items, Workshop, TaskId, DeliveryLocation).
-	
-+!requestBuyItems([]).
-+!requestBuyItems([map(Shop,Items)|Shops]) : truckFacility(Agent, Shop) <-
-	.print("Send buyItem to ", Agent, " ", Items);
-	.send(Agent, tell, buyItems(Items));
-	!requestBuyItems(Shops).
-+!requestBuyItems([map(Shop,Items)|Shops]) <-
-	announce("buyRequest", Shop, Items).

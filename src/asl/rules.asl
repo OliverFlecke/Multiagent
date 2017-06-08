@@ -45,6 +45,9 @@ enoughCharge(L) :- speed(S) & charge(C) & chargeThreshold(Threshold) &
 				
 workshopTruck(Truck, Facility) :- truckFacility(Truck, Facility) & isWorkshop(Facility).
 
+getInventory(Inventory)			:- .my_name(Me) & getInventory(Me, Inventory).
+getInventory(Agent, Inventory) 	:- jia.getInventory(Agent, Inventory).
+
 hasItems(Items) 		:- .my_name(Me) & hasItems(Me, Items).
 hasItems(Agent, Items) 	:- jia.hasItems(Agent, Items).
 
