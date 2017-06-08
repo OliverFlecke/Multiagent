@@ -1,18 +1,12 @@
 
-+give(Items, InitStep)[source(Agent)] : not free & hasItems(Items) <-
-	!addIntentionFirst(acceptReceiveProtocol(Agent, Items, InitStep)).
-	
 +give(Items, InitStep)[source(Agent)] : not free <-
-	!addIntentionLast(acceptReceiveProtocol(Agent, Items, InitStep)).
+	!addIntentionFirst(acceptReceiveProtocol(Agent, Items, InitStep)).
 	
 +give(Items, InitStep)[source(Agent)] <-
 	-free; !acceptReceiveProtocol(Agent, Items, InitStep); +free.
 	
-+receive(Items, InitStep)[source(Agent)] : not free & hasItems(Items) <-
-	!addIntentionFirst(acceptGiveProtocol(Agent, Items, InitStep)).
-	
 +receive(Items, InitStep)[source(Agent)] : not free <-
-	!addIntentionLast(acceptGiveProtocol(Agent, Items, InitStep)).
+	!addIntentionFirst(acceptGiveProtocol(Agent, Items, InitStep)).
 	
 +receive(Items, InitStep)[source(Agent)] <-
 	-free; !acceptGiveProtocol(Agent, Items, InitStep); +free.
@@ -24,6 +18,8 @@
 	.wait(step(ReadyStep));
 	!receiveItems(Items).
 	
++!acceptReceiveProtocol(Agent, Items, InitStep) : not hasItems(Items) <-
+	!addIntentionLast(acceptReceiveProtocol(Agent, Items, InitStep)).
 +!acceptReceiveProtocol(Agent, Items, InitStep) : step(MyStep) <-
 	.max([InitStep, MyStep], MaxStep);
 	ReadyStep = MaxStep + 2; 

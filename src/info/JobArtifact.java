@@ -48,7 +48,7 @@ public class JobArtifact extends Artifact {
 	void getJob(String jobId, OpFeedbackParam<String> storage, 
 			OpFeedbackParam<Object> items)
 	{
-		Job job = jobs.get(jobId);
+		Job job = getJob(jobId);
 		
 		storage.set(job.getStorage().getName());
 

@@ -33,11 +33,12 @@
 		+free;
 	}.
 	
-+assemblyRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) 
++assembleRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, Rest);
-	getVolume(ItemsToAssemble, Volume);	
+	getBaseItems(ItemsToAssemble, ItemsToReceive);
+	getVolume(ItemsToReceive, Volume);
 	distanceToFacility(Workshop, Distance);	
 	
 	// Negative volume since lower is better
@@ -56,8 +57,8 @@
 		
 		// Receive items from truck at shop
 		!getToFacility(Workshop);
-		?truckFacility(WorkshopTruck, Workshop);
-		!initiateReceiveProtocol(WorkshopTruck, ItemsToAssemble);
+//		?truckFacility(WorkshopTruck, Workshop);
+		!initiateReceiveProtocol(WorkshopTruck, ItemsToReceive);
 		
 		// Give items to truck at workshop
 		!assembleItems(ItemsToAssemble);
@@ -66,7 +67,7 @@
 		+free;
 	}.
 	
-+deliveryRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) 
++deliverRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) 
 	: free & capacity(Capacity) <-
 	
 	getVolume(Items, Volume);

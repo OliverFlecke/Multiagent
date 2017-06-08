@@ -60,13 +60,23 @@ public class ItemArtifact extends Artifact {
 		// Map each item to its base item,
 		// where each base item amount is multiplied with the amount of items needed.
 		// Flat mapped and same items is combined using SUM
-		ret.set(Translator.convertASObjectToMap(itemMap).entrySet().stream()
-			.map(item -> getBaseItems(item.getKey().getName()).entrySet().stream()
-					.collect(Collectors.toMap(Map.Entry::getKey, 
-							entry -> entry.getValue() * item.getValue()))
-					.entrySet())
-			.flatMap(Collection::stream)
-			.collect(Collectors.toMap(CUtil::getName, Entry::getValue, Integer::sum)));
+		ret.set(CUtil.toStringMap(getBaseItems(Translator.convertASObjectToMap(itemMap))));
+	}
+	
+	public static Map<Item, Integer> getBaseItems(Map<Item, Integer> items)
+	{
+		return items.entrySet().stream()
+				.map(item -> getBaseItems(item.getKey().getName()).entrySet().stream()
+						.collect(Collectors.toMap(Map.Entry::getKey, 
+								entry -> entry.getValue() * item.getValue()))
+						.entrySet())
+				.flatMap(Collection::stream)
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
+	}
+	
+	public static Map<Item, Integer> getItemMap(Map<String, Integer> map)
+	{
+		return map.entrySet().stream().collect(Collectors.toMap(e -> items.get(e.getKey()), Entry::getValue));
 	}
 	
 	@OPERATION 
@@ -281,27 +291,39 @@ public class ItemArtifact extends Artifact {
 	@OPERATION
 	void getItemsToCarry(Object[] items, int capacity, OpFeedbackParam<Object> retRetrieve, OpFeedbackParam<Object> retRest)
 	{
-		Map<Item, Integer> retrieve 	= new HashMap<>();
-		Map<Item, Integer> rest			= new HashMap<>();
+		Map<String, Integer> retrieve 	= new HashMap<>();
+		Map<String, Integer> rest		= new HashMap<>();
 		
-		for (Entry<Item, Integer> item : Translator.convertASObjectToMap(items).entrySet())
+		for (Entry<Item, Integer> entry : Translator.convertASObjectToMap(items).entrySet())
 		{
-			int volume = item.getKey().getVolume() * item.getValue();
+			Item 	item 	= entry.getKey();
+			int 	amount 	= entry.getValue();
+			
+			int		volume	= capacity + 1;
+			
+			if (item.getRequiredBaseItems().isEmpty())
+			{
+				volume = item.getVolume() * amount;				
+			}
+			else
+			{
+				volume = ItemArtifact.getVolume(item.getRequiredBaseItems());				
+			}			
 			
 			if (volume <= capacity)
 			{
 				capacity -= volume;
 				
-				retrieve.put(item.getKey(), item.getValue());
+				retrieve.put(item.getName(), amount);
 			}
 			else 
 			{
-				rest.put(item.getKey(), item.getValue());
+				rest.put(item.getName(), amount);
 			}
 		}
 		
-		retRetrieve.set(CUtil.toStringMap(retrieve));
-		retRest.set(CUtil.toStringMap(rest));
+		retRetrieve.set(retrieve);
+		retRest.set(rest);
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)

@@ -8,14 +8,12 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.OPERATION;
-import data.CUtil;
 import env.Translator;
 import info.JobArtifact;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.parser.ParseException;
 import massim.scenario.city.data.AuctionJob;
-import massim.scenario.city.data.Job;
 import massim.scenario.city.data.facilities.Shop;
 
 public class TaskArtifact extends Artifact {
@@ -32,10 +30,8 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	public static void announceJob(String taskId, String type) 
-	{
-		Job job = JobArtifact.getJob(taskId);
-		
-		instance.execInternalOp("announceJob", taskId, job.getStorage().getName(), CUtil.extractItems(job), type); 
+	{		
+		instance.execInternalOp("announceJobOp", taskId, type); 
 	}
 	
 	public static void announceAuction(String taskId, AuctionJob auction) 
@@ -51,9 +47,9 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void announceJob(String taskId, String deliveryLocation, Object items, String type)
+	void announceJobOp(String taskId, String type)
 	{
-		instance.announce("task", taskId, deliveryLocation, toItemMap(items), type);
+		instance.define("task", taskId, type);
 	}
 	
 	@OPERATION
@@ -78,6 +74,17 @@ public class TaskArtifact extends Artifact {
 	void announceRetrieve(Object shoppingList, String workshop)
 	{
 		instance.announce("retrieveRequest", toItemMap(shoppingList), workshop);
+	}
+	
+	@OPERATION
+	void announceAssemble(Object items, String workshop, String taskId, String deliveryLocation)
+	{
+		instance.announce("assembleRequest", items, workshop, taskId, deliveryLocation);
+	}
+	
+	private void define(String property, Object... args)
+	{
+		defineObsProperty(property, args);
 	}
 	
 	private void announce(String property, Object... args)
@@ -107,7 +114,7 @@ public class TaskArtifact extends Artifact {
 	@OPERATION
 	void clearTask(String cnpName)
 	{
-		removeObsPropertyByTemplate("task", null, null, null, null, cnpName); 
+		removeObsPropertyByTemplate("task", null, null); 
 	}
 	
 	@OPERATION

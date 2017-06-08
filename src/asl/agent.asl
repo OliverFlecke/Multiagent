@@ -14,21 +14,12 @@ free.
 !focusArtifacts.
 	
 // Percepts
-+free : intentions([First|Rest]) <-
-	-+intentions(Rest);
-	-free; !First; +free.
-//+free : retrieveRequest(___)
++free : intentions([First|Rest]) <-	-+intentions(Rest); -free; !First; +free.
 
-+!addIntentionFirst(Intention) : intentions(List) <-
-	-+intentions([Intention|List]).
-
-+!addIntentionLast(Intention) : intentions(List) <-
-	.concat(List, [Intention], NewList);
-	-+intentions(NewList).
++!addIntentionFirst(Intention) : intentions(List) <- -+intentions([Intention|List]).
++!addIntentionLast (Intention) : intentions(List) <- .concat(List, [Intention], NewList); -+intentions(NewList).
 	
-+!doAction(Action) : .my_name(Me) <- 
-	jia.action(Me, Action);
-	.wait(step(_)).
++!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait(step(_)).
 
 //+step(0) <- +free.
 +step(X) : lastAction("give") 		 & lastActionResult("successful") <- .print("Give successful!").
@@ -48,8 +39,8 @@ free.
 	if (A = "assemble")
 	{
 		P = [Item];	
-	}
-	.
+	}.
+	
 +step(X) : charge(C) & speed(S) & not charging <- 
 	distanceToClosestFacility("chargingStation", Dist);
 	if (not enoughCharge(Dist) & not .desire(charge))

@@ -5,12 +5,14 @@ import java.util.Map.Entry;
 
 import env.Translator;
 import info.AgentArtifact;
+import info.ItemArtifact;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
+import massim.scenario.city.data.Item;
 
-public class hasItems extends DefaultInternalAction {
+public class hasBaseItems extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -20,7 +22,9 @@ public class hasItems extends DefaultInternalAction {
 		String agentName = (String) Translator.termToObject(terms[0]);
 		
 		@SuppressWarnings("unchecked")
-		Map<String, Integer> items = (Map<String, Integer>) Translator.termToObject(terms[1]);
+		Map<String, Integer> map = (Map<String, Integer>) Translator.termToObject(terms[1]);
+		
+		Map<Item, Integer> items = ItemArtifact.getBaseItems(ItemArtifact.getItemMap(map));
 		
 		if (items.isEmpty()) return true;
 		
@@ -28,9 +32,9 @@ public class hasItems extends DefaultInternalAction {
 		
 		if (inventory.isEmpty()) return false;
 		
-		for (Entry<String, Integer> item : items.entrySet())
+		for (Entry<Item, Integer> item : items.entrySet())
 		{
-			Integer hasAmount = inventory.get(item.getKey());
+			Integer hasAmount = inventory.get(item.getKey().getName());
 			
 			if (hasAmount == null) return false;
 			

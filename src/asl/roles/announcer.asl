@@ -7,14 +7,19 @@ tasks(0).
 
 !focusArtifacts.
 
-+task(TaskId, _, Items, _, _) : shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
++task(TaskId, Type) : shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
 	.print("New task: ", TaskId);
 	-+tasks(NumberOfTasks+1);
-	!announceShoppingList(Items).
+	!announce(TaskId, Type).
 
--task(_, _, Items, _, _) <-
++task(TaskId, Type) : not shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
 	.wait(shops([], _));
-	!announceShoppingList(Items).
+	!announce(TaskId, Type).
+	
++!announce(TaskId, Type) <-
+	getJob(TaskId, DeliveryLocation, Items);
+	!announceShoppingList(Items);
+	!announceAssemble(Items, TaskId, DeliveryLocation).
 
 +!announceShoppingList(Items) <- 
 	getBaseItems(Items, BaseItems);
@@ -26,8 +31,22 @@ tasks(0).
 +!announceRetrieve(ShoppingList) : workshopTruck(WorkshopTruck, Workshop) <-
 	announceRetrieve(ShoppingList, Workshop).
 	
-+!announceAssemble(Items) : workshopTruck(WorkshopTruck, Workshop) <-
-	announce("assemblyRequest", Items, Workshop).
+//+!announceAssemble(Items, TaskId, DeliveryLocation) 
+//	
+//	&  <-
+//	announceAssemble(Items, Workshop, TaskId, DeliveryLocation).
+	
++!announceAssemble([], _, _).
++!announceAssemble([Item|Items], TaskId, DeliveryLocation) 
+	: workshopTruck(WorkshopTruck, Workshop) 
+	& hasBaseItems(WorkshopTruck, [Item]) <-
+	announceAssemble([Item], Workshop, TaskId, DeliveryLocation);
+	!announceAssemble(Items, TaskId, DeliveryLocation).
+	
+-!announceAssemble([Item|Items], TaskId, DeliveryLocation) : step(X) <-
+	!announceAssemble(Items, TaskId, DeliveryLocation);
+	.wait(step(X+5));
+	!announceAssemble([Item], TaskId, DeliveryLocation).
 
 +!announceDeliver(Items, TaskId, DeliveryLocation) <-
 	announce("deliveryRequest", Items, Workshop, TaskId, DeliveryLocation).
