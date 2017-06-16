@@ -37,8 +37,8 @@
 			
 			!assistAssemble(Agent); // Waits for assembleComplete
 			
-			-assembleReady(_);
-			-assembleComplete;
+			.send(Agent, untell, assistant(Me));
+			.send(Agent, untell, assistReady(Me));
 		}
 		
 		+free;
@@ -68,7 +68,7 @@
 		getShoppingList(ItemsToRetrieve, ShoppingList);
 		ShoppingList = [Shop|RetrieveRest];
 		
-		.print("ItemsToRetrieve: ", ItemsToRetrieve, " - ", Volume);
+		.print("ItemsToRetrieve: ", ItemsToRetrieve, " - ", Volume, " - ", Capacity);
 		.print("To Retrieve: ", Shop, " - ", RetrieveRest);
 		.print("To Assemble: ", ItemsToAssemble, " - ", AssembleRest);
 		
@@ -97,10 +97,8 @@
 		for ( assistant(A) )
 		{
 			.send(A, tell, assembleComplete);
+			.send(A, untell, assembleReady(ReadyStep));
 		}
-		
-		-assistant(_);
-		-assistReady(_);
 		
 		!getToFacility(DeliveryLocation);
 		!deliverItems(TaskId, DeliveryLocation);

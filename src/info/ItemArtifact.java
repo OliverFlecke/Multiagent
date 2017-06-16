@@ -296,7 +296,6 @@ public class ItemArtifact extends Artifact {
 			Item 	item 	= entry.getKey();
 			int 	amount 	= entry.getValue();
 			
-			
 			if (item.getRequiredBaseItems().isEmpty())
 			{
 				volume = item.getVolume() * amount;				

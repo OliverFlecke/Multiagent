@@ -35,8 +35,7 @@ free.
 	}
 	if (A = "deliver_job")
 	{
-		P = [TaskId];
-		
+		P = [TaskId];		
 	}
 	if (A = "assemble")
 	{
