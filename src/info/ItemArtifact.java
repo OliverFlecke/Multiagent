@@ -294,12 +294,12 @@ public class ItemArtifact extends Artifact {
 		Map<String, Integer> retrieve 	= new HashMap<>();
 		Map<String, Integer> rest		= new HashMap<>();
 		
+		int			volume	= capacity + 1;
+
 		for (Entry<Item, Integer> entry : Translator.convertASObjectToMap(items).entrySet())
 		{
 			Item 	item 	= entry.getKey();
-			int 	amount 	= entry.getValue();
-			
-			int		volume	= capacity + 1;
+			int 	amount 	= entry.getValue();			
 			
 			if (item.getRequiredBaseItems().isEmpty())
 			{

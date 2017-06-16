@@ -3,12 +3,10 @@
 { include("../stdlib.asl") }
 { include("../rules.asl") }
 
-tasks(0).
-
 !focusArtifacts.
 
-+task(TaskId, Type) : Type \== "auction" & tasks(N) & N < 5 <-
-	.print("New task: ", TaskId); -+tasks(N+1);
++task(TaskId, Type) : Type \== "auction" <-
+	.print("New task: ", TaskId);
 	getJob(TaskId, Storage, Items);
 	getClosestWorkshopToStorage(Storage, Workshop);
 	!announceAssemble(Items, Workshop, TaskId, Storage).
