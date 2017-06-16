@@ -1,6 +1,9 @@
 package cnp;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,6 +89,7 @@ public class TaskArtifact extends Artifact {
 		defineObsProperty(property, args);
 	}
 	
+
 	private void announce(String property, Object... args)
 	{
 		try 
@@ -94,15 +98,11 @@ public class TaskArtifact extends Artifact {
 			
 			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
-			Object[] properties = new Object[args.length + 1];
+			List<Object> properties = new LinkedList<Object>(Arrays.asList(args));
 			
-			for (int i = 0; i < args.length; i++)
-			{
-				properties[i] = args[i];
-			}
-			properties[args.length] = cnpName;
+			properties.add(cnpName);
 			
-			defineObsProperty(property, properties);
+			defineObsProperty(property, properties.toArray());
 		} 
 		catch (Throwable e) 
 		{
