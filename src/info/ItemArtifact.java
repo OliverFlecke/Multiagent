@@ -227,14 +227,9 @@ public class ItemArtifact extends Artifact {
 	 */
 	public static int getVolume(Map<Item, Integer> items)
 	{
-		int sum = 0;
-		
-		for (Entry<Item, Integer> item : items.entrySet())
-		{
-			sum += item.getKey().getVolume() * item.getValue();
-		}
-		
-		return sum;
+		return items.entrySet().stream()
+				.mapToInt(item -> item.getKey().getVolume() * item.getValue())
+				.sum();
 	}
 	
 	/**
@@ -294,12 +289,13 @@ public class ItemArtifact extends Artifact {
 		Map<String, Integer> retrieve 	= new HashMap<>();
 		Map<String, Integer> rest		= new HashMap<>();
 		
+		int		volume	= capacity + 1;
+		
 		for (Entry<Item, Integer> entry : Translator.convertASObjectToMap(items).entrySet())
 		{
 			Item 	item 	= entry.getKey();
 			int 	amount 	= entry.getValue();
 			
-			int		volume	= capacity + 1;
 			
 			if (item.getRequiredBaseItems().isEmpty())
 			{
