@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
+import cartago.ArtifactId;
 import cartago.OPERATION;
 import env.Translator;
 import jason.asSyntax.ASSyntax;
@@ -96,11 +97,11 @@ public class TaskArtifact extends Artifact {
 		{
 			String cnpName = "CNPArtifact" + (++cnpId);
 			
-			makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
+			ArtifactId id = makeArtifact(cnpName, "cnp.CNPArtifact", ArtifactConfig.DEFAULT_CONFIG);
 			
 			List<Object> properties = new LinkedList<Object>(Arrays.asList(args));
 			
-			properties.add(cnpName);
+			properties.add(id);
 			
 			defineObsProperty(property, properties.toArray());
 		} 

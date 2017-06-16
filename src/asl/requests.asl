@@ -1,5 +1,5 @@
 
-+retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPName) 
++retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
 	.term2string(Agent, AgentStr);
@@ -11,7 +11,6 @@
 	// Negative volume since lower is better
 	Bid = math.ceil(Distance/Speed)*10-Volume; 
 	
-	lookupArtifact(CNPName, CNPId);
 	if ( not ItemsToRetrieve = [] ) 
 	{ bid(Bid)[artifact_id(CNPId)]; }
 	winner(Won)[artifact_id(CNPId)];
@@ -45,7 +44,7 @@
 	}.
 	
 +assembleRequest([], _, _, _).
-+assembleRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) 
++assembleRequest(Items, Workshop, TaskId, DeliveryLocation, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
@@ -56,7 +55,6 @@
 	// Negative volume since lower is better
 	Bid = math.ceil(Distance/Speed)*10-Volume; 
 	
-	lookupArtifact(CNPName, CNPId);
 	if ( not (ItemsToRetrieve = []) ) 
 	{ bid(Bid)[artifact_id(CNPId)]; }
 	winner(Won)[artifact_id(CNPId)];
