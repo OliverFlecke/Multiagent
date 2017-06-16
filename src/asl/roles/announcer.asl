@@ -6,8 +6,8 @@
 !focusArtifacts.
 
 +task(TaskId, Type) : Type \== "auction" <-
-	.print("New task: ", TaskId);
 	getJob(TaskId, Storage, Items);
+	.print("New task: ", TaskId, " - ", Items);
 	getClosestWorkshopToStorage(Storage, Workshop);
 	!announceAssemble(Items, Workshop, TaskId, Storage).
 	

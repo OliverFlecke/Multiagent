@@ -73,15 +73,15 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void announceRetrieve(String agent, Object shoppingList, String workshop)
-	{
-		instance.announce("retrieveRequest", agent, toItemMap(shoppingList), workshop);
-	}
-	
-	@OPERATION
 	void announceAssemble(Object items, String workshop, String taskId, String deliveryLocation)
 	{
 		instance.announce("assembleRequest", items, workshop, taskId, deliveryLocation);
+	}
+	
+	@OPERATION
+	void announceRetrieve(String agent, Object shoppingList, String workshop)
+	{
+		instance.announce("retrieveRequest", agent, toItemMap(shoppingList), workshop);
 	}
 	
 	private void define(String property, Object... args)
@@ -120,6 +120,34 @@ public class TaskArtifact extends Artifact {
 	void clearShops(String cnpName)
 	{
 		removeObsPropertyByTemplate("shops", null, cnpName);
+	}
+	
+	@OPERATION
+	void clearAssemble(String cnpName)
+	{
+		instance.clear("assembleRequest", null, null, null, null, cnpName);
+	}
+	
+	@OPERATION
+	void clearRetrieve(String cnpName)
+	{
+		instance.clear("retrieveRequest", null, null, null, cnpName);
+	}
+	
+	private void clear(String property, Object... args)
+	{
+		try 
+		{
+//			String cnpName = (String) args[args.length - 1];
+//			
+//			dispose(lookupArtifact(cnpName));
+			
+			removeObsPropertyByTemplate(property, args);
+		} 
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in clear: " + e.getMessage(), e);
+		}
 	}
 	
 	private static Object toItemMap(Object items)
