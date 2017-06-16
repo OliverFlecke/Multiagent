@@ -38,7 +38,7 @@
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
 	
-+!assistAssemble(Agent) : getInventory([]) | assistComplete. // Cleanup everything
++!assistAssemble(Agent) : getInventory([]) | assistComplete.
 +!assistAssemble(Agent) : connection(Agent, Entity, _) <-
 	!doAction(assist_assemble(Entity));
 	!assistAssemble(Agent).
