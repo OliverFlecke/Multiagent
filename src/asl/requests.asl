@@ -10,15 +10,17 @@
 	Bid = math.ceil(Distance/Speed) * 10 - Volume; 
 	
 	if (not ItemsToRetrieve = []) 
-	{ bid(Bid)[artifact_id(CNPId)]; }
-	winner(Won)[artifact_id(CNPId)];
-	
-	if (Won)
-	{
-		-free;
-		clearRetrieve(CNPId);
-		!retrieve(AgentStr, ItemsToRetrieve, Workshop, [map(Shop,Rest)|Shops]);		
-		+free;
+	{ 
+		bid(Bid)[artifact_id(CNPId)]; 
+		winner(Won)[artifact_id(CNPId)];
+		
+		if (Won)
+		{
+			-free;
+			clearRetrieve(CNPId);
+			!retrieve(AgentStr, ItemsToRetrieve, Workshop, [map(Shop,Rest)|Shops]);		
+			+free;
+		}
 	}.
 	
 +assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId) 
@@ -35,16 +37,18 @@
 //	.print("+request ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve, Volume);
 	
 	if (not ItemsToRetrieve = []) 
-	{ bid(Bid)[artifact_id(CNPId)]; }
-	winner(Won)[artifact_id(CNPId)];
-	
-	if (Won)
-	{		
-		.print(ItemsToAssemble, " - ", AssembleRest);
-		-free;
-		clearAssemble(CNPId);
-		!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation);
-		+free;
+	{ 
+		bid(Bid)[artifact_id(CNPId)];
+		winner(Won)[artifact_id(CNPId)];
+		
+		if (Won)
+		{		
+			.print(ItemsToAssemble, " - ", AssembleRest);
+			-free;
+			clearAssemble(CNPId);
+			!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation);
+			+free;
+		}
 	}.
 	
 +!retrieve(_, [], _, _).

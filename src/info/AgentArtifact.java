@@ -208,8 +208,7 @@ public class AgentArtifact extends Artifact {
 			
 			Facility facility = FacilityArtifact.getFacility((String) args[0]);
 			
-			this.getEntity().setFacility(facility);
-			
+			this.getEntity().setFacility(facility);	
 		}
 		else 
 		{

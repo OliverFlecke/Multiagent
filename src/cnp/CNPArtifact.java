@@ -1,10 +1,5 @@
 package cnp;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-
 import cartago.Artifact;
 import cartago.GUARD;
 import cartago.INTERNAL_OPERATION;
@@ -14,10 +9,9 @@ import cartago.OpFeedbackParam;
 
 public class CNPArtifact extends Artifact {
 	
-	private List<Bid> 		bids;	
-	private Optional<Bid> 	bestBid;
-	private boolean 		isOpen;
-	private String 			winner;
+	private Bid 		bestBid;
+	private boolean 	isOpen;
+	private String 		winner;
 	
 	/**
 	 * 
@@ -25,8 +19,6 @@ public class CNPArtifact extends Artifact {
 	 */
 	void init()
 	{		
-		this.bids	= new ArrayList<>();
-		
 		execInternalOp("awaitBids", 500);
 	}
 	
@@ -56,7 +48,10 @@ public class CNPArtifact extends Artifact {
 	{		
 		if (isOpen)
 		{
-			bids.add(new Bid(getOpUserName(), bid));
+			if (bestBid == null || bestBid.getBid() > bid)
+			{
+				bestBid = new Bid(getOpUserName(), bid);
+			}
 		}
 	}
 	
@@ -101,7 +96,7 @@ public class CNPArtifact extends Artifact {
 	{
 		await("biddingClosed");
 		
-		if (bids.isEmpty() && winner == null)
+		if (bestBid != null && winner == null)
 		{
 			winner = getOpUserName();
 			
@@ -121,13 +116,9 @@ public class CNPArtifact extends Artifact {
 	
 	private String getWinner()
 	{
-		if (bestBid == null)
+		if (bestBid != null)
 		{
-			bestBid = bids.stream().min(Comparator.comparingInt(Bid::getBid));
-		}
-		if (bestBid.isPresent())
-		{
-			return bestBid.get().getAgent();
+			return bestBid.agent;
 		}
 		return null;
 		

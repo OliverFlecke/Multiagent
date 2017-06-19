@@ -309,7 +309,7 @@ public class FacilityArtifact extends Artifact {
 		
 		switch (facilityType)
 		{
-		case CHARGING_STATION: 	facilities = chargingStations	;	break;	
+		case CHARGING_STATION: 	facilities = chargingStations	;  break;	
 		case DUMP:				facilities = dumps				;  break;        
 		case SHOP:				facilities = shops				;  break;           
 		case STORAGE:			facilities = storages			;  break;
