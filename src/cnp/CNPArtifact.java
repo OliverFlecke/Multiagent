@@ -8,6 +8,7 @@ import java.util.Optional;
 import cartago.Artifact;
 import cartago.GUARD;
 import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 
@@ -16,6 +17,7 @@ public class CNPArtifact extends Artifact {
 	private List<Bid> 		bids;	
 	private Optional<Bid> 	bestBid;
 	private boolean 		isOpen;
+	private String 			winner;
 	
 	/**
 	 * 
@@ -78,7 +80,7 @@ public class CNPArtifact extends Artifact {
 	{		
 		await("biddingClosed");
 		
-		String winner = getWinner();
+		winner = getWinner();
 		
 		if (winner != null && winner.equals(getOpUserName()))
 		{
@@ -99,14 +101,22 @@ public class CNPArtifact extends Artifact {
 	{
 		await("biddingClosed");
 		
-		if (bids.isEmpty())
+		if (bids.isEmpty() && winner == null)
 		{
+			winner = getOpUserName();
+			
 			canTake.set(true);
 		}
 		else
 		{
 			canTake.set(false);
 		}
+	}
+	
+	@LINK
+	void disposeArtifact()
+	{
+		this.dispose();
 	}
 	
 	private String getWinner()

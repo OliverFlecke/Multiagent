@@ -2,8 +2,6 @@
 +retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
-	.term2string(Agent, AgentStr);
-	
 	getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
 	getVolume(ItemsToRetrieve, Volume);	
 	distanceToFacility(Shop, Distance);	
@@ -19,70 +17,11 @@
 	{
 		-free;
 		clearRetrieve(CNPId);
-		
-		.my_name(Me);
-		
-		if (not Rest = [] & not Shops = [])
-		{			
-			.send(Agent, tell, assistant);
-			.send(announcer, achieve, announceRetrieve(Agent, [map(Shop,Rest)|Shops], Workshop));
-		}
-		
-		// Receive items from truck at shop
-		!retrieveItems(map(Shop, ItemsToRetrieve));
-		// Give items to truck at workshop
-		!getToFacility(Workshop);
-		
-		if (Me \== Agent)
-		{
-			.send(Agent, tell, assistReady(Me));
-			.wait(assembleReady(ReadyStep));
-			.wait(step(ReadyStep));
-			
-			!assistAssemble(Agent); // Waits for assembleComplete
-			
-			.send(Agent, untell, assistant(Me));
-			.send(Agent, untell, assistReady(Me));
-		}
-		
+		!retrieve(AgentStr, ItemsToRetrieve, Workshop, [map(Shop,Rest)|Shops]);		
 		+free;
 	}.
 	
-+free : retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) <-
-	canTake(CanTake)[artifact_id(CNPId)];
-	if (CanTake)
-	{
-		-free;
-		clearRetrieve(CNPId);
-	
-		getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
-		
-		.my_name(Me);
-		.send(Agent, tell, assistant);
-		.send(announcer, achieve, announceRetrieve(Agent, [map(Shop,Rest)|Shops], Workshop));
-		
-		// Receive items from truck at shop
-		!retrieveItems(map(Shop, ItemsToRetrieve));
-		// Give items to truck at workshop
-		!getToFacility(Workshop);
-		
-		if (Me \== Agent)
-		{
-			.send(Agent, tell, assistReady(Me));
-			.wait(assembleReady(ReadyStep));
-			.wait(step(ReadyStep));
-			
-			!assistAssemble(Agent); // Waits for assembleComplete
-			
-			.send(Agent, untell, assistant(Me));
-			.send(Agent, untell, assistReady(Me));
-		}
-		
-		+free;
-	}
-	
-+assembleRequest([], _, _, _).
-+assembleRequest(Items, Workshop, TaskId, DeliveryLocation, CNPId) 
++assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
@@ -93,7 +32,7 @@
 	// Negative volume since lower is better
 	Bid = math.ceil(Distance/Speed) * 10 - Volume; 
 	
-	.print(Bid, Items, Capacity, ItemsToAssemble, ItemsToRetrieve, Volume, AssembleRest);
+	.print("+request ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve, Volume);
 	
 	if ( not (ItemsToRetrieve = []) ) 
 	{ bid(Bid)[artifact_id(CNPId)]; }
@@ -101,51 +40,121 @@
 	
 	if (Won)
 	{		
+		.print(ItemsToAssemble, " - ", AssembleRest);
 		-free;
 		clearAssemble(CNPId);
-		
-		getShoppingList(ItemsToRetrieve, ShoppingList);
-		ShoppingList = [Shop|RetrieveRest];
-		
-		.print("ItemsToRetrieve: ", ItemsToRetrieve, " - ", Volume, " - ", Capacity);
-		.print("To Retrieve: ", Shop, " - ", RetrieveRest);
-		.print("To Assemble: ", ItemsToAssemble, " - ", AssembleRest);
-		
-		.my_name(Me);
-		if (not RetrieveRest = [])
-		{
-			-+assistants(1);
-			.send(announcer, achieve, announceRetrieve(Me, RetrieveRest, Workshop));
-		}
-		.send(announcer, achieve, announceAssemble(AssembleRest, Workshop, TaskId, DeliveryLocation));
-		
-		!retrieveItems(Shop);
-		!getToFacility(Workshop);
-		
-		.wait(assistants(N) & .count(assistReady(_), N));
-		
-		?step(X);
-		ReadyStep = X + 2;
-		
-		for ( assistReady(A) )
-		{
-			.send(A, tell, assembleReady(ReadyStep));
-		}
-		
-		.wait(step(ReadyStep));
-		
-		!assembleItems(ItemsToAssemble);
-		
-		for ( assistReady(A) ) 
-		{
-			.send(A, tell, assembleComplete);
-			.send(A, untell, assembleReady(ReadyStep));
-		}
-		
-		!getToFacility(DeliveryLocation);
-		!deliverItems(TaskId, DeliveryLocation);
-		
+		!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation);
 		+free;
 	}.
 	
-+assistant : assistants(N) <- -+assistants(N + 1); -assistant.
++!retrieve(_, [], _, _).
++!retrieve(AgentStr, ItemsToRetrieve, Workshop, ToAnnounce) 
+	: .my_name(Me) & .term2string(Agent, AgentStr) <-
+	
+	if (ToAnnounce = [map(Shop,Rest)|Shops] & not (Rest = [] & Shops = []))
+	{
+		.send(Agent, tell, assistant(Me));
+		.send(announcer, achieve, announceRetrieve(Agent, [map(Shop,Rest)|Shops], Workshop));
+	}
+	
+	!retrieveItems(map(Shop, ItemsToRetrieve));
+
+	!getToFacility(Workshop);
+	
+	.send(Agent, tell, assistReady(Me));
+	.wait(assembleReady(ReadyStep));
+	.wait(step(ReadyStep));
+	
+	!assistAssemble(Agent); // Waits for assembleComplete
+	
+	-assembleComplete[source(_)];
+	-assembleReady(_)[source(_)].
+	
++!assemble([], _, _).
++!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation) 
+	: .my_name(Me) <-
+
+	getShoppingList(ItemsToRetrieve, ShoppingList);
+	ShoppingList = [Shop|RetrieveRest];	
+	
+	if (not RetrieveRest = [])
+	{
+		+assistant(Me);
+		.send(announcer, achieve, announceRetrieve(Me, RetrieveRest, Workshop));
+	}
+	
+	if (not AssembleRest = [])
+	{
+		.send(announcer, achieve, announceAssemble(AssembleRest, Workshop, TaskId, DeliveryLocation, "old"));			
+	}
+	
+	!retrieveItems(Shop);
+	!getToFacility(Workshop);
+	
+	.wait(.count(assistant(_), N) & .count(assistReady(_), N));
+	
+	?step(X);
+	ReadyStep = X + 2;
+	
+	for (assistReady(A))
+	{
+		.send(A, tell, assembleReady(ReadyStep));
+	}
+	
+	.wait(step(ReadyStep));
+	
+	!assembleItems(ItemsToAssemble);
+	
+	for (assistReady(AssistReady)) 
+	{
+		.send(AssistReady, tell, assembleComplete);
+		-assistReady(AssistReady)[source(_)];
+	}
+	
+	for (assistant(Assistant))
+	{
+		-assistant(Assistant)[source(_)];
+	}
+	
+	!getToFacility(DeliveryLocation);
+	!deliverItems(TaskId, DeliveryLocation).
+
+	
++free : retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
+		& capacity(Capacity) <-
+		
+	getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
+	
+	if (not ItemsToRetrieve = [])
+	{
+		takeTask(CanTake)[artifact_id(CNPId)];
+		
+		if (CanTake)
+		{
+			-free;
+			clearRetrieve(CNPId);			
+			!retrieve(AgentStr, ItemsToRetrieve, Workshop, [map(Shop,Rest)|Shops]);			
+			+free;
+		}
+	}.
+	
++free : assembleRequest(Items, Workshop, TaskId, DeliveryLocation, "old", CNPId)
+		& capacity(Capacity) <-
+		
+	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
+	getBaseItems(ItemsToAssemble, ItemsToRetrieve);
+	
+	.print("+free ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve);
+	
+	if (not ItemsToRetrieve = [])
+	{
+		takeTask(CanTake)[artifact_id(CNPId)];
+		
+		if (CanTake)
+		{		
+			-free;
+			clearAssemble(CNPId);			
+			!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation);			
+			+free;
+		}
+	}.

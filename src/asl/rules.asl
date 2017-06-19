@@ -9,7 +9,7 @@ canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
 routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 
 chargeThreshold(X) :- maxCharge(C) & X = 0.2 * C.
-capacity(C) :- maxLoad(M) & load(L) & C = M - L - 5.
+capacity(C) :- maxLoad(M) & load(L) & C = M - L.
 
 // Check facility type
 isChargingStation(F)	:- .substring("chargingStation", F).

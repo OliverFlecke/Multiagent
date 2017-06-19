@@ -9,10 +9,10 @@
 	getJob(TaskId, Storage, Items);
 	.print("New task: ", TaskId, " - ", Items);
 	getClosestWorkshopToStorage(Storage, Workshop);
-	!announceAssemble(Items, Workshop, TaskId, Storage).
+	!announceAssemble(Items, Workshop, TaskId, Storage, "new").
 	
-+!announceAssemble([], _, _, _).
-+!announceAssemble(Items, Workshop, TaskId, Storage) 	 <- announceAssemble(Items, Workshop, TaskId, Storage).
++!announceAssemble([], _, _, _, _).
++!announceAssemble(Items, Workshop, TaskId, Storage, Type) 	 <- announceAssemble(Items, Workshop, TaskId, Storage, Type).
 	
 +!announceRetrieve(Agent, [map(Shop,[])|Rest], Workshop) <- !announceRetrieve(Agent, Rest, Workshop).
 +!announceRetrieve(Agent, ShoppingList		 , Workshop) <- announceRetrieve(Agent, ShoppingList, Workshop).
