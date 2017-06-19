@@ -9,7 +9,7 @@
 	// Negative volume since lower is better
 	Bid = math.ceil(Distance/Speed) * 10 - Volume; 
 	
-	if ( not ItemsToRetrieve = [] ) 
+	if (not ItemsToRetrieve = []) 
 	{ bid(Bid)[artifact_id(CNPId)]; }
 	winner(Won)[artifact_id(CNPId)];
 	
@@ -32,9 +32,9 @@
 	// Negative volume since lower is better
 	Bid = math.ceil(Distance/Speed) * 10 - Volume; 
 	
-	.print("+request ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve, Volume);
+//	.print("+request ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve, Volume);
 	
-	if ( not (ItemsToRetrieve = []) ) 
+	if (not ItemsToRetrieve = []) 
 	{ bid(Bid)[artifact_id(CNPId)]; }
 	winner(Won)[artifact_id(CNPId)];
 	
@@ -123,7 +123,7 @@
 +free : retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
 		& capacity(Capacity) <-
 		
-	getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
+	getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);
 	
 	if (not ItemsToRetrieve = [])
 	{
@@ -144,7 +144,7 @@
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
 	getBaseItems(ItemsToAssemble, ItemsToRetrieve);
 	
-	.print("+free ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve);
+//	.print("+free ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve);
 	
 	if (not ItemsToRetrieve = [])
 	{
