@@ -10,6 +10,7 @@ routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 
 chargeThreshold(X) :- maxCharge(C) & X = 0.2 * C.
 capacity(C) :- maxLoad(M) & load(L) & C = M - L.
+canMove :- charge(X) & X >= 10.
 
 // Check facility type
 isChargingStation(F)	:- .substring("chargingStation", F).
