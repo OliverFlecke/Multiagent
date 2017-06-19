@@ -22,6 +22,7 @@ inChargingStation 	:- inFacility(F) & isChargingStation(F).
 inWorkshop 			:- inFacility(F) & isWorkshop(F).
 inStorage 			:- inFacility(F) & isStorage(F).
 inShop	    		:- inFacility(F) & isShop(F).
+inShop(F)			:- inFacility(F) & inShop.
 
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y. 		// There is a .member function, but we need to unwrap the objects
 contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 
