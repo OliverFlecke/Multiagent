@@ -30,16 +30,18 @@ connection(truck6,      agentA26, connectionA26).
 connection(truck7,      agentA27, connectionA27).
 connection(truck8,      agentA28, connectionA28).
 
-readyToStart :- registered & focused.
-
 // Plans
 +!register : connection(A, C) <- register(A, C).
 -!register <- .wait(100); !register.
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
-+!focusArtifacts <-
++!focusArtifacts : .my_name(Me) & .term2string(Me, Name) <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("EIArtifact");
-	.print("Successfully focused artifacts");
-	+focused.
+	if (Me \== announcer) 
+	{
+		makeArtifact(Name, "info.AgentArtifact", [], _);
+		!focusArtifact(Name);
+	}
+	.print("Successfully focused artifacts").
 -!focusArtifacts <- .wait(500); !focusArtifacts.

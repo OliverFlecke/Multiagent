@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import data.CEntity;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
@@ -145,33 +144,19 @@ public class EIArtifact extends Artifact {
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
 	
-			// Perceive agent info
-			for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
-			{			
-				AgentArtifact.perceiveUpdate(entry.getKey(), entry.getValue());
-			}
-			
-			// Define agent properties
-			for (Entry<String, CEntity> entry : AgentArtifact.getEntities().entrySet())
-			{
-				String 		agentName 	= entry.getKey();
-				CEntity 	entity		= entry.getValue();
-	
-				defineObsProperty("inFacility", 		agentName, entity.getFacilityName());               
-				defineObsProperty("charge", 			agentName, entity.getCurrentBattery());             
-				defineObsProperty("load", 				agentName, entity.getCurrentLoad());                
-				defineObsProperty("routeLength", 		agentName, entity.getRouteLength());                
-				defineObsProperty("lastAction", 		agentName, entity.getLastAction().getActionType()); 
-				defineObsProperty("lastActionResult", 	agentName, entity.getLastActionResult());           
-				defineObsProperty("lastActionParam", 	agentName, entity.getLastActionParam());            
-				defineObsProperty("myRole", 			agentName, entity.getRole().getName());
-			}
-			
 			// Define roles
 			for (Role role : StaticInfoArtifact.getRoles())
 			{
 				defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), 
-										  role.getMaxBattery(), role.getPermissions().toArray());
+						role.getMaxBattery(), role.getPermissions().toArray());
+			}
+
+			// Perceive agent info
+			for (Entry<String, Collection<Percept>> entry : agentPercepts.entrySet())
+			{			
+				String agentName = entry.getKey();
+				
+				AgentArtifact.getAgentArtifact(agentName).precevieInitial(entry.getValue());
 			}
 			
 			// Define step
@@ -198,7 +183,7 @@ public class EIArtifact extends Artifact {
 			{				
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
-				AgentArtifact.perceiveUpdate(entry.getKey(), percepts);
+				AgentArtifact.getAgentArtifact(entry.getKey()).perceiveUpdate(percepts);
 				
 				allPercepts.addAll(percepts);
 			}
@@ -206,21 +191,6 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
-			
-			// Update observable properties
-			for (Entry<String, CEntity> entry : AgentArtifact.getEntities().entrySet())
-			{				
-				String 		agentName 	= entry.getKey();
-				CEntity 	entity		= entry.getValue();
-				
-				getObsPropertyByTemplate("inFacility", 		 agentName, null).updateValue(1, entity.getFacilityName());
-				getObsPropertyByTemplate("charge", 			 agentName, null).updateValue(1, entity.getCurrentBattery());
-				getObsPropertyByTemplate("load",   			 agentName, null).updateValue(1, entity.getCurrentLoad());
-				getObsPropertyByTemplate("routeLength", 	 agentName, null).updateValue(1, entity.getRouteLength());
-				getObsPropertyByTemplate("lastAction",  	 agentName, null).updateValue(1, entity.getLastAction().getActionType());
-				getObsPropertyByTemplate("lastActionResult", agentName, null).updateValue(1, entity.getLastActionResult());
-				getObsPropertyByTemplate("lastActionParam",  agentName, null).updateValue(1, entity.getLastActionParam());
-			}
 			
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
