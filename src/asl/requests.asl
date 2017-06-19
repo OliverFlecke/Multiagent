@@ -18,7 +18,7 @@
 	if (Won)
 	{
 		-free;
-//		clearRetrieve(CNPName);
+		clearRetrieve(CNPId);
 		
 		.my_name(Me);
 		
@@ -53,7 +53,7 @@
 	if (CanTake)
 	{
 		-free;
-//		clearRetrieve(CNPName);
+		clearRetrieve(CNPId);
 	
 		getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
 		
@@ -102,7 +102,7 @@
 	if (Won)
 	{		
 		-free;
-//		clearAssemble(CNPName);
+		clearAssemble(CNPId);
 		
 		getShoppingList(ItemsToRetrieve, ShoppingList);
 		ShoppingList = [Shop|RetrieveRest];

@@ -124,15 +124,15 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void clearAssemble(String cnpName)
+	void clearAssemble(Object cnpId)
 	{
-		instance.clear("assembleRequest", null, null, null, null, cnpName);
+		instance.clear("assembleRequest", null, null, null, null, cnpId);
 	}
 	
 	@OPERATION
-	void clearRetrieve(String cnpName)
+	void clearRetrieve(Object cnpId)
 	{
-		instance.clear("retrieveRequest", null, null, null, cnpName);
+		instance.clear("retrieveRequest", null, null, null, cnpId);
 	}
 	
 	private void clear(String property, Object... args)
