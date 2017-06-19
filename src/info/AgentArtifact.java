@@ -146,6 +146,8 @@ public class AgentArtifact extends Artifact {
 	{		
 		CEntity entity = getEntity(agentName);
 		
+		entity.clearInventory();
+		
 		for (Percept percept : percepts)
 		{			
 			switch (percept.getName())
