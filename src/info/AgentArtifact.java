@@ -47,17 +47,65 @@ public class AgentArtifact extends Artifact {
 				LAST_ACTION_RESULT, LAT, LON, LOAD, ROUTE, ROUTE_LENGTH)));
 	
 	private static Map<String, CEntity> entities = new HashMap<>();
+	private static Map<String, AgentArtifact> artifacts = new HashMap<>();
 	
-	private static AgentArtifact instance;
+	private String agentName;
 	
 	void init()
 	{
-		instance = this;
+		this.agentName = this.getId().getName();
+		
+		artifacts.put(this.agentName, this);
+		
+		defineObsProperty("inFacility", 		"none");               
+		defineObsProperty("charge", 			250);
+		defineObsProperty("load", 				0);                
+		defineObsProperty("routeLength", 		0);                
+		defineObsProperty("lastAction", 		"noAction"); 
+		defineObsProperty("lastActionResult", 	"successful");           
+		defineObsProperty("lastActionParam", 	"[]");            
 	}
 	
-	public static AgentArtifact getInstance()
+	/**
+	 * Get the artifact related to the agent
+	 * @param agentName Name of the agent
+	 * @return 
+	 */
+	public static AgentArtifact getAgentArtifact(String agentName) 
 	{
-		return instance;
+		return artifacts.get(agentName);
+	}
+	
+	/**
+	 * @return All the entities
+	 */
+	public static Map<String, CEntity> getEntities() {
+		return entities;
+	}
+
+	/**
+	 * @return The names of all the entities
+	 */
+	public static Set<String> getEntitiesNames() {
+		return entities.keySet();
+	}
+	
+	protected static void addEntity(String name, CEntity entity)
+	{
+		entities.put(name, entity);
+	}
+	
+	public static CEntity getEntity(String name)
+	{
+		return entities.get(name);
+	}
+	
+	/**
+	 * @return The entity associated with this agent artifact
+	 */
+	private CEntity getEntity()
+	{
+		return entities.get(this.agentName);
 	}
 
 	@OPERATION
@@ -75,59 +123,74 @@ public class AgentArtifact extends Artifact {
 		ret.set(getAgentInventory(getOpUserName()));
 	}
 	
-	public static Map<String, Integer> getAgentInventory(String agentName) 
+	public static Map<String, Integer> getAgentInventory(String agent) 
 	{
-		return getEntity(agentName).getInventory().toItemAmountData().stream()
+		return getEntity(agent).getInventory().toItemAmountData().stream()
 				.collect(Collectors.toMap(e -> e.getName(), e -> e.getAmount()));
 	}
 	
-	public static void perceiveUpdate(String agentName, Collection<Percept> percepts)
+	public void perceiveUpdate(Collection<Percept> percepts)
+	{
+		execInternalOp("update", percepts);
+	}
+	
+	@OPERATION
+	private void update(Collection<Percept> percepts)
 	{		
+		CEntity entity = getEntity(agentName);
+		
 		for (Percept percept : percepts)
 		{			
 			switch (percept.getName())
 			{
 //			case ACTION_ID: perceiveActionID(percept); break;
-			case CHARGE: 				perceiveCharge(agentName, percept); break;
-			case FACILITY:				getInstance().perceiveFacility(agentName, percept); break;
-			case HAS_ITEM:				perceiveHasItem(agentName, percept); break;
-			case LAST_ACTION : 			perceiveLastAction(agentName, percept); break;
-			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(agentName, percept); break;
-			case LAST_ACTION_RESULT: 	perceiveLastActionResult(agentName, percept); break;
-			case LAT: 					perceiveLat(agentName, percept); break;
-			case LON: 					perceiveLon(agentName, percept); break;
-//			case LOAD: 					perceiveLoad(agentName, percept); break;
-			case ROUTE: 				perceiveRoute(agentName, percept); break;
-			case ROUTE_LENGTH: 			perceiveRouteLength(agentName, percept); break;
+			case CHARGE: 				perceiveCharge(percept); break;
+			case FACILITY:				perceiveFacility(percept); break;
+			case HAS_ITEM:				perceiveHasItem(percept); break;
+			case LAST_ACTION : 			perceiveLastAction(percept); break;
+			case LAST_ACTION_PARAMS: 	perceiveLastActionParams(percept); break;
+			case LAST_ACTION_RESULT: 	perceiveLastActionResult(percept); break;
+			case LAT: 					perceiveLat(percept); break;
+			case LON: 					perceiveLon(percept); break;
+			case ROUTE: 				perceiveRoute(percept); break;
+			case ROUTE_LENGTH: 			perceiveRouteLength(percept); break;
 			}
 		}
 		
+		getObsProperty("inFacility"			).updateValue(entity.getFacilityName());
+		getObsProperty("charge"				).updateValue(entity.getCurrentBattery());
+		getObsProperty("load"  				).updateValue(entity.getCurrentLoad());
+		getObsProperty("routeLength" 		).updateValue(entity.getRouteLength());
+		getObsProperty("lastAction"			).updateValue(entity.getLastAction().getActionType());
+		getObsProperty("lastActionResult" 	).updateValue(entity.getLastActionResult());
+		getObsProperty("lastActionParam"  	).updateValue(entity.getLastActionParam());
+
 		if (EIArtifact.LOGGING_ENABLED)
 		{
 			logger.info(agentName + " perceived");
 		}
 	}
 
-	private static void perceiveLastActionParams(String agentName, Percept percept) 
+	private void perceiveLastActionParams(Percept percept) 
 	{
 		Object[] args = Translator.perceptToObject(percept);
 
-		AgentArtifact.getEntity(agentName).setLastActionParam((Object[]) args[0]);
+		this.getEntity().setLastActionParam((Object[]) args[0]);
 	}
 
 	/**
 	 * Literal(int)
 	 * @param percept
 	 */
-	private static void perceiveCharge(String agentName, Percept percept) 
+	private void perceiveCharge(Percept percept) 
 	{
 		Object[] args = Translator.perceptToObject(percept);
 
-		AgentArtifact.getEntity(agentName).setCurrentBattery((int) args[0]);
+		this.getEntity().setCurrentBattery((int) args[0]);
 	}
 	
-	@OPERATION
-	public void perceiveFacility(String agentName, Percept percept) 
+	
+	public void perceiveFacility(Percept percept) 
 	{
 		Parameter param = percept.getParameters().get(0);
 		if (!PrologVisitor.staticVisit(param).equals(""))
@@ -136,24 +199,23 @@ public class AgentArtifact extends Artifact {
 			
 			Facility facility = FacilityArtifact.getFacility((String) args[0]);
 			
-			AgentArtifact.getEntity(agentName).setFacility(facility);
+			this.getEntity().setFacility(facility);
 			
 		}
 		else 
 		{
-			AgentArtifact.getEntity(agentName).setFacility(null);
+			this.getEntity().setFacility(null);
 		}
 	}
 
-	private static void perceiveHasItem(String agentName, Percept percept) 
+	private void perceiveHasItem(Percept percept) 
 	{
 		Object[] args = Translator.perceptToObject(percept);
 
 		Item 	item 	= ItemArtifact.getItem((String) args[0]);
 		int 	amount 	= (int) args[1];
 		
-		AgentArtifact.getEntity(agentName).addItem(item, amount);
-//		logger.info(AgentArtifact.getEntity(agentName).getInventory().toString());
+		this.getEntity().addItem(item, amount);
 	}
 	
 	/**
@@ -161,13 +223,13 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLastAction(String agentName, Percept percept)
+	private void perceiveLastAction(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		
 		Action action = new Action((String) args[0]);
 		
-		AgentArtifact.getEntity(agentName).setLastAction(action);
+		this.getEntity().setLastAction(action);
 	}
 	
 	/**
@@ -175,11 +237,11 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLastActionResult(String agentName, Percept percept)
+	private void perceiveLastActionResult(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		
-		AgentArtifact.getEntity(agentName).setLastActionResult((String) args[0]);
+		this.getEntity().setLastActionResult((String) args[0]);
 	}
 	
 	/**
@@ -187,11 +249,11 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLat(String agentName, Percept percept)
+	private void perceiveLat(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		
-		AgentArtifact.getEntity(agentName).setLat((double) args[0]);
+		this.getEntity().setLat((double) args[0]);
 	}
 	
 	/**
@@ -199,30 +261,19 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveLon(String agentName, Percept percept)
+	private void perceiveLon(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		
-		AgentArtifact.getEntity(agentName).setLon((double) args[0]);	
+		this.getEntity().setLon((double) args[0]);	
 	}
-	
-	/**
-	 * Literal(int)
-	 * @param agentName
-	 * @param percept
-	 */
-//	private static void perceiveLoad(String agentName, Percept percept)
-//	{
-//		Term[] terms = Translator.perceptToLiteral(percept).getTermsArray();
-//		AgentArtifact.getEntity(agentName).s.t(Translator.termToDouble(terms[0]));	
-//	}
 	
 	/**
 	 * Literal([wp(int, lat, lon)])
 	 * @param agentName
 	 * @param percept
 	 */
-	public static void perceiveRoute(String agentName, Percept percept)
+	public void perceiveRoute(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		Route route = new Route();
@@ -239,7 +290,7 @@ public class AgentArtifact extends Artifact {
 			}
 		}
 
-		AgentArtifact.getEntity(agentName).setRoute(route);
+		this.getEntity().setRoute(route);
 	}
 	
 	/**
@@ -247,34 +298,10 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
-	private static void perceiveRouteLength(String agentName, Percept percept)
+	private void perceiveRouteLength(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		
-		AgentArtifact.getEntity(agentName).setRouteLength((int) args[0]);	
-	}
-
-	protected static void addEntity(String name, CEntity entity)
-	{
-		entities.put(name, entity);
-	}
-	
-	public static CEntity getEntity(String name)
-	{
-		return entities.get(name);
-	}
-
-	/**
-	 * @return All the entities
-	 */
-	public static Map<String, CEntity> getEntities() {
-		return entities;
-	}
-
-	/**
-	 * @return The names of all the entities
-	 */
-	public static Set<String> getEntitiesNames() {
-		return entities.keySet();
+		this.getEntity().setRouteLength((int) args[0]);	
 	}
 }
