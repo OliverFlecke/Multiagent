@@ -19,7 +19,7 @@ maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
 canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
 
 chargeThreshold(X) :- maxCharge(C) & X = 0.2 * C.
-capacity(C) :- maxLoad(M) & load(L) & C = M - L - 5.
+capacity(C) :- maxLoad(M) & load(L) & C = M - L.
 
 // Don't know if we will need to know if they travel by road or air
 

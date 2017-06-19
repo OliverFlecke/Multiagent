@@ -74,9 +74,9 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void announceAssemble(Object items, String workshop, String taskId, String deliveryLocation)
+	void announceAssemble(Object items, String workshop, String taskId, String deliveryLocation, String type)
 	{
-		instance.announce("assembleRequest", items, workshop, taskId, deliveryLocation);
+		instance.announce("assembleRequest", items, workshop, taskId, deliveryLocation, type);
 	}
 	
 	@OPERATION
@@ -126,7 +126,7 @@ public class TaskArtifact extends Artifact {
 	@OPERATION
 	void clearAssemble(Object cnpId)
 	{
-		instance.clear("assembleRequest", null, null, null, null, cnpId);
+		instance.clear("assembleRequest", null, null, null, null, null, cnpId);
 	}
 	
 	@OPERATION
@@ -135,15 +135,16 @@ public class TaskArtifact extends Artifact {
 		instance.clear("retrieveRequest", null, null, null, cnpId);
 	}
 	
+	@OPERATION
 	private void clear(String property, Object... args)
 	{
 		try 
 		{
-//			String cnpName = (String) args[args.length - 1];
-//			
-//			dispose(lookupArtifact(cnpName));
+			ArtifactId cnpId = (ArtifactId) args[args.length - 1];
 			
-			removeObsPropertyByTemplate(property, args);
+			execLinkedOp(cnpId, "disposeArtifact");
+			
+			removeObsPropertyByTemplate(property, args);			
 		} 
 		catch (Throwable e) 
 		{
