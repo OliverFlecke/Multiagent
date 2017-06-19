@@ -156,8 +156,7 @@ public class EIArtifact extends Artifact {
 			{			
 				String agentName = entry.getKey();
 				
-				AgentArtifact.getAgentArtifact(agentName).perceiveUpdate(entry.getValue());
-				defineObsProperty("myRole", agentName, AgentArtifact.getEntity(agentName).getRole().getName());
+				AgentArtifact.getAgentArtifact(agentName).precevieInitial(entry.getValue());
 			}
 			
 			// Define step

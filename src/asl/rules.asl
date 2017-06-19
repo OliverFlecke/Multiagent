@@ -1,7 +1,6 @@
 
 // Rules
-myName(Name) :- .my_name(Me) & .term2string(Me, Name).
-myRole(Role) :- myName(Name) & myRole(Name, Role).
+//myName(Name) :- .my_name(Me) & .term2string(Me, Name).
 
 speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
