@@ -18,7 +18,7 @@
 	if (Won)
 	{
 		-free;
-		clearRetrieve(CNPName);
+//		clearRetrieve(CNPName);
 		
 		.my_name(Me);
 		
@@ -48,13 +48,12 @@
 		+free;
 	}.
 	
-+free : retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPName) <-
-	lookupArtifact(CNPName, CNPId);
++free : retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) <-
 	canTake(CanTake)[artifact_id(CNPId)];
 	if (CanTake)
 	{
 		-free;
-		clearRetrieve(CNPName);
+//		clearRetrieve(CNPName);
 	
 		getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
 		
@@ -103,7 +102,7 @@
 	if (Won)
 	{		
 		-free;
-		clearAssemble(CNPName);
+//		clearAssemble(CNPName);
 		
 		getShoppingList(ItemsToRetrieve, ShoppingList);
 		ShoppingList = [Shop|RetrieveRest];
@@ -128,7 +127,7 @@
 		?step(X);
 		ReadyStep = X + 2;
 		
-		for ( assistant(A) )
+		for ( assistReady(A) )
 		{
 			.send(A, tell, assembleReady(ReadyStep));
 		}
@@ -137,7 +136,7 @@
 		
 		!assembleItems(ItemsToAssemble);
 		
-		for ( assistant(A) )
+		for ( assistReady(A) ) 
 		{
 			.send(A, tell, assembleComplete);
 			.send(A, untell, assembleReady(ReadyStep));
