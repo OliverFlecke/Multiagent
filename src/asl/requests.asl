@@ -57,7 +57,8 @@
 	
 	if (ToAnnounce = [map(Shop,Rest)|Shops] & not (Rest = [] & Shops = []))
 	{
-		.send(Agent, tell, assistant(Me));
+		.send(Agent,   tell, assistNeeded);
+		.send(Agent, untell, assistNeeded); // Simulates a signal
 		.send(announcer, achieve, announceRetrieve(Agent, [map(Shop,Rest)|Shops], Workshop));
 	}
 	
@@ -65,14 +66,14 @@
 
 	!getToFacility(Workshop);
 	
-	.send(Agent, tell, assistReady(Me));
+	.send(Agent,   tell, assistReady(Me));
+	
 	.wait(assembleReady(ReadyStep));
 	.wait(step(ReadyStep));
 	
-	!assistAssemble(Agent); // Waits for assembleComplete
+	!assistAssemble(Agent);
 	
-	-assembleComplete[source(_)];
-	-assembleReady(_)[source(_)].
+	.send(Agent, untell, assistReady(Me)).
 	
 +!assemble([], _, _).
 +!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation) 
@@ -81,9 +82,11 @@
 	getShoppingList(ItemsToRetrieve, ShoppingList);
 	ShoppingList = [Shop|RetrieveRest];	
 	
+	+assistants([]);
+	
 	if (not RetrieveRest = [])
 	{
-		+assistant(Me);
+		+assistCount(1);
 		.send(announcer, achieve, announceRetrieve(Me, RetrieveRest, Workshop));
 	}
 	
@@ -95,30 +98,20 @@
 	!retrieveItems(Shop);
 	!getToFacility(Workshop);
 	
-	.wait(.count(assistant(_), N) & .count(assistReady(_), N));
+	.wait(assistCount(N) & assistants(L) & .length(L, N));
 	
 	?step(X);
 	ReadyStep = X + 2;
 	
-	for (assistReady(A))
+	for (.member(A, L))
 	{
-		.send(A, tell, assembleReady(ReadyStep));
+		.send(A,   tell, assembleReady(ReadyStep));
 	}
 	
 	.wait(step(ReadyStep));
 	
-	!assembleItems(ItemsToAssemble);
-	
-	for (assistReady(AssistReady)) 
-	{
-		.send(AssistReady, tell, assembleComplete);
-		-assistReady(AssistReady)[source(_)];
-	}
-	
-	for (assistant(Assistant))
-	{
-		-assistant(Assistant)[source(_)];
-	}
+	!assembleItems(ItemsToAssemble);	
+	!!assembleComplete;
 	
 	!getToFacility(DeliveryLocation);
 	!deliverItems(TaskId, DeliveryLocation).
@@ -163,3 +156,26 @@
 		}
 	}.
 	
+@assistCount[atomic]
++assistNeeded : assistCount(N) <- -+assistCount(N + 1).
+
+@assistants[atomic]
++assistReady(A) : assistants(L) <- -+assistants([A|L]).
+
++!assembleComplete : assistants(L) <-
+
+	for (.member(A, L)) 
+	{
+		.send(A, tell, assembleComplete);
+	}
+	
+	.wait(step(_));
+
+	for (.member(A, L)) 
+	{
+		.send(A, untell, assembleComplete);
+		.send(A, untell, assembleReady(_));
+	}
+	
+	-assistCount(_);
+	-assistants(_).
