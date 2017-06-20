@@ -41,11 +41,3 @@ free.
 		P = [Item];	
 	}.
 	
-+step(X) : charge(C) & speed(S) & not charging <- 
-	distanceToClosestFacility("chargingStation", Dist);
-	if (not enoughCharge(Dist) & not .desire(charge))
-	{
-		.suspend(getToFacility(_));
-		!charge;
-		.resume(getToFacility(_));
-	}.
