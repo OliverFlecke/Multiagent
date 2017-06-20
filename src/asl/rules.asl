@@ -45,3 +45,4 @@ hasBaseItems(Agent, Items) 	:- jia.hasBaseItems(Agent, Items).
 
 canCarry(Items)				:- capacity(C) & jia.getVolume(Items, V) & V <= C.
 canAfford(Item)				:- true.
+freeAgents(N)				:- N = 0.
