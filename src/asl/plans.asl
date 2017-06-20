@@ -1,54 +1,62 @@
++!deliverJob(_, [], _).
++!deliverJob(Id, Items, F) : hasItems(Items) & inFacility(F) <- !doAction(deliver_job(Id)).
++!deliverJob(Id, Items, F) : hasItems(Items) 				 <- !getToFacility(F); !deliverJob(Id, Items, F).
++!deliverJob(Id, Items, F)									 <- !delegateJob(Id, Items, F).
 
-+!giveItems(_, []).
-+!giveItems(Agent, [map(Item, Amount)|Items]) : connection(Agent, Entity, _) <-
-	!doAction(give(Entity, Item, Amount));
-	!giveItems(Agent, Items).
++!delegateJob(_, [], _).
++!delegateJob(Id, Items, F) : freeAgents(N) & N > 0 <- .print("Help").
++!delegateJob(Id, Items, F) : capacity(C) 			<- 
+	getItemsToCarry(Items, C, ItemsToCarry, Rest);
+	!acquireItems(ItemsToCarry); 
+	!deliverJob(Id, ItemsToCarry, F);
+	!delegateJob(Id, Rest, F).
+
++!acquireItems([]).
++!acquireItems(Items) : hasItems(Items).
++!acquireItems(Items) : hasBaseItems(Items) <- 
+	getClosestFacility("workshop", F);
+	!getToFacility(F);
+	!assembleItems(Items).
++!acquireItems(Items)						<- 
+	getBaseItems(Items, BaseItems);
+	getShoppingList(BaseItems, ShoppingList);
+	!delegateItems(ShoppingList);
+	!acquireItems(Items).
+
++!delegateItems([]).
++!delegateItems([map(_,[])|ShopList]) 								<- !delegateItems(ShopList).
++!delegateItems([map(Shop,Items)|ShopList]) : freeAgents(N) & N > 0 <- .print("Help").
++!delegateItems([map(Shop,Items)|ShopList]) : capacity(C) 			<-
+	getItemsToCarry(Items, C, ItemsToCarry, Rest);
+	!retrieveItems(Shop, ItemsToCarry);
+	!delegateItems([map(Shop,Rest)|ShopList]).
 	
-+!receiveItems([]).
-+!receiveItems([_|Items]) <-
-	!doAction(receive);
-	!receiveItems(Items).
-	
-+!retrieveItems(map(Shop, Items)) <-
-	!getToFacility(Shop);
-	!buyItems(Items).
-	
-+!buyItems([]).
-+!buyItems([map(Item, 	   0)|Items]) <- !buyItems(Items).
-+!buyItems([map(Item, Amount)|Items]) : inShop(Shop) <- 
-	getAvailableAmount(Item, Amount, Shop, AmountAvailable);
-	if (AmountAvailable > 0) { !doAction(buy(Item, AmountAvailable)); }
-	.concat(Items, [map(Item, Amount - AmountAvailable)], NewItems);
-	!buyItems(NewItems).
-	
-+!deliverItems(TaskId, Facility) <- 
-	!getToFacility(Facility);
- 	!doAction(deliver_job(TaskId)).
- 	
++!retrieveItems(_, []).
++!retrieveItems(_, Items) : hasItems(Items).
++!retrieveItems(Shop, Items) : inShop(Shop) <- !buyItems(Items).
++!retrieveItems(Shop, Items) 				<- !getToFacility(Shop); !retrieveItems(Shop, Items).
+
 +!assembleItems([]).
-+!assembleItems([map(	_, 		0) | Items]) <- !assembleItems(Items).
-+!assembleItems([map(Item, Amount) | Items]) <- 
++!assembleItems([map(_, 0)|Items]) 		 	<- !assembleItems(Items).
++!assembleItems([map(Item, Amount)|Items]) 	<- 
 	getRequiredItems(Item, ReqItems);
-	!assembleItem(Item, ReqItems); 
-	!assembleItems([map(Item, Amount - 1) | Items]).
-	
-// Recursively assemble required items
-+!assembleItem(	  _, 	   []).
-+!assembleItem(Item, ReqItems) <-
 	!assembleItems(ReqItems);
-	!doAction(assemble(Item)).
-	
-+!assistAssemble(Agent) : getInventory([]) | assembleComplete.
-+!assistAssemble(Agent) : connection(Agent, Entity, _) <-
-	!doAction(assist_assemble(Entity));
-	!assistAssemble(Agent).
+	!doAction(assemble(Item)); 
+	!assembleItems([map(Item, Amount - 1) | Items]).
+		
++!buyItems([]).
++!buyItems([map(Item, 0)|Items]) 		<- !buyItems(Items).
++!buyItems([map(Item, Amount)|Items]) 	<- 
+	getAvailableAmount(Item, Amount, Shop, AmountAvailable);
+	!doAction(buy(Item, AmountAvailable));
+	!buyItems(Items);
+	!buyItems([map(Item, Amount - AmountAvailable)]).
 
-+!retrieveTools([]).
-+!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
-+!retrieveTools([Tool | Tools]) 				<- !retrieveTool(Tool);	!retrieveTools(Tools).
-+!retrieveTool(Tool) : canUseTool(Tool) 		<- !retrieveItems([map(Tool, 1)]).
-+!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
-	
+//+!assistAssemble(Agent) : getInventory([]) | assembleComplete.
+//+!assistAssemble(Agent) : connection(Agent, Entity, _) <-
+//	!doAction(assist_assemble(Entity));
+//	!assistAssemble(Agent).
+
 +!getToFacility(F) : inFacility(F).
 +!getToFacility(F) : not canMove			<- !doAction(recharge); !getToFacility(F).
 +!getToFacility(F) : isChargingStation(F) 	<- !doAction(goto(F)); 	!getToFacility(F).
@@ -57,17 +65,8 @@
 
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation 			<- !doAction(charge); !charge.
-+!charge <-
++!charge 								<-
 	getClosestFacility("chargingStation", F);
 	!getToFacility(F); 
 	!charge.
 	
-+!gather : inResourceNode	<- !doAction(gather); !gather.
-+!gather 					<- 
-	getClosestFacility("resourceNode", F);
-	if (not (F == "none"))
-	{
-		!getToFacility(F);
-		!gather;
-	}
-	else { .print("Can not find any resource nodes"); }.

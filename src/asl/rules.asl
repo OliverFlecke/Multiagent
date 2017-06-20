@@ -42,3 +42,6 @@ hasItems(Agent, Items) 	:- jia.hasItems(Agent, Items).
 
 hasBaseItems(Items) 		:- .my_name(Me) & hasBaseItems(Me, Items).
 hasBaseItems(Agent, Items) 	:- jia.hasBaseItems(Agent, Items).
+
+canCarry(Items)				:- capacity(C) & jia.getVolume(Items, V) & V <= C.
+canAfford(Item)				:- true.
