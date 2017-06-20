@@ -9,7 +9,6 @@ import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.OPERATION;
 import env.Translator;
-import info.JobArtifact;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.parser.ParseException;

@@ -18,7 +18,7 @@
 	.wait(step(ReadyStep));
 	!receiveItems(Items).
 	
-+!acceptReceiveProtocol(Agent, Items, InitStep) : not hasItems(Items) <-
++!acceptReceiveProtocol(Agent, Items, InitStep) : not hasItems(Items) <- .print("Recurse");
 	!addIntentionLast(acceptReceiveProtocol(Agent, Items, InitStep)).
 +!acceptReceiveProtocol(Agent, Items, InitStep) : step(MyStep) <-
 	.max([InitStep, MyStep], MaxStep);

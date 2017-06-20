@@ -39,10 +39,12 @@
 	!getToFacility(F); 
 	+free.
 	
+@buy1[atomic]
 +buyItems(Items) : free <-
 	-free;
 	!buyItems(Items);
 	+free.
+@buy2[atomic]
 +buyItems(Items) : intentions(List) <-
 	.concat(List, [buyItems(Items)], NewList);
 	-+intentions(NewList).

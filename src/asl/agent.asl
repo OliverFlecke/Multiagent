@@ -14,9 +14,15 @@ free.
 !focusArtifacts.
 	
 // Percepts
+@plan1[atomic]
 +free : intentions([First|Rest]) <-	-+intentions(Rest); -free; !First; +free.
 
+@plan2[atomic]
 +!addIntentionFirst(Intention) : intentions(List) <- -+intentions([Intention|List]).
++!addIntentionLast (Intention) : intentions([]) & Intention = acceptReceiveProtocol(Agent, Items, InitStep) <-
+	.wait(intentions(L) & .length(L, N) & N > 0);
+	!addIntentionLast(Intention).
+@plan3[atomic]
 +!addIntentionLast (Intention) : intentions(List) <- .concat(List, [Intention], NewList); -+intentions(NewList).
 	
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait(step(_)).
