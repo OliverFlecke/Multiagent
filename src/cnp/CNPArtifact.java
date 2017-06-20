@@ -96,7 +96,7 @@ public class CNPArtifact extends Artifact {
 	{
 		await("biddingClosed");
 		
-		if (bestBid != null && winner == null)
+		if (bestBid == null && winner == null)
 		{
 			winner = getOpUserName();
 			

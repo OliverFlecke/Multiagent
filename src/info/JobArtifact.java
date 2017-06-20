@@ -41,7 +41,7 @@ public class JobArtifact extends Artifact {
 	private static Map<String, AuctionJob> 	auctions 		= new HashMap<>();
 	private static Map<String, Job> 		jobs 			= new HashMap<>();
 	private static Map<String, Mission> 	missions 		= new HashMap<>();
-	private static Map<String, Job> 		postedJobs 		= new HashMap<>();	
+	private static Map<String, Job> 		postedJobs 		= new HashMap<>();
 	private static Map<String, String>		toBeAnnounced	= new HashMap<>();
 	
 	@OPERATION
