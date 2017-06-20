@@ -1,28 +1,16 @@
 
 // Rules
-myName(Name)	:- .my_name(Me) & .term2string(Me, Name).
-myRole(Role) 	:- myName(Name) & myRole(Name, Role).
-
-// Personal percepts
-inFacility(F) 		:- myName(Name) & inFacility(Name, F).
-charge(C) 			:- myName(Name) & charge(Name, C).
-load(L)				:- myName(Name) & load(Name, L).
-routeLength(L)		:- myName(Name) & routeLength(Name, L).
-routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
-lastAction(A)		:- myName(Name) & lastAction(Name, A).
-lastActionResult(R) :- myName(Name) & lastActionResult(Name, R).
-lastActionParam(P)  :- myName(Name) & lastActionParam(Name, P).
+//myName(Name) :- .my_name(Me) & .term2string(Me, Name).
 
 speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
 maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
 canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
+routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 
 chargeThreshold(X) :- maxCharge(C) & X = 0.35 * C.
 capacity(C) :- maxLoad(M) & load(L) & C = M - L.
 canMove :- charge(X) & X >= 10.
-
-// Don't know if we will need to know if they travel by road or air
 
 // Check facility type
 isChargingStation(F)	:- .substring("chargingStation", F).

@@ -40,12 +40,12 @@
 	+free.
 	
 @buy1[atomic]
-+buyItems(Items) : free <-
++buyItems(Items) : free <- -buyItems(Items);
 	-free;
 	!buyItems(Items);
 	+free.
 @buy2[atomic]
-+buyItems(Items) : intentions(List) <-
++buyItems(Items) : intentions(List) <- -buyItems(Items);
 	.concat(List, [buyItems(Items)], NewList);
 	-+intentions(NewList).
 	

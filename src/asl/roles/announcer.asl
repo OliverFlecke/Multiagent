@@ -3,16 +3,14 @@
 { include("../stdlib.asl") }
 { include("../rules.asl") }
 
-tasks(0).
-
 !focusArtifacts.
 
-+task(TaskId, Type) : shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
++task(TaskId, Type) : shops([], _) <-
 	.print("New task: ", TaskId);
 	-+tasks(NumberOfTasks+1);
 	!announce(TaskId, Type).
 
-+task(TaskId, Type) : not shops([], _) & tasks(NumberOfTasks) & NumberOfTasks < 5 <-
++task(TaskId, Type) : not shops([], _) <-
 	.wait(shops([], _));
 	!announce(TaskId, Type).
 	
@@ -30,11 +28,6 @@ tasks(0).
 +!announceRetrieve([map(Shop,[])|Rest]) <- !announceRetrieve(Rest).
 +!announceRetrieve(ShoppingList) : workshopTruck(WorkshopTruck, Workshop) <-
 	announceRetrieve(ShoppingList, Workshop).
-	
-//+!announceAssemble(Items, TaskId, DeliveryLocation) 
-//	
-//	&  <-
-//	announceAssemble(Items, Workshop, TaskId, DeliveryLocation).
 	
 +!announceAssemble([], _, _).
 +!announceAssemble([Item|Items], TaskId, DeliveryLocation) 

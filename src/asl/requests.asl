@@ -32,7 +32,7 @@
 		
 		+free;
 	}.
-	
+
 +assembleRequest(Items, Workshop, TaskId, DeliveryLocation, CNPName) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
