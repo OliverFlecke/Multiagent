@@ -79,8 +79,8 @@
             "amountMax" : 75,
             "priceAddMin" : 100,
             "priceAddMax" : 150,
-            "restockMin" : 50,
-            "restockMax" : 100
+            "restockMin" : 1,
+            "restockMax" : 1
           },
           "dumps" : {
             "density" : 0.6

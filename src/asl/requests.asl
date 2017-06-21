@@ -1,5 +1,8 @@
 
-+retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
++retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) : free <-
+	!!retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId). 
+
++!retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
 	-free;
@@ -23,7 +26,10 @@
 	}
 	+free.
 
-+assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId) 
++assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId) : free <-
+	!!assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId).
+
++!assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
 	-free;
@@ -162,14 +168,14 @@
 @assistants[atomic]
 +assistReady(A) : assistants(L) <- -+assistants([A|L]).
 
-+!assembleComplete : assistants(L) <-
++!assembleComplete : assistants(L) & step(X) <-
 
 	for (.member(A, L)) 
 	{
 		.send(A, tell, assembleComplete);
 	}
 	
-	.wait(step(_));
+	.wait(step(Y) & Y > X);
 
 	for (.member(A, L)) 
 	{
