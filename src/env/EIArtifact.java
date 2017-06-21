@@ -190,7 +190,7 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
-			
+
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
 			logData();
