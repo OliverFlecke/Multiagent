@@ -17,9 +17,9 @@
 +!buyItems([map(Item, 	   0)|Items]) <- !buyItems(Items).
 +!buyItems([map(Item, Amount)|Items]) : inShop(Shop) <- 
 	getAvailableAmount(Item, Amount, Shop, AmountAvailable);
-	if (AmountAvailable > 0) { !doAction(buy(Item, AmountAvailable)); }
-	.concat(Items, [map(Item, Amount - AmountAvailable)], NewItems);
-	!buyItems(NewItems).
+	!doAction(buy(Item, AmountAvailable));
+	!buyItems(Items);
+	!buyItems([map(Item, Amount - AmountAvailable)]).
 	
 +!deliverItems(TaskId, Facility) <- 
 	!getToFacility(Facility);
@@ -38,7 +38,7 @@
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
 	
-+!assistAssemble(Agent) : assembleComplete.
++!assistAssemble(Agent) : load(0) | assembleComplete.
 +!assistAssemble(Agent) : connection(Agent, Entity, _) <-
 	!doAction(assist_assemble(Entity));
 	!assistAssemble(Agent).
