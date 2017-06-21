@@ -2,6 +2,7 @@
 +retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
+	-free;
 	getItemsToCarry(Items, Capacity, ItemsToRetrieve, Rest);	
 	getVolume(ItemsToRetrieve, Volume);	
 	distanceToFacility(Shop, Distance);	
@@ -16,16 +17,16 @@
 		
 		if (Won)
 		{
-			-free;
 			clearRetrieve(CNPId);
 			!retrieve(AgentStr, ItemsToRetrieve, Workshop, [map(Shop,Rest)|Shops]);		
-			+free;
 		}
-	}.
-	
+	}
+	+free.
+
 +assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId) 
 	: free & capacity(Capacity) & speed(Speed) <-
 	
+	-free;
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
 	getBaseItems(ItemsToAssemble, ItemsToRetrieve);
 	getVolume(ItemsToRetrieve, Volume);
@@ -44,12 +45,11 @@
 		if (Won)
 		{		
 			.print(ItemsToAssemble, " - ", AssembleRest);
-			-free;
 			clearAssemble(CNPId);
 			!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation);
-			+free;
 		}
-	}.
+	}
+	+free.
 	
 +!retrieve(_, [], _, _).
 +!retrieve(AgentStr, ItemsToRetrieve, Workshop, ToAnnounce) 

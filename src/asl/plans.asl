@@ -38,7 +38,7 @@
 	!assembleItems(ReqItems);
 	!doAction(assemble(Item)).
 	
-+!assistAssemble(Agent) : getInventory([]) | assembleComplete.
++!assistAssemble(Agent) : assembleComplete.
 +!assistAssemble(Agent) : connection(Agent, Entity, _) <-
 	!doAction(assist_assemble(Entity));
 	!assistAssemble(Agent).
@@ -50,10 +50,9 @@
 +!retrieveTool(Tool) 							<- .print("Can not use ", Tool). // Need help from someone that can use this tool
 	
 +!getToFacility(F) : inFacility(F).
-+!getToFacility(F) : not canMove			<- !doAction(recharge); !getToFacility(F).
-+!getToFacility(F) : isChargingStation(F) 	<- !doAction(goto(F)); 	!getToFacility(F).
-+!getToFacility(F) : not enoughCharge 		<- !charge; 			!getToFacility(F).
-+!getToFacility(F) 							<- !doAction(goto(F)); 	!getToFacility(F).
++!getToFacility(F) : not canMove									<- !doAction(recharge); !getToFacility(F).
++!getToFacility(F) : not enoughCharge & not isChargingStation(F)	<- !charge; 			!getToFacility(F).
++!getToFacility(F) 													<- !doAction(goto(F)); 	!getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation 			<- !doAction(charge); !charge.
