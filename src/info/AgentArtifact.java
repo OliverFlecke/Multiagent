@@ -144,9 +144,9 @@ public class AgentArtifact extends Artifact {
 	@OPERATION
 	private void update(Collection<Percept> percepts)
 	{		
-		CEntity entity = getEntity(agentName);
+		int load = this.getEntity().getCurrentLoad();
 		
-		entity.clearInventory();
+		this.getEntity().clearInventory();
 		
 		for (Percept percept : percepts)
 		{			
@@ -166,13 +166,13 @@ public class AgentArtifact extends Artifact {
 			}
 		}
 		
-		getObsProperty("inFacility"			).updateValue(entity.getFacilityName());
-		getObsProperty("charge"				).updateValue(entity.getCurrentBattery());
-		getObsProperty("load"  				).updateValue(entity.getCurrentLoad());
-		getObsProperty("routeLength" 		).updateValue(entity.getRouteLength());
-		getObsProperty("lastAction"			).updateValue(entity.getLastAction().getActionType());
-		getObsProperty("lastActionResult" 	).updateValue(entity.getLastActionResult());
-		getObsProperty("lastActionParam"  	).updateValue(entity.getLastActionParam());
+
+		if (load != this.getEntity().getCurrentLoad())
+		{
+			getObsProperty("load"  				).updateValue(this.getEntity().getCurrentLoad());
+		}
+		
+		getObsProperty("lastActionParam"  	).updateValue(this.getEntity().getLastActionParam());
 
 		if (EIArtifact.LOGGING_ENABLED)
 		{
@@ -191,14 +191,19 @@ public class AgentArtifact extends Artifact {
 	 * Literal(int)
 	 * @param percept
 	 */
+	@OPERATION
 	private void perceiveCharge(Percept percept) 
 	{
-		Object[] args = Translator.perceptToObject(percept);
-
-		this.getEntity().setCurrentBattery((int) args[0]);
+		int charge = (int) Translator.perceptToObject(percept)[0];
+		
+		if (charge != this.getEntity().getCurrentBattery())
+		{
+			this.getEntity().setCurrentBattery(charge);
+			getObsProperty("charge").updateValue(this.getEntity().getCurrentBattery());
+		}
 	}
 	
-	
+	@OPERATION
 	public void perceiveFacility(Percept percept) 
 	{
 		Parameter param = percept.getParameters().get(0);
@@ -208,12 +213,21 @@ public class AgentArtifact extends Artifact {
 			
 			Facility facility = FacilityArtifact.getFacility((String) args[0]);
 			
-			this.getEntity().setFacility(facility);	
+			if (!this.getEntity().getFacilityName().equals(facility.getName()))
+			{
+				this.getEntity().setFacility(facility);	
+				getObsProperty("inFacility").updateValue(this.getEntity().getFacilityName());
+			}
 		}
 		else 
 		{
-			this.getEntity().setFacility(null);
+			if (!this.getEntity().getFacilityName().equals("none"))
+			{
+				this.getEntity().setFacility(null);
+				getObsProperty("inFacility").updateValue(this.getEntity().getFacilityName());
+			}
 		}
+		
 	}
 
 	private void perceiveHasItem(Percept percept) 
@@ -231,13 +245,19 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
+	@OPERATION
 	private void perceiveLastAction(Percept percept)
 	{
 		Object[] args = Translator.perceptToObject(percept);
 		
 		Action action = new Action((String) args[0]);
 		
-		this.getEntity().setLastAction(action);
+		if (!this.getEntity().getLastAction().getActionType().equals(action.getActionType()))
+		{
+			this.getEntity().setLastAction(action);
+			getObsProperty("lastAction").updateValue(this.getEntity().getLastAction().getActionType());			
+		}
+		
 	}
 	
 	/**
@@ -245,11 +265,16 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
+	@OPERATION
 	private void perceiveLastActionResult(Percept percept)
 	{
-		Object[] args = Translator.perceptToObject(percept);
+		String result = (String) Translator.perceptToObject(percept)[0];
 		
-		this.getEntity().setLastActionResult((String) args[0]);
+		if (!result.equals(this.getEntity().getLastActionResult()))
+		{
+			this.getEntity().setLastActionResult(result);
+			getObsProperty("lastActionResult").updateValue(this.getEntity().getLastActionResult());
+		}
 	}
 	
 	/**
@@ -306,10 +331,15 @@ public class AgentArtifact extends Artifact {
 	 * @param agentName
 	 * @param percept
 	 */
+	@OPERATION
 	private void perceiveRouteLength(Percept percept)
 	{
-		Object[] args = Translator.perceptToObject(percept);
+		int length = (int) Translator.perceptToObject(percept)[0];
 		
-		this.getEntity().setRouteLength((int) args[0]);	
+		if (this.getEntity().getRouteLength() != length)
+		{
+			this.getEntity().setRouteLength(length);	
+			getObsProperty("routeLength").updateValue(this.getEntity().getRouteLength());
+		}
 	}
 }
