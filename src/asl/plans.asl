@@ -1,4 +1,3 @@
-
 +!giveItems(_, []).
 +!giveItems(Agent, [map(Item, Amount)|Items]) : connection(Agent, Entity, _) <-
 	!doAction(give(Entity, Item, Amount));

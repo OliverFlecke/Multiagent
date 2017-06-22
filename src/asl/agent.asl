@@ -1,4 +1,3 @@
-// Includes
 { include("connections.asl") }
 { include("stdlib.asl") }
 { include("rules.asl") }

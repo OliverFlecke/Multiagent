@@ -1,7 +1,6 @@
-
-{ include("../connections.asl") }
-{ include("../stdlib.asl") }
-{ include("../rules.asl") }
+{ include("connections.asl") }
+{ include("stdlib.asl") }
+{ include("rules.asl") }
 
 !focusArtifacts.
 

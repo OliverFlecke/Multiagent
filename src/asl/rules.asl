@@ -1,7 +1,4 @@
-
 // Rules
-//myName(Name) :- .my_name(Me) & .term2string(Me, Name).
-
 speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
 maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
@@ -32,8 +29,6 @@ enoughCharge :- routeLength(L) & enoughCharge(L).
 enoughCharge(L) :- speed(S) & charge(C) & chargeThreshold(Threshold) & 
 				Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
 				
-workshopTruck(Truck, Facility) :- truckFacility(Truck, Facility) & isWorkshop(Facility).
-
 getInventory(Inventory)			:- .my_name(Me) & getInventory(Me, Inventory).
 getInventory(Agent, Inventory) 	:- jia.getInventory(Agent, Inventory).
 
