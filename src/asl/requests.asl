@@ -107,7 +107,7 @@
 	.wait(assistCount(N) & assistants(L) & .length(L, N));
 	
 	?step(X);
-	ReadyStep = X + 2;
+	ReadyStep = X + 1;
 	
 	for (.member(A, L))
 	{
