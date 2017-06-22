@@ -1,4 +1,3 @@
-
 +retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId) : free <-
 	!!retrieveRequest(AgentStr, [map(Shop,Items)|Shops], Workshop, CNPId). 
 

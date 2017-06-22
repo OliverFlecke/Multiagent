@@ -1,4 +1,3 @@
-
 +give(Items, InitStep)[source(Agent)] : not free <-
 	!addIntentionFirst(acceptReceiveProtocol(Agent, Items, InitStep)).
 	
