@@ -20,7 +20,7 @@ free.
 	bid(-C)[artifact_id(CNPId)];
 	winner(Won)[artifact_id(CNPId)];	
 	if (Won) {		
-		clear("task", 3, CNPId);
+		clear("task", 5, CNPId);
 		!deliverJob(JobId, Items, Storage);
 	}.
 	
