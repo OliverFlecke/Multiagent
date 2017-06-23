@@ -51,7 +51,7 @@
         "truck" : {
           "speed" : 2,
           "load" : 3000,
-          "battery" : 2000,
+          "battery" : 1000,
           "roads" : ["road"]
         }
       },
@@ -73,14 +73,14 @@
           },
           "shops" : {
             "density" : 0.8,
-            "minProd" : 3,
+            "minProd" : 5,
             "maxProd" : 10,
-            "amountMin" : 5,
-            "amountMax" : 20,
+            "amountMin" : 50,
+            "amountMax" : 75,
             "priceAddMin" : 100,
             "priceAddMax" : 150,
             "restockMin" : 1,
-            "restockMax" : 5
+            "restockMax" : 1
           },
           "dumps" : {
             "density" : 0.6
@@ -133,10 +133,10 @@
             "auctionTimeMin" : 2,
             "auctionTimeMax" : 10
           },
-  		  "missions" : {
+        "missions" : {
           "rate" : 0,
-  			  "missionDifficultyMax" : 10
-  		  }
+          "missionDifficultyMax" : 10
+        }
         }
       }
     }

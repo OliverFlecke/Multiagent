@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Logging.LoggerFactory;
+import logging.LoggerFactory;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
@@ -235,5 +235,10 @@ public class EIArtifact extends Artifact {
 	private void logData()
 	{
 		fileLogger.info("Step: " + DynamicInfoArtifact.getStep() + " - Money: " + DynamicInfoArtifact.getMoney());
+		
+		if (DynamicInfoArtifact.getStep() == 999)
+		{
+			fileLogger.info("Jobs completed: " + DynamicInfoArtifact.getJobsCompleted());
+		}
 	}
 }
