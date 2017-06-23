@@ -97,6 +97,7 @@ public class StaticInfoArtifact extends Artifact {
 			case MAP:			perceiveMap			(percept);  break;
 			case SEED_CAPITAL:	perceiveSeedCapital	(percept);  break;
 			case STEPS:			perceiveSteps		(percept);  break;
+			case TEAM:			perceiveTeam		(percept); 	break;
 			}
 		}
 
@@ -211,4 +212,12 @@ public class StaticInfoArtifact extends Artifact {
 	{
 		return roles.values();
 	}	
+	
+	/**
+	* @return The name of the team
+	*/
+	public static String getTeam()
+	{
+		return team;
+	}
 }
