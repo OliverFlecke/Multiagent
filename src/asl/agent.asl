@@ -53,7 +53,7 @@ itemsToRetrieve([]).
 	
 +!doAction(Action) : .my_name(Me) <-
 	jia.action(Me, Action);
-	.wait(step(_)).
+	.wait({+step(_)}).
 
 +step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!").
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
