@@ -73,6 +73,11 @@ public class DynamicInfoArtifact extends Artifact {
 		ret.set(jobsCompleted);
 	}
 	
+	public static int getJobsCompleted()
+	{
+		return this.jobsCompleted;
+	}
+	
 	public static int getStep() 
 	{
 		return step;

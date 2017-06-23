@@ -208,6 +208,11 @@ public class EIArtifact extends Artifact {
 	private void logData()
 	{
 		fileLogger.info("Step: " + DynamicInfoArtifact.getStep() + " - Money: " + DynamicInfoArtifact.getMoney());
+		
+		if (DynamicInfoArtifact.getStep() == 999)
+		{
+			fileLogger.info("Completed jobs: " + DynamicInfoArtifact.getJobsCompleted());
+		}
 	}
 	
 	public static String getAgentName(String entity)
