@@ -59,7 +59,7 @@ public class EIArtifact extends Artifact {
     }
 	
 	@OPERATION
-	void register(String entity, String connection)  
+	void register(String connection)  
 	{
 		String agentName = getOpUserName();
 		
@@ -72,7 +72,7 @@ public class EIArtifact extends Artifact {
 			ei.associateEntity(agentName, connection);
 			
 			connections	.put(agentName, connection);
-			entities	.put(entity, agentName);			
+			entities	.put(agentName, agentName);			
 
 			if (connections.size() == ei.getEntities().size())
 			{
@@ -160,8 +160,6 @@ public class EIArtifact extends Artifact {
 			
 			// Define step
 			defineObsProperty("step", DynamicInfoArtifact.getStep());
-			
-			FacilityArtifact.announceShops();
 		}
 		catch (Throwable e) 
 		{

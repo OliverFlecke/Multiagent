@@ -1,7 +1,6 @@
 package cnp;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +11,7 @@ import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.ArtifactId;
 import cartago.OPERATION;
-import env.Translator;
-import jason.asSyntax.ASSyntax;
-import jason.asSyntax.ListTerm;
-import jason.asSyntax.parser.ParseException;
-import massim.scenario.city.data.AuctionJob;
-import massim.scenario.city.data.facilities.Shop;
+import cartago.OpFeedbackParam;
 
 public class TaskArtifact extends Artifact {
 
@@ -32,66 +26,55 @@ public class TaskArtifact extends Artifact {
 		instance = this;
 	}
 	
-	public static void announceJob(String taskId, String type) 
-	{		
-		instance.execInternalOp("announceJobOp", taskId, type); 
-	}
-	
-	public static void announceAuction(String taskId, AuctionJob auction) 
+	public static void invoke(String method, Object... args)
 	{
-		instance.execInternalOp("announceAuction", taskId);		
+		instance.execInternalOp(method, args);
 	}
 	
-	public static void announceShops(Collection<Shop> shops)
+	public static Bid delegateJob(String taskId, Map<String, Integer> items, String facility)
 	{
-		Object shopNames = shops.stream().map(Shop::getName).toArray(String[]::new);
-				
-		instance.execInternalOp("announceShops", shopNames);
+		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
+		
+		instance.execInternalOp("announceWithResult", "assembleRequest", bid, taskId, items, facility);
+		
+		return bid.get();
 	}
-	
-	@OPERATION
-	void announceJobOp(String taskId, String type)
-	{
-		instance.define("task", taskId, type);
-	}
-	
-	@OPERATION
-	void announceAuction(String taskId)
-	{
-		instance.announce("auction", taskId);
-	}
-	
-	@OPERATION
-	void announceShops(Object shops)
-	{
-		instance.announce("shops", shops);
-	}
-	
-	@OPERATION
-	void announceBuy(String item, String amount, String shop)
-	{
-		instance.announce("buyRequest", item, amount, shop);
-	}
-	
-	@OPERATION
-	void announceAssemble(Object items, String workshop, String taskId, String deliveryLocation, String type)
-	{
-		instance.announce("assembleRequest", items, workshop, taskId, deliveryLocation, type);
-	}
-	
-	@OPERATION
-	void announceRetrieve(String agent, Object shoppingList, String workshop)
-	{
-		instance.announce("retrieveRequest", agent, toItemMap(shoppingList), workshop);
-	}
-	
-	private void define(String property, Object... args)
-	{
-		defineObsProperty(property, args);
-	}
-	
 
-	private void announce(String property, Object... args)
+	public static Bid delegateItems(String shop, Map<String, Integer> items, String workshop, String agent) 
+	{
+		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
+		
+		instance.execInternalOp("announceWithResult", "retrieveRequest", bid, shop, items, workshop, agent);
+		
+		return bid.get();
+	}
+	
+	public static Bid announceWithResult(String property, Object... args)
+	{
+		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
+		
+		instance.execInternalOp("announceWithResult", property, bid, args);
+		
+		return bid.get();
+	}
+	
+	@OPERATION
+	private void announceWithResult(String property, OpFeedbackParam<Bid> bid, Object... args)
+	{
+		try 
+		{
+			ArtifactId id = instance.announce(property, args);		
+			
+			execLinkedOp(id, "getBid", bid);			
+		}
+		catch (Throwable e) 
+		{
+			logger.log(Level.SEVERE, "Failure in announceWithResult: " + e.getMessage(), e);
+		}
+	}
+
+	@OPERATION
+	private ArtifactId announce(String property, Object... args)
 	{
 		try 
 		{
@@ -104,35 +87,24 @@ public class TaskArtifact extends Artifact {
 			properties.add(id);
 			
 			defineObsProperty(property, properties.toArray());
-		} 
+			
+			return id;
+		}
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
-		}		
+			return null;
+		}
 	}
 	
 	@OPERATION
-	void clearTask(String cnpName)
+	private void clear(String property, int argc, Object cnpId) 
 	{
-		removeObsPropertyByTemplate("task", null, null); 
-	}
-	
-	@OPERATION
-	void clearShops(String cnpName)
-	{
-		removeObsPropertyByTemplate("shops", null, cnpName);
-	}
-	
-	@OPERATION
-	void clearAssemble(Object cnpId)
-	{
-		instance.clear("assembleRequest", null, null, null, null, null, cnpId);
-	}
-	
-	@OPERATION
-	void clearRetrieve(Object cnpId)
-	{
-		instance.clear("retrieveRequest", null, null, null, cnpId);
+		Object[] args = new Object[argc];
+		
+		args[args.length - 1] = cnpId;
+		
+		clear(property, args);
 	}
 	
 	@OPERATION
@@ -149,30 +121,6 @@ public class TaskArtifact extends Artifact {
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in clear: " + e.getMessage(), e);
-		}
-	}
-	
-	private static Object toItemMap(Object items)
-	{
-		if (items instanceof Map<?, ?>) return items;
-		else
-		{
-			try 
-			{
-				ListTerm terms = ASSyntax.createList();
-				
-				for (Object item : (Object[]) items)
-				{
-					terms.add(ASSyntax.parseLiteral((String) item));
-				}
-				
-				return Translator.termToObject(terms);
-			} 
-			catch (ParseException e) 
-			{
-				e.printStackTrace();
-				return null;
-			}
 		}
 	}
 }

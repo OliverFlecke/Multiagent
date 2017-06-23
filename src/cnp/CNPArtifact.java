@@ -11,12 +11,7 @@ public class CNPArtifact extends Artifact {
 	
 	private Bid 		bestBid;
 	private boolean 	isOpen;
-	private String 		winner;
 	
-	/**
-	 * 
-	 * @param duration
-	 */
 	void init()
 	{		
 		execInternalOp("awaitBids", 500);
@@ -36,32 +31,37 @@ public class CNPArtifact extends Artifact {
 		this.isOpen = false;		
 	}
 	
-	/**
-	 * Accepts a bid if the bidding is open, setting the bid's ID
-	 * as a feedback parameter. If the bid is better than previous
-	 * bids, the bestBid is updated.
-	 * @param bid - An agent's bid.
-	 * @param id - ID of the bid.
-	 */
 	@OPERATION
 	void bid(int bid)
-	{		
-		if (isOpen)
+	{
+		if (bidIsBetter(bid))
 		{
-			if (bestBid == null || bestBid.getBid() > bid)
-			{
-				bestBid = new Bid(getOpUserName(), bid);
-			}
+			bestBid = new Bid(getOpUserName(), bid);			
+		}
+	}
+	
+	@OPERATION
+	void bid(int bid, Object data)
+	{
+		if (bidIsBetter(bid))
+		{
+			bestBid = new Bid(getOpUserName(), bid, data);			
 		}
 	}
 	
 	/**
-	 * Guard to signal when bidding is closed.
-	 * @return True if bidding is closed, false otherwise.
+	 * Lower bid is better
+	 * @param bid
+	 * @return
 	 */
+	boolean bidIsBetter(int bid)
+	{
+		return isOpen && (bestBid == null || bid < bestBid.getBid());
+	}
+	
 	@GUARD
 	boolean biddingClosed()
-	{
+	{		
 		return !isOpen;
 	}
 	
@@ -75,9 +75,7 @@ public class CNPArtifact extends Artifact {
 	{		
 		await("biddingClosed");
 		
-		winner = getWinner();
-		
-		if (winner != null && winner.equals(getOpUserName()))
+		if (bestBid != null && bestBid.getAgent().equals(getOpUserName()))
 		{
 			won.set(true);
 		}
@@ -87,54 +85,30 @@ public class CNPArtifact extends Artifact {
 		}
 	}
 	
-	/**
-	 * Any agent is allowed to immediately take a task which has been 
-	 * bid for, but not received any bids.
-	 */
-	@OPERATION
+	@OPERATION @LINK
 	void takeTask(OpFeedbackParam<Boolean> canTake)
 	{
 		await("biddingClosed");
 		
-		if (bestBid != null && winner == null)
-		{
-			winner = getOpUserName();
-			
-			canTake.set(true);
+		canTake.set(bestBid == null);
+		
+		if (canTake.get())
+		{			
+			bestBid = new Bid(null, 0);
 		}
-		else
-		{
-			canTake.set(false);
-		}
+	}
+	
+	@LINK
+	void getBid(OpFeedbackParam<Bid> ret)
+	{
+		await("biddingClosed");
+		
+		ret.set(bestBid);
 	}
 	
 	@LINK
 	void disposeArtifact()
 	{
 		this.dispose();
-	}
-	
-	private String getWinner()
-	{
-		if (bestBid != null)
-		{
-			return bestBid.agent;
-		}
-		return null;
-		
-	}
-	
-	static class Bid {
-		
-		private String 	agent;
-		private int 	bid;
-		
-		public Bid(String agent, int bid) {
-			this.agent 	= agent;
-			this.bid	= bid;
-		}
-		
-		public String 	getAgent() 	{ return this.agent; }
-		public int 		getBid()	{ return this.bid; }
 	}
 }

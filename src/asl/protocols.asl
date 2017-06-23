@@ -1,4 +1,3 @@
-
 +give(Items, InitStep)[source(Agent)] : not free <-
 	!addIntentionFirst(acceptReceiveProtocol(Agent, Items, InitStep)).
 	
@@ -22,7 +21,7 @@
 	!addIntentionLast(acceptReceiveProtocol(Agent, Items, InitStep)).
 +!acceptReceiveProtocol(Agent, Items, InitStep) : step(MyStep) <-
 	.max([InitStep, MyStep], MaxStep);
-	ReadyStep = MaxStep + 2; 
+	ReadyStep = MaxStep + 1; 
 	.send(Agent, tell, readyToGive(ReadyStep));
 	.print("Waiting for step ", ReadyStep, " to give ", Items);
 	.wait(step(ReadyStep));
@@ -37,8 +36,50 @@
 	
 +!acceptGiveProtocol(Agent, Items, InitStep) : step(MyStep) <-
 	.max([InitStep, MyStep], MaxStep);
-	ReadyStep = MaxStep + 2; 
+	ReadyStep = MaxStep + 1; 
 	.send(Agent, tell, readyToReceive(ReadyStep));
 	.print("Waiting for step ", ReadyStep);
 	.wait(step(ReadyStep));
 	!receiveItems(Items).	
+	
++!initiateAssembleProtocol(Items) <-
+	.wait(.count(itemRetriever(_), N) & .count(retrieverReady(_), N));
+	!beginAssembleProtocol;	
+	!assembleItems(Items);	
+	!!completeAssembleProtocol.
+	
++!beginAssembleProtocol : step(X) & ReadyStep = X + 1 <-
+
+	for (itemRetriever(Agent))
+	{
+		.send(Agent, tell, assembleReady(ReadyStep));
+	}	
+	
+	.wait(step(ReadyStep)).
+	
++!completeAssembleProtocol <-	
+
+	for (itemRetriever(Agent)) 
+	{
+		.send(Agent, tell, assembleComplete);
+	}
+	
+	.wait({+step(_)});
+	
+	for (itemRetriever(Agent))
+	{
+		-itemRetriever(Agent);
+		.send(Agent, untell, assembleReady(_));
+		.send(Agent, untell, assembleComplete);
+	}.
+
+	
++!acceptAssembleProtocol(Agent) : .my_name(Me) <-
+	.send(Agent, tell, retrieverReady(Me));
+	
+	.wait(assembleReady(ReadyStep));
+	.wait(step(ReadyStep));
+	
+	!assistAssemble(Agent); // Waits for assembleComplete
+	
+	.send(Agent, untell, retrieverReady(Me)).

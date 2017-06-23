@@ -12,8 +12,9 @@ import jason.asSyntax.ASSyntax;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.Term;
 
-public class delegateJob extends DefaultInternalAction {
-
+// Shop, Items, Workshop, Agent, Rest
+public class delegateItems extends DefaultInternalAction {
+	
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unchecked")
@@ -22,14 +23,16 @@ public class delegateJob extends DefaultInternalAction {
 	{
 		Object[] args = Translator.termsToObject(terms);
 		
-		String 					taskId		= (String) 					args[0];
+		String 					shop		= (String) 					args[0];
 		Map<String, Integer> 	items 		= (Map<String, Integer>) 	args[1];
-		String 					facility 	= (String) 					args[2];
+		String 					workshop 	= (String) 					args[2];
+		String 					me	 		= (String) 					args[3];
 
-		Bid bid = TaskArtifact.announceWithResult("assembleRequest",taskId, items, facility);
+		Bid bid = TaskArtifact.announceWithResult("retrieveRequest", shop, items, workshop, me);
 		
 		if (bid == null) return false;
 		
+		String					agent		= 							bid.getAgent();
 		Map<String, Integer> 	rest 		= (Map<String, Integer>) 	bid.getData();
 
 		ListTerm list = ASSyntax.createList();
@@ -38,7 +41,8 @@ public class delegateJob extends DefaultInternalAction {
 													ASSyntax.createAtom(e.getKey()),
 													ASSyntax.createNumber(e.getValue()))));
 		
-		return un.unifies(terms[3], list);
+		return un.unifies(terms[4], ASSyntax.createAtom(agent)) && 
+			   un.unifies(terms[5], list);
 	}
-	
+
 }

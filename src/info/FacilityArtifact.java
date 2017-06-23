@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
-import cnp.TaskArtifact;
 import data.CEntity;
 import eis.iilang.Percept;
 import env.Translator;
@@ -318,9 +317,5 @@ public class FacilityArtifact extends Artifact {
 		}
 		
 		return facilities.get(facilityName);
-	}
-
-	public static void announceShops() {
-		TaskArtifact.announceShops(shops.values());
 	}
 }

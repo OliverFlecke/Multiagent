@@ -1,4 +1,3 @@
-
 !init.
 
 +!init : .my_name(Me) <-

@@ -176,7 +176,7 @@ public class JobArtifact extends Artifact {
 		}
 		else 
 		{
-			TaskArtifact.announceAuction(id, auction);
+			TaskArtifact.invoke("announce", "auction", id, auction);
 		}
 
 	}
@@ -314,7 +314,8 @@ public class JobArtifact extends Artifact {
 	
 	public static void announceJobs()
 	{
-		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
+//		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
+		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.invoke("announce", "task", e.getKey(), e.getValue()));
 		toBeAnnounced.clear();
 	}
 	
