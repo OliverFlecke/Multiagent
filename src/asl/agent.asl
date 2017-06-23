@@ -12,20 +12,20 @@ free.
 !register.
 !focusArtifacts.
 
-+task(JobId, Type, CNPId) : free & Type \== "auction" & capacity(C) <-
-	-free;
-	bid(-C)[artifact_id(CNPId)];
-	winner(Won)[artifact_id(CNPId)];
++task(JobId, Type, CNPId) : free & Type \== "auction" <-
+	!doIntention(newTask(JobId, Type, CNPId)).
 	
-	if (Won)
-	{		
++!newTask(JobId, Type, CNPId) : capacity(C) <-
+	bid(-C)[artifact_id(CNPId)];
+	winner(Won)[artifact_id(CNPId)];	
+	if (Won) {		
 		clear("task", 3, CNPId);
 		getJob(JobId, Storage, Items);
 		!deliverJob(JobId, Items, Storage);
-	}
-	+free.
+	}.
 	
-	
++!doIntention(_) : not free <- .print("Illegal execution").
++!doIntention(Intention) 	<- -free; !Intention; +free.
 	
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait({+step(_)}).
 

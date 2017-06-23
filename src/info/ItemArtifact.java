@@ -292,28 +292,21 @@ public class ItemArtifact extends Artifact {
 		for (Entry<Item, Integer> entry : Translator.convertASObjectToMap(items).entrySet())
 		{
 			Item 	item 	= entry.getKey();
-			int 	amount 	= entry.getValue();			
+			int 	amount 	= entry.getValue();
 			int		volume	= capacity + 1;
+
+			// Find base volume of the item
+			if (item.getRequiredBaseItems().isEmpty()) 	volume = item.getVolume();
+			else										volume = ItemArtifact.getVolume(item.getRequiredBaseItems());
+
+			int amountToCarry = capacity / volume;
 			
-			if (item.getRequiredBaseItems().isEmpty())
-			{
-				volume = item.getVolume() * amount;				
-			}
-			else
-			{
-				volume = ItemArtifact.getVolume(item.getRequiredBaseItems()) * amount;				
-			}			
+			capacity -= volume * amountToCarry;
 			
-			if (volume <= capacity)
-			{
-				capacity -= volume;
-				
-				retrieve.put(item.getName(), amount);
-			}
-			else 
-			{
-				rest.put(item.getName(), amount);
-			}
+			if (amountToCarry > 0)  retrieve.put(item.getName(), amountToCarry);
+			
+			if (amount > amountToCarry) rest.put(item.getName(), amount - amountToCarry);
+			
 		}
 		
 		retRetrieve.set(retrieve);
