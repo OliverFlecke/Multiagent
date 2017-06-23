@@ -5,10 +5,7 @@ MAS multiagent_jason {
     agents:  
     	announcer	agentArchClass c4jason.CAgentArch;
     	initializer agentArchClass c4jason.CAgentArch;
-   	 	car 		agentArchClass c4jason.CAgentArch #8;
-   	 	drone 		agentArchClass c4jason.CAgentArch #4;
-   	 	motorcycle 	agentArchClass c4jason.CAgentArch #8;
-   	 	truck 		agentArchClass c4jason.CAgentArch #8;
+   	 	agent 		agentArchClass c4jason.CAgentArch #28;
 
-	aslSourcePath: "src/asl/roles";
+	aslSourcePath: "src/asl";
 }

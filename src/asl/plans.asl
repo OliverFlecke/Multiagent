@@ -4,8 +4,8 @@
 +!deliverJob(Id, Items, F)									 <- !delegateJob(Id, Items, F).
 
 +!delegateJob(_, [], _).
-+!delegateJob(Id, Items, F) : freeAgents(N) & N > 0 <- .print("Help").
-+!delegateJob(Id, Items, F) : capacity(C) 			<- 
++!delegateJob(Id, Items, F) : jia.delegateJob(Id, Items, F, Rest) <- !delegateJob(Id, Rest, F).
++!delegateJob(Id, Items, F) : capacity(C) 						  <- 
 	getItemsToCarry(Items, C, ItemsToCarry, Rest);
 	!acquireItems(ItemsToCarry); 
 	!deliverJob(Id, ItemsToCarry, F);
