@@ -26,7 +26,7 @@ public class hasBaseItems extends DefaultInternalAction {
 		if (!(args[1] instanceof Map<?, ?>)) return true;
 		
 		String 					agent		= (String) 					args[0];
-		Map<String, Integer> 	items 		= (Map<String, Integer>) 	args[1];		
+		Map<String, Integer> 	items 		= (Map<String, Integer>) 	args[1];
 		Map<String, Integer> 	inventory 	= AgentArtifact.getAgentInventory(agent);
 		
 		if (inventory.isEmpty()) return false;

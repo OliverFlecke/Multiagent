@@ -3,9 +3,9 @@
 +!deliverJob(Id, Items, F)									 <- !delegateJob(Id, Items, F).
 
 +!delegateJob( _,    [], _).
-+!delegateJob(Id, Items, F) : jia.delegateJob(Id, Items, F, Rest) <- !delegateJob(Id, Rest, F).
++!delegateJob(Id, Items, F) : false & jia.delegateJob(Id, Items, F, Rest) <- !delegateJob(Id, Rest, F).
 +!delegateJob(Id, Items, F) : capacity(C) 						  <- 
-	getItemsToCarry(Items, C, ItemsToCarry, Rest);
+	getItemsToCarry(Items, C, ItemsToCarry, Rest); .print("Job: ", Id, " Items: ", Items, " Carry: ", ItemsToCarry);
 	if (ItemsToCarry = []) { .print("delegateJob - Carry Empty"); }
 	!acquireItems(ItemsToCarry); 
 	!deliverJob(Id, ItemsToCarry, F);
@@ -20,19 +20,19 @@
 +!acquireItems(Items) 						<- 
 	getClosestFacility("workshop", F);
 	getBaseItems(Items, BaseItems);
-	getShoppingList(BaseItems, ShoppingList);
+	getShoppingList(BaseItems, ShoppingList); .print("BaseItems: ", BaseItems, " ShoppingList: ", ShoppingList);
 	!delegateItems(ShoppingList, F);
 	!coordinateAssemble(Items, F);
 	!acquireItems(Items).
 
 +!delegateItems([                        ], _).
 +!delegateItems([map(   _,    [])|ShopList], F) 				<- !delegateItems(ShopList, F).
-+!delegateItems([map(Shop, Items)|ShopList], F) : .my_name(Me) 
++!delegateItems([map(Shop, Items)|ShopList], F) : .my_name(Me) & false
 	& jia.delegateItems(Shop, Items, F, Me, Agent, Rest) 		<- 
 	+itemRetriever(Agent); 
 	!delegateItems([map(Shop, Rest)|ShopList], F).
 +!delegateItems([map(Shop, Items)|ShopList], F) : capacity(C) 	<-
-	getItemsToCarry(Items, C, ItemsToCarry, Rest);
+	getItemsToCarry(Items, C, ItemsToCarry, Rest); .print("Shop: ", Shop, " Items: ", Items, " Carry: ", ItemsToCarry);
 	if (not Rest = []) { .print("delegateItems - Rest not Empty"); }
 	!retrieveItems(Shop, ItemsToCarry);
 	!delegateItems([map(Shop, Rest)|ShopList], F).
@@ -46,8 +46,8 @@
 +!assembleItems([map(Item, Amount)|Items]) <- 
 	getRequiredItems(Item, ReqItems);
 	!assembleItem(Item, ReqItems); 
-	!assembleItems([map(Item, Amount - 1) | Items]).
-	
+	!assembleItems([map(Item, Amount - 1)|Items]).
+
 +!assembleItem(	  _, 	   []).
 +!assembleItem(Item, ReqItems) <-
 	!assembleItems(ReqItems);
@@ -61,7 +61,7 @@
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	!assistAssemble(Agent).
-		
+
 +!buyItems([                       ]).
 +!buyItems([map(Item,      0)|Items]) 				 <- !buyItems(Items).
 +!buyItems([map(Item, Amount)|Items]) : inShop(Shop) <- 
@@ -81,4 +81,3 @@
 +!charge 					 <-
 	getClosestFacility("chargingStation", F);
 	!getToFacility(F); !charge.
-	

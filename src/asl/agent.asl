@@ -12,15 +12,15 @@ free.
 !register.
 !focusArtifacts.
 
-+task(JobId, Type, CNPId) : free & Type \== "auction" <-
-	!doIntention(newTask(JobId, Type, CNPId)).
++task(JobId, Items, Storage, Type, CNPId) : 
+	free & canSolve(Items) & Type \== "auction" <-
+	!doIntention(newTask(JobId, Items, Storage, Type, CNPId)).
 	
-+!newTask(JobId, Type, CNPId) : capacity(C) <-
++!newTask(JobId, Items, Storage, Type, CNPId) : capacity(C) <-
 	bid(-C)[artifact_id(CNPId)];
 	winner(Won)[artifact_id(CNPId)];	
 	if (Won) {		
 		clear("task", 3, CNPId);
-		getJob(JobId, Storage, Items);
 		!deliverJob(JobId, Items, Storage);
 	}.
 	

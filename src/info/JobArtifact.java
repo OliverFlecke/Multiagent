@@ -42,7 +42,7 @@ public class JobArtifact extends Artifact {
 	private static Map<String, Job> 		jobs 			= new HashMap<>();
 	private static Map<String, Mission> 	missions 		= new HashMap<>();
 	private static Map<String, Job> 		postedJobs 		= new HashMap<>();	
-	private static Map<String, String>		toBeAnnounced	= new HashMap<>();
+	private static Map<String, Job>			toBeAnnounced	= new HashMap<>();
 	
 	@OPERATION
 	void getJob(String jobId, OpFeedbackParam<String> storage, 
@@ -170,7 +170,7 @@ public class JobArtifact extends Artifact {
 		if (auction.getBeginStep() + auction.getAuctionTime() > DynamicInfoArtifact.getStep())
 		{
 			if (!auctions.containsKey(id))
-				toBeAnnounced.put(id, "auction");		
+				toBeAnnounced.put(id, auction);		
 			
 			auctions.put(id, auction);
 		}
@@ -206,7 +206,7 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!jobs.containsKey(id))
-			toBeAnnounced.put(id, "job");
+			toBeAnnounced.put(id, job);
 		
 		jobs.put(id, job); 		
 	}
@@ -242,7 +242,7 @@ public class JobArtifact extends Artifact {
 		}
 		
 		if (!missions.containsKey(id))
-			toBeAnnounced.put(id, "mission");	
+			toBeAnnounced.put(id, mission);	
 		
 		missions.put(id, mission);
 		
@@ -273,7 +273,7 @@ public class JobArtifact extends Artifact {
 		}
 
 		if (!postedJobs.containsKey(id))
-			toBeAnnounced.put(id, "postedJob");
+			toBeAnnounced.put(id, job);
 		
 		postedJobs.put(id, job);
 	}
@@ -306,6 +306,13 @@ public class JobArtifact extends Artifact {
 		return jobs.values();
 	}
 	
+	public static String getJobType(Job job)
+	{
+			 if (job instanceof AuctionJob) return "auction";
+		else if (job instanceof Mission) 	return "mission";
+		else 								return "job";
+	}
+	
 	public static Map<Job, Integer> getJobsAndEarnings()
 	{
 		return jobs.values().stream()
@@ -314,8 +321,11 @@ public class JobArtifact extends Artifact {
 	
 	public static void announceJobs()
 	{
-//		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
-		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.invoke("announce", "task", e.getKey(), e.getValue()));
+		toBeAnnounced.entrySet().stream()
+			.forEach(e -> TaskArtifact.invoke("announce", "task", e.getKey(), 
+												CUtil.extractItems(e.getValue()), 
+												e.getValue().getStorage().getName(), 
+												getJobType(e.getValue())));
 		toBeAnnounced.clear();
 	}
 	

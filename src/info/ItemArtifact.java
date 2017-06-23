@@ -299,7 +299,7 @@ public class ItemArtifact extends Artifact {
 			if (item.getRequiredBaseItems().isEmpty()) 	volume = item.getVolume();
 			else										volume = ItemArtifact.getVolume(item.getRequiredBaseItems());
 
-			int amountToCarry = capacity / volume;
+			int amountToCarry = Math.min(amount, capacity / volume);
 			
 			capacity -= volume * amountToCarry;
 			

@@ -17,12 +17,14 @@ inShop(F)			:- inFacility(F) & inShop.
 // Utility
 routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 capacity(C) 		:- maxLoad(M) & load(L) & C = M - L.
-canCarry(Items)		:- capacity(C) & jia.getVolume(Items, V) & V <= C.
 canMove 			:- charge(X) & X >= 10.
 chargeThreshold(X) 	:- maxCharge(C) & X = 0.35 * C.
 enoughCharge 		:- routeLength(L) & enoughCharge(L).
 enoughCharge(L) 	:- speed(S) & charge(C) & chargeThreshold(Threshold) & 
 					Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
+// Internal utility actions
+canCarry(Items)					:- capacity(C) & jia.getVolume(Items, V) & V <= C.
+canSolve(Items)					:- maxLoad(L) & jia.getLoadReq(Items, R) & R <= L.
 // Internal actions
 getInventory(Inventory)			:- .my_name(Me) & getInventory(Me, Inventory).
 getInventory(Agent, Inventory) 	:- jia.getInventory(Agent, Inventory).
