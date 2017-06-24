@@ -34,6 +34,10 @@ public class EIArtifact extends Artifact {
     public static final boolean LOGGING_ENABLED = false;
     
     private static EnvironmentInterfaceStandard ei;
+    private static final String TEAM_A = "conf/eismassimconfig.json";
+	private static final String TEAM_B = "conf/eismassimconfig_team_B.json";
+    
+    private String configFile = TEAM_B;
     
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
@@ -45,12 +49,12 @@ public class EIArtifact extends Artifact {
      */
     void init() 
     {    	
-    	logger.setLevel(Level.FINE);
+    	logger.setLevel(Level.SEVERE);
 		logger.info("init");
 		
 		try 
 		{
-			ei = new EnvironmentInterface("conf/eismassimconfig.json");
+			ei = new EnvironmentInterface(configFile);
 			
 			// Get the team name from EI. Should be a better way
 			this.team = ((String) (ei.getEntities().toArray())[0]).substring(10, 11);
@@ -141,7 +145,6 @@ public class EIArtifact extends Artifact {
 				
 				allPercepts.addAll(percepts);
 			}
-			
 			// Perceive static info
 			ItemArtifact        .perceiveInitial(allPercepts);
 			StaticInfoArtifact  .perceiveInitial(allPercepts);
