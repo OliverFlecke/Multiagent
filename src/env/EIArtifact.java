@@ -38,7 +38,7 @@ public class EIArtifact extends Artifact {
 	private static final String TEAM_B = "conf/eismassimconfig_team_B.json";
     
     private String configFile = TEAM_B;
-    
+   
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
     
@@ -58,6 +58,8 @@ public class EIArtifact extends Artifact {
 			
 			// Get the team name from EI. Should be a better way
 			this.team = ((String) (ei.getEntities().toArray())[0]).substring(10, 11);
+			
+			fileLogger = LoggerFactory.createFileLogger(team);
 			
 			ei.start();
 		} 
@@ -213,7 +215,7 @@ public class EIArtifact extends Artifact {
 		}
 	}	
 	
-	private static Logger fileLogger = LoggerFactory.createFileLogger();
+	private static Logger fileLogger;
 	
 	private void logData()
 	{
