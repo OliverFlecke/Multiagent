@@ -38,9 +38,7 @@
 	!doAction(assemble(Item)).
 	
 +!assistAssemble(Agent) : load(0) | assembleComplete.
-+!assistAssemble(Agent) : connection(Agent, Entity, _) <-
-	!doAction(assist_assemble(Entity));
-	!assistAssemble(Agent).
++!assistAssemble(Agent) <- !doAction(assist_assemble(Agent)); !assistAssemble(Agent).
 
 +!retrieveTools([]).
 +!retrieveTools([Tool | Tools]) : have(Tool) 	<- !retrieveTools(Tools).
