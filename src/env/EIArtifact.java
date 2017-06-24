@@ -4,6 +4,7 @@ package env;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,7 +17,10 @@ import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
+import eis.iilang.Identifier;
+import eis.iilang.Parameter;
 import eis.iilang.Percept;
+import eis.iilang.PrologVisitor;
 import info.AgentArtifact;
 import info.DynamicInfoArtifact;
 import info.FacilityArtifact;
@@ -70,11 +74,12 @@ public class EIArtifact extends Artifact {
     }
 	
 	@OPERATION
-	void register(String entity)  
+	void register()  
 	{
 		String agentName 	= getOpUserName();
 		String id 			= agentName.substring(5);
-		String connection = "connection" + team + id;
+		String connection 	= "connection" + team + id;
+		String entity 		= "agent" + team + id;
 		
 		logger.fine("register " + agentName + " on " + connection);
 		
@@ -85,7 +90,7 @@ public class EIArtifact extends Artifact {
 			ei.associateEntity(agentName, connection);
 			
 			connections	.put(agentName, connection);
-			entities	.put(entity, agentName);			
+			entities	.put(agentName, entity);			
 
 			if (connections.size() == ei.getEntities().size())
 			{
@@ -118,6 +123,16 @@ public class EIArtifact extends Artifact {
 		
 		try 
 		{			
+			if (action.getName().equals("assist_assemble"))
+			{
+				String name = PrologVisitor.staticVisit(action.getParameters().get(0));
+				
+				LinkedList<Parameter> params = new LinkedList<>();
+				params.add(new Identifier(EIArtifact.getAgentName(name)));
+				
+				action.setParameters(params);
+			}
+			
 			ei.performAction(agentName, action);
 		} 
 		catch (Throwable e) 

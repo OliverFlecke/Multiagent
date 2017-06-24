@@ -1,5 +1,5 @@
 // Plans
-+!register : .my_name(Me) & .term2string(Me, Name) <- register(Me).
++!register <- register.
 -!register <- .wait(100); !register.
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
