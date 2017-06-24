@@ -37,18 +37,23 @@ public class EIArtifact extends Artifact {
     
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
+    
+    private String team;
 
     /**
      * Instantiates and starts the environment interface.
      */
     void init() 
     {    	
-    	logger.setLevel(Level.INFO);
+    	logger.setLevel(Level.FINE);
 		logger.info("init");
 		
 		try 
 		{
 			ei = new EnvironmentInterface("conf/eismassimconfig.json");
+			
+			// Get the team name from EI. Should be a better way
+			this.team = ((String) (ei.getEntities().toArray())[0]).substring(10, 11);
 			
 			ei.start();
 		} 
@@ -59,9 +64,11 @@ public class EIArtifact extends Artifact {
     }
 	
 	@OPERATION
-	void register(String entity, String connection)  
+	void register(String entity)  
 	{
-		String agentName = getOpUserName();
+		String agentName 	= getOpUserName();
+		String id 			= agentName.substring(5);
+		String connection = "connection" + team + id;
 		
 		logger.fine("register " + agentName + " on " + connection);
 		

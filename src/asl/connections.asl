@@ -31,17 +31,14 @@ connection(truck7,      agentA27, connectionA27).
 connection(truck8,      agentA28, connectionA28).
 
 // Plans
-+!register : connection(A, C) <- register(A, C).
++!register : .my_name(Me) & .term2string(Me, Name) <- register(Me).
 -!register <- .wait(100); !register.
 
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
 +!focusArtifacts : .my_name(Me) & .term2string(Me, Name) <-
 	!focusArtifact("TaskArtifact");
 	!focusArtifact("EIArtifact");
-	if (Me \== announcer) 
-	{
-		makeArtifact(Name, "info.AgentArtifact", [], _);
-		!focusArtifact(Name);
-	}
+	makeArtifact(Name, "info.AgentArtifact", [], _);
+	!focusArtifact(Name);
 	.print("Successfully focused artifacts").
 -!focusArtifacts <- .wait(500); !focusArtifacts.

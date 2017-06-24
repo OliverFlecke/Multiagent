@@ -3,12 +3,8 @@ MAS multiagent_jason {
     environment: c4jason.CartagoEnvironment
 
     agents:  
-    	announcer	agentArchClass c4jason.CAgentArch;
     	initializer agentArchClass c4jason.CAgentArch;
-   	 	car 		agent 	agentArchClass c4jason.CAgentArch #8;
-   	 	drone 		agent	agentArchClass c4jason.CAgentArch #4;
-   	 	motorcycle 	agent	agentArchClass c4jason.CAgentArch #8;
-   	 	truck 		agent	agentArchClass c4jason.CAgentArch #8;
+    	agent		agentArchClass c4jason.CAgentArch #28;
 
 	aslSourcePath: "src/asl";
 }

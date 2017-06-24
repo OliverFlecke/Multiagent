@@ -15,9 +15,7 @@ free.
 // Percepts
 	
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait({+step(_)}).
-//+!doAction(Action) : .my_name(Me) & step(X) <- jia.action(Me, Action); .wait(step(Y) & X < Y).
 
-+step(999) : .my_name(car1) <- getJobCompletedCount(X); .print("Jobs completed: ", X).
 +step(X) : lastAction("assist_assemble") & lastActionResult("failed_counterpart").
 +step(X) : lastAction("give") 		 & lastActionResult("successful") <- .print("Give successful!").
 +step(X) : lastAction("receive") 	 & lastActionResult("successful") <- .print("Receive successful!").
