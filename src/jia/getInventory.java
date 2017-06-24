@@ -7,9 +7,8 @@ import info.AgentArtifact;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
-import jason.asSyntax.ASSyntax;
-import jason.asSyntax.ListTerm;
 import jason.asSyntax.Term;
+import util.ASUtil;
 
 public class getInventory extends DefaultInternalAction {
 	
@@ -22,13 +21,7 @@ public class getInventory extends DefaultInternalAction {
 
 		Map<String, Integer> inventory = AgentArtifact.getAgentInventory(agentName);
 		
-		ListTerm list = ASSyntax.createList();
-		
-		inventory.entrySet().forEach(e -> list.add(ASSyntax.createLiteral("map", 
-													ASSyntax.createAtom(e.getKey()),
-													ASSyntax.createNumber(e.getValue()))));
-		
-		return un.unifies(terms[1], list);
+		return un.unifies(terms[1], ASUtil.mapToTerm(inventory));
 	}
 
 }

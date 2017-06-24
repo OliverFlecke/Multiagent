@@ -49,25 +49,18 @@
 	!!completeAssembleProtocol.
 	
 +!beginAssembleProtocol : step(X) & ReadyStep = X + 1 <-
-
-	for (itemRetriever(Agent))
-	{
+	for (itemRetriever(Agent)) {
 		.send(Agent, tell, assembleReady(ReadyStep));
-	}	
-	
-	.wait(step(ReadyStep)).
+	}
+	.wait({+step(ReadyStep)}).
 	
 +!completeAssembleProtocol <-	
-
-	for (itemRetriever(Agent)) 
-	{
+	for (itemRetriever(Agent)) {
 		.send(Agent, tell, assembleComplete);
-	}
-	
+	}	
 	.wait({+step(_)});
-	
-	for (itemRetriever(Agent))
-	{
+	// Clear assemble beliefs	
+	for (itemRetriever(Agent)) {
 		-itemRetriever(Agent);
 		.send(Agent, untell, assembleReady(_));
 		.send(Agent, untell, assembleComplete);
@@ -77,8 +70,8 @@
 +!acceptAssembleProtocol(Agent) : .my_name(Me) <-
 	.send(Agent, tell, retrieverReady(Me));
 	
-	.wait(assembleReady(ReadyStep));
-	.wait(step(ReadyStep));
+	.wait({+assembleReady(ReadyStep)});
+	.wait({+step(ReadyStep)});
 	
 	!assistAssemble(Agent); // Waits for assembleComplete
 	

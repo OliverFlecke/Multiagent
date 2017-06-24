@@ -66,7 +66,7 @@ public class FacilityArtifact extends Artifact {
 	void getClosestFacility(String facilityType, OpFeedbackParam<String> ret)
 	{		
 		Location agentLoc = AgentArtifact.getEntity(getOpUserName()).getLocation();
-		
+
 		Collection<? extends Facility> facilities = Collections.emptySet();
 
 		switch (facilityType)

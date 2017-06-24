@@ -14,9 +14,7 @@ import eis.iilang.Parameter;
 import eis.iilang.ParameterList;
 import eis.iilang.Percept;
 import eis.iilang.PrologVisitor;
-import info.ItemArtifact;
 import jason.NoValueException;
-import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Atom;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.Literal;
@@ -24,8 +22,6 @@ import jason.asSyntax.LiteralImpl;
 import jason.asSyntax.NumberTerm;
 import jason.asSyntax.StringTerm;
 import jason.asSyntax.Term;
-import jason.asSyntax.parser.ParseException;
-import massim.scenario.city.data.Item;
 
 public class Translator 
 {
@@ -235,32 +231,5 @@ public class Translator
 			return list;
 	    }
 		return t.toString();
-	}
-
-	/**
-	 * Format: [map("item0", 10),...]
-	 * @param itemsMap The AS map object
-	 * @return A map of the objects
-	 */
-	public static Map<Item, Integer> convertASObjectToMap(Object[] itemsMap) 
-	{
-		Map<Item, Integer> map = new HashMap<>();
-		
-		for (Object item : itemsMap) 
-		{
-			try {
-				Literal literal = ASSyntax.parseLiteral(item.toString());
-
-				String itemName = literal.getTerm(0).toString().replaceAll("\"", "");
-				
-				int amount = (int) ((NumberTerm) literal.getTerm(1)).solve();
-
-				map.put(ItemArtifact.getItem(itemName), amount);
-			} 
-			catch (NoValueException | ParseException e) {
-				e.printStackTrace();
-			}
-		}
-		return map;
 	}
 }

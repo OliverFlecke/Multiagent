@@ -15,7 +15,6 @@ import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 import cnp.TaskArtifact;
-import data.CUtil;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
@@ -25,6 +24,7 @@ import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
 import massim.scenario.city.data.Mission;
 import massim.scenario.city.data.facilities.Storage;
+import util.DataUtil;
 
 public class JobArtifact extends Artifact {
 	
@@ -52,7 +52,7 @@ public class JobArtifact extends Artifact {
 		
 		storage.set(job.getStorage().getName());
 
-		items.set(CUtil.extractItems(job));
+		items.set(DataUtil.extractItems(job));
 	}
 	
 	@OPERATION
@@ -323,7 +323,7 @@ public class JobArtifact extends Artifact {
 	{
 		toBeAnnounced.entrySet().stream()
 			.forEach(e -> TaskArtifact.invoke("announce", "task", e.getKey(), 
-												CUtil.extractItems(e.getValue()), 
+												DataUtil.extractItems(e.getValue()), 
 												e.getValue().getStorage().getName(), 
 												getJobType(e.getValue())));
 		toBeAnnounced.clear();

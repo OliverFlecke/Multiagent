@@ -36,6 +36,8 @@ public class TaskArtifact extends Artifact {
 		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
 		
 		instance.execInternalOp("announceWithResult", "assembleRequest", bid, taskId, items, facility);
+
+		awaitResult(bid);
 		
 		return bid.get();
 	}
@@ -46,14 +48,21 @@ public class TaskArtifact extends Artifact {
 		
 		instance.execInternalOp("announceWithResult", "retrieveRequest", bid, shop, items, workshop, agent);
 		
+		awaitResult(bid);
+		
 		return bid.get();
 	}
+
+//	Bid bid = TaskArtifact.announceWithResult("assembleRequest", taskId, items, facility);
+//	Bid bid = TaskArtifact.delegateJob(taskId, items, facility);
 	
 	public static Bid announceWithResult(String property, Object... args)
 	{
 		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
 		
 		instance.execInternalOp("announceWithResult", property, bid, args);
+		
+		awaitResult(bid);
 		
 		return bid.get();
 	}
@@ -63,9 +72,9 @@ public class TaskArtifact extends Artifact {
 	{
 		try 
 		{
-			ArtifactId id = instance.announce(property, args);		
+			ArtifactId id = instance.announce(property, args);
 			
-			execLinkedOp(id, "getBid", bid);			
+			execLinkedOp(id, "getBid", bid);
 		}
 		catch (Throwable e) 
 		{
@@ -121,6 +130,24 @@ public class TaskArtifact extends Artifact {
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in clear: " + e.getMessage(), e);
+		}
+	}
+	
+	private static void awaitResult(OpFeedbackParam<Bid> bid)
+	{
+		try 
+		{
+			int waitTime = 0;
+			
+			while (bid.get() == null && waitTime <= 5000)
+			{
+				Thread.sleep(100);
+				waitTime += 100;
+			}
+		} 
+		catch (InterruptedException e) 
+		{
+			e.printStackTrace();
 		}
 	}
 }

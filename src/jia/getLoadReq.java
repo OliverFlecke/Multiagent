@@ -10,18 +10,19 @@ import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
 import massim.scenario.city.data.Item;
+import util.ASUtil;
+import util.DataUtil;
 
 public class getLoadReq extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object execute(TransitionSystem ts, Unifier un, Term[] terms) throws Exception 
 	{		
 		Object 				 obj	= Translator.termToObject(terms[0]);
-		Map<String, Integer> map 	= (Map<String, Integer>) obj;		
-		Map<Item  , Integer> items 	= ItemArtifact.getItemMap(map);	
+		Map<String, Integer> map 	= ASUtil.objectToMap(obj);
+		Map<Item  , Integer> items 	= DataUtil.stringToItemMap(map);	
 		
 		int loadReq = items.keySet().stream()
 				.map(Item::getRequiredBaseItems)

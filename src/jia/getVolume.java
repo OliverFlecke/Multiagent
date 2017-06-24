@@ -9,12 +9,13 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
+import util.ASUtil;
+import util.DataUtil;
 
 public class getVolume extends DefaultInternalAction {
 
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object execute(TransitionSystem ts, Unifier un, Term[] terms) throws Exception 
 	{	
@@ -28,7 +29,7 @@ public class getVolume extends DefaultInternalAction {
 		}
 		else if (obj instanceof Map<?, ?>)
 		{
-			volume = ItemArtifact.getVolume(ItemArtifact.getItemMap((Map<String, Integer>) obj));
+			volume = ItemArtifact.getVolume(DataUtil.stringToItemMap(ASUtil.objectToMap(obj)));
 		}
 		
 		if (volume < 0) System.out.println("Something not taken into account? jia.getVolume");

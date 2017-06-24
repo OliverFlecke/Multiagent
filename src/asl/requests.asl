@@ -1,16 +1,13 @@
 +assembleRequest(JobId, Items, Storage, CNPId) : free <-
-	!!assembleRequest(JobId, Items, Storage, CNPId).
+	!!doIntention(assembleRequest(JobId, Items, Storage, CNPId)).
 	
 +retrieveRequest(Shop, Items, Workshop, Agent, CNPId) : free <-
-	!!retrieveRequest(Shop, Items, Workshop, Agent, CNPId). 
+	!!doIntention(retrieveRequest(Shop, Items, Workshop, Agent, CNPId)). 
 
 +!assembleRequest(JobId, Items, Storage, CNPId) 
-	: free & capacity(Capacity) & speed(Speed) <-
-	
-	-free;
+	: capacity(Capacity) & speed(Speed) <-
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
-	getBaseItems(ItemsToAssemble, ItemsToRetrieve);
-	getVolume(ItemsToRetrieve, Volume);
+	getBaseVolume(ItemsToAssemble, Volume);
 	
 	// Negative volume since lower is better
 	Bid = -Speed - Volume; 
@@ -21,18 +18,15 @@
 		winner(Won)[artifact_id(CNPId)];
 		
 		if (Won)
-		{		
+		{
+			.print("Job: ", JobId, "Assembling: ", ItemsToAssemble);
 			clear("assembleRequest", 4, CNPId);
-			!acquireItems(ItemsToAssemble); 
-			!deliverJob(JobId, ItemsToAssemble, Storage);
+			!solveJob(JobId, ItemsToAssemble, Storage);
 		}
-	}
-	+free.
+	}.
 	
 +!retrieveRequest(Shop, Items, Workshop, Agent, CNPId) 
-	: free & capacity(Capacity) & speed(Speed) <-
-	
-	-free;
+	: capacity(Capacity) & speed(Speed) <-
 	getItemsToCarry(Items, Capacity, ItemsToRetrieve, RetrieveRest);	
 	getVolume(ItemsToRetrieve, Volume);	
 	distanceToFacility(Shop, Distance);	
@@ -48,9 +42,6 @@
 		if (Won)
 		{
 			clear("retrieveRequest", 5, CNPId);
-			!retrieveItems(Shop, ItemsToRetrieve);
-			!getToFacility(F);
-			!acceptAssembleProtocol(Agent);
+			!assistRetrieve(Shop, ItemsToRetrieve, Workshop, Agent);
 		}
-	}
-	+free.
+	}.

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -16,14 +15,14 @@ import java.util.stream.Collectors;
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
-import data.CUtil;
 import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
 import massim.scenario.city.data.Item;
-import massim.scenario.city.data.Location;
 import massim.scenario.city.data.Tool;
 import massim.scenario.city.data.facilities.Shop;
+import util.CartagoUtil;
+import util.DataUtil;
 
 public class ItemArtifact extends Artifact {
 	
@@ -36,100 +35,115 @@ public class ItemArtifact extends Artifact {
 
 	private static Map<String, Tool> 				tools 			= new HashMap<>();
 	private static Map<String, Item>				items 			= new HashMap<>();
-	private static Map<String, Map<String, Shop>> 	itemLocations 	= new HashMap<>();	
+	private static Map<String, Map<String, Shop>> 	itemLocations 	= new HashMap<>();
+	
+	/* OPERATIONS */
 	
 	@OPERATION
-	void getItems(OpFeedbackParam<Collection<Item>> ret) {
-		ret.set(items.values());
+	void getBaseItems(Object[] items, OpFeedbackParam<Object> ret)
+	{
+		ret.set(DataUtil.itemToStringMap(getBaseItems(CartagoUtil.objectToItemMap(items))));
 	}
 	
-	public static Map<Item, Integer> getBaseItems(String name)
+	@OPERATION 
+	void getRequiredItems(String item, OpFeedbackParam<Object> ret)
+	{
+		ret.set(DataUtil.itemToStringMap(getBaseItems(item)));
+	}
+	
+	@OPERATION
+	void getVolume(Object[] items, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(getVolume(CartagoUtil.objectToItemMap(items)));
+	}
+	
+	@OPERATION 
+	void getBaseVolume(Object[] items, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(getBaseVolume(CartagoUtil.objectToItemMap(items)));
+	}
+	
+	@OPERATION
+	void getShoppingList(Object[] items, OpFeedbackParam<Object> ret)
+	{
+		ret.set(DataUtil.shoppingListToString(getShoppingList(CartagoUtil.objectToItemMap(items))));
+	}
+	
+	@OPERATION
+	void getAvailableAmount(String itemName, int quantity, String shopName, OpFeedbackParam<Integer> ret) 
+	{
+		Item item 	= getItem(itemName);
+		Shop shop 	= (Shop) FacilityArtifact.getFacility("shop", shopName);
+		
+		ret.set(Math.min(quantity, shop.getItemCount(item)));
+	}
+	
+	@OPERATION
+	void getItemsToCarry(Object[] items, int capacity, OpFeedbackParam<Object> retCarry, OpFeedbackParam<Object> retRest)
+	{
+		Map<String, Integer> carry 	= new HashMap<>();
+		Map<String, Integer> rest	= new HashMap<>();
+
+		for (Entry<Item, Integer> entry : CartagoUtil.objectToItemMap(items).entrySet())
+		{
+			Item 	item 	= entry.getKey();
+			int 	amount 	= entry.getValue();
+			int		volume	= capacity + 1;
+
+			// Find base volume of the item
+			if (item.getRequiredBaseItems().isEmpty()) 	
+				 volume = item.getVolume();
+			else volume = ItemArtifact.getVolume(item.getRequiredBaseItems());
+
+			int amountToCarry = Math.min(amount, capacity / volume);
+			
+			capacity -= volume * amountToCarry;
+			
+			if (amountToCarry > 0)  carry.put(item.getName(), amountToCarry);
+			
+			if (amount > amountToCarry) rest.put(item.getName(), amount - amountToCarry);
+			
+		}
+		
+		retCarry.set(carry);
+		retRest.set(rest);
+	}
+	
+	@OPERATION
+	void collectInventories(Object[] inventories, OpFeedbackParam<Object> items)
+	{
+		items.set(null);
+	}
+	
+	public static Map<Item, Integer> getBaseItems(String item)
 	{	
-		return items.get(name).getRequiredBaseItems().entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));				
+		return getItem(item).getRequiredBaseItems();
+	}
+	
+	public static int getVolume(Entry<Item, Integer> item)
+	{
+		return item.getKey().getVolume() * item.getValue();
 	}
 
-	/**
-	 * Format: [map("item0", 2),...]
-	 * @param itemMap
-	 * @param ret
-	 */
-	@OPERATION
-	void getBaseItems(Object[] itemMap, OpFeedbackParam<Object> ret)
-	{	
-		// Map each item to its base item,
-		// where each base item amount is multiplied with the amount of items needed.
-		// Flat mapped and same items is combined using SUM
-		ret.set(CUtil.toStringMap(getBaseItems(Translator.convertASObjectToMap(itemMap))));
+	public static int getVolume(Map<Item, Integer> items)
+	{
+		return items.entrySet().stream().mapToInt(ItemArtifact::getVolume).sum();
+	}
+	
+	public static int getBaseVolume(Map<Item, Integer> items)
+	{
+		return getVolume(getBaseItems(items));
 	}
 	
 	public static Map<Item, Integer> getBaseItems(Map<Item, Integer> items)
 	{
 		return items.entrySet().stream()
-				.map(item -> getBaseItems(item.getKey().getName()).entrySet().stream()
-						.collect(Collectors.toMap(Map.Entry::getKey, 
+				.map(item -> item.getKey().getRequiredBaseItems().entrySet().stream()
+						.collect(Collectors.toMap(Entry::getKey, 
 								entry -> entry.getValue() * item.getValue()))
 						.entrySet())
 				.flatMap(Collection::stream)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
-	}
-	
-	public static Map<Item, Integer> getItemMap(Map<String, Integer> map)
-	{
-		return map.entrySet().stream().collect(Collectors.toMap(e -> items.get(e.getKey()), Entry::getValue));
-	}
-	
-	@OPERATION 
-	void getRequiredItems(Object itemName, OpFeedbackParam<Object> ret)
-	{
-		ret.set(items.get(itemName).getRequiredItems().entrySet().stream()
-				.collect(Collectors.toMap(x -> x.getKey().getName(), Entry::getValue)));
-	}
-	
-	/**
-	 * @param item The item for which a shop selling it should be found
-	 * @return A collection of all the shops selling the given item
-	 */
-	public static Collection<Shop> getShopSelling(String item)
-	{
-		return itemLocations.get(item).values();
-	}
-	
-	@OPERATION
-	void getNearestShopSelling(String item, OpFeedbackParam<String> ret)
-	{
-		Location loc = AgentArtifact.getEntity(getOpUserName()).getLocation();
-		
-		Optional<Shop> shop = getShopSelling(item).stream().min((x, y) -> distance(x.getLocation(), loc) - distance(y.getLocation(), loc));
-		
-		if (shop.isPresent())
-		{
-			ret.set(shop.get().getName());
-		}
-		else 
-		{
-			ret.set("none");
-		}
-	}
-	
-	public int distance(Location x, Location y)
-	{
-		return (int) (100000 * Math.sqrt(Math.pow(x.getLat() - y.getLat(), 2)
-				+ Math.pow(x.getLon() - y.getLon(), 2)));
-	}
-	
-	@OPERATION
-	void getShopsSelling(String item, OpFeedbackParam<Collection<Shop>> ret) 
-	{
-		ret.set(getShopSelling(item));
-	}
-	
-	@OPERATION
-	void getShoppingList(Object[] itemsMap, OpFeedbackParam<Object> ret)
-	{
-		ret.set(getShoppingList(Translator.convertASObjectToMap(itemsMap)).entrySet().stream()
-				.collect(Collectors.toMap(shop -> shop.getKey().getName(), map -> map.getValue().entrySet().stream()
-						.collect(Collectors.toMap(item -> item.getKey().getName(), amount -> amount.getValue())))));
 	}
 	
 	/**
@@ -137,7 +151,7 @@ public class ItemArtifact extends Artifact {
 	 * @param items The items to buy along with the amount
 	 * @return A map of shops and what to buy where
 	 */
-	public Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
+	public static Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
 	{	
 		Map<Shop, Map<Item, Integer>> shoppingList = new HashMap<>();
 		
@@ -153,7 +167,7 @@ public class ItemArtifact extends Artifact {
 			
 			if (shop.isPresent())
 			{
-				CUtil.addToMapOfMaps(shoppingList, shop.get(), item, amount);
+				DataUtil.addToMapOfMaps(shoppingList, shop.get(), item, amount);
 			}
 			else 
 			{
@@ -163,7 +177,7 @@ public class ItemArtifact extends Artifact {
 					// If there is only one shop remaining, it should buy the rest
 					if (shops.size() == 1)
 					{
-						CUtil.addToMapOfMaps(shoppingList, shops.stream().findAny().get(), item, amountRemaining);
+						DataUtil.addToMapOfMaps(shoppingList, shops.stream().findAny().get(), item, amountRemaining);
 						break;
 					}
 					
@@ -178,7 +192,7 @@ public class ItemArtifact extends Artifact {
 						
 						amountRemaining -= amountToBuy;
 						
-						CUtil.addToMapOfMaps(shoppingList, shop.get(), item, amountToBuy);
+						DataUtil.addToMapOfMaps(shoppingList, shop.get(), item, amountToBuy);
 					}
 				}
 				while (amountRemaining > 0);
@@ -186,83 +200,6 @@ public class ItemArtifact extends Artifact {
 		}
 		
 		return shoppingList;
-	}
-
-
-	
-	@OPERATION
-	void getShopSelling(String itemName, int quantity, OpFeedbackParam<String> retShop, OpFeedbackParam<Integer> retQuantity) 
-	{
-		Item 				item 	= items.get(itemName);
-		Collection<Shop> 	shops 	= itemLocations.get(itemName).values();
-		
-		List<Shop> sortedShops = shops.stream().sorted((s1, s2) -> s2.getItemCount(item) - s1.getItemCount(item)).collect(Collectors.toList());
-
-		retShop.set(sortedShops.get(0).getName());
-		retQuantity.set(Math.min(quantity, sortedShops.get(0).getItemCount(item)));
-	}
-	
-	@OPERATION
-	void getAvailableAmount(String itemName, int quantity, String shopName, OpFeedbackParam<Integer> retQuantity) 
-	{
-		Item item 	= items.get(itemName);
-		Shop shop 	= (Shop) FacilityArtifact.getFacility("shop", shopName);
-		
-		retQuantity.set(Math.min(quantity, shop.getItemCount(item)));
-	}
-	
-	@OPERATION
-	void getClosestFacilitySelling(String item, OpFeedbackParam<String> ret)
-	{
-		Location agentLocation = AgentArtifact.getEntity(getOpUserName()).getLocation();
-		
-		Collection<Shop> shops = itemLocations.get(item).values();
-		
-		ret.set(FacilityArtifact.getClosestFacility(agentLocation, shops));
-	}
-		
-	/**
-	 * @param items Map of all the items
-	 * @return Get the total volume of all the items in the map
-	 */
-	public static int getVolume(Map<Item, Integer> items)
-	{
-		return items.entrySet().stream()
-				.mapToInt(item -> item.getKey().getVolume() * item.getValue())
-				.sum();
-	}
-	
-	/**
-	 * Format: [map("item1", 10),...]
-	 * @param input A AS map of item names and amount
-	 * @param ret The total volume of all the items in the input
-	 */
-	@OPERATION
-	void getVolume(Object[] input, OpFeedbackParam<Integer> ret)
-	{
-		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
-	}
-	
-	
-	/**
-	 * @param item Name of the item
-	 * @param ret The volume of all the base items required to assemble this item
-	 */
-	@OPERATION 
-	void getBaseItemVolume(String item, OpFeedbackParam<Integer> ret)
-	{
-		ret.set(ItemArtifact.getVolume(getItem(item).getRequiredBaseItems()));
-	}
-	
-	/**
-	 * Format: [map("item1", 10),...]
-	 * @param input An AS map of items and amount
-	 * @param ret The total volume of all the items' base items
-	 */
-	@OPERATION
-	void getBaseItemVolume(Object[] input, OpFeedbackParam<Integer> ret)
-	{
-		ret.set(ItemArtifact.getVolume(Translator.convertASObjectToMap(input)));
 	}
 	
 	/**
@@ -283,36 +220,6 @@ public class ItemArtifact extends Artifact {
 		return bestPrice;
 	}
 	
-	@OPERATION
-	void getItemsToCarry(Object[] items, int capacity, OpFeedbackParam<Object> retRetrieve, OpFeedbackParam<Object> retRest)
-	{
-		Map<String, Integer> retrieve 	= new HashMap<>();
-		Map<String, Integer> rest		= new HashMap<>();
-
-		for (Entry<Item, Integer> entry : Translator.convertASObjectToMap(items).entrySet())
-		{
-			Item 	item 	= entry.getKey();
-			int 	amount 	= entry.getValue();
-			int		volume	= capacity + 1;
-
-			// Find base volume of the item
-			if (item.getRequiredBaseItems().isEmpty()) 	volume = item.getVolume();
-			else										volume = ItemArtifact.getVolume(item.getRequiredBaseItems());
-
-			int amountToCarry = Math.min(amount, capacity / volume);
-			
-			capacity -= volume * amountToCarry;
-			
-			if (amountToCarry > 0)  retrieve.put(item.getName(), amountToCarry);
-			
-			if (amount > amountToCarry) rest.put(item.getName(), amount - amountToCarry);
-			
-		}
-		
-		retRetrieve.set(retrieve);
-		retRest.set(rest);
-	}
-	
 	public static void perceiveInitial(Collection<Percept> percepts)
 	{		
 		Map<Item, Set<Object[]>> requirements = new HashMap<>();
@@ -322,7 +229,6 @@ public class ItemArtifact extends Artifact {
 		
 		// Item requirements has to be added after all items have been created, 
 		// since they are not necessarily given in a chronological order.
-		// TODO: Tools and items that require assembly have a volume of 0.
 		for (Entry<Item, Set<Object[]>> entry : requirements.entrySet())
 		{
 			Item item = entry.getKey();
@@ -399,6 +305,15 @@ public class ItemArtifact extends Artifact {
 	public static Tool getTool(String toolName)
 	{
 		return tools.get(toolName);
+	}
+	
+	/**
+	 * @param item The item for which a shop selling it should be found
+	 * @return A collection of all the shops selling the given item
+	 */
+	public static Collection<Shop> getShopSelling(String item)
+	{
+		return itemLocations.get(item).values();
 	}
 	
 	// Used by the FacilityArtifact when adding shops
