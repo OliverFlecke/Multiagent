@@ -16,6 +16,8 @@ speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
 maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
 canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
+canMove :- charge(X) & X >= 10.
+
 
 chargeThreshold(X) :- myRole(Role) & chargeThreshold(Role, X). 
 chargeThreshold("drone", 40).
