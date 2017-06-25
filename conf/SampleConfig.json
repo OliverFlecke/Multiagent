@@ -133,10 +133,10 @@
             "auctionTimeMin" : 2,
             "auctionTimeMax" : 10
           },
-        "missions" : {
+  		  "missions" : {
           "rate" : 0,
-          "missionDifficultyMax" : 10
-        }
+  			  "missionDifficultyMax" : 10
+  		  }
         }
       }
     }
