@@ -20,8 +20,8 @@ public class hasItems extends DefaultInternalAction {
 	{
 		Object[] args = Translator.termsToObject(terms);
 		
-		String 					agent		= (String) 			 args[0];
-		Map<String, Integer> 	items 		= ASUtil.objectToMap(args[1]);
+		String 					agent		= (String) args[0];
+		Map<String, Integer> 	items 		= ASUtil.objectToStringMap(args[1]);
 		
 		if (items.isEmpty()) return true;
 		

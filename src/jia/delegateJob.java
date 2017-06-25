@@ -21,15 +21,14 @@ public class delegateJob extends DefaultInternalAction {
 		Object[] args = Translator.termsToObject(terms);
 		
 		String 					taskId		= (String) 			 args[0];
-		Map<String, Integer> 	items 		= ASUtil.objectToMap(args[1]);
+		Map<String, Integer> 	items 		= ASUtil.objectToStringMap(args[1]);
 		String 					facility 	= (String) 			 args[2];
 
-//		Bid bid = TaskArtifact.announceWithResult("assembleRequest", taskId, items, facility);
-		Bid bid = TaskArtifact.delegateJob(taskId, items, facility);
+		Bid bid = TaskArtifact.announceWithResult("assembleRequest", taskId, items, facility);
 		
 		if (bid == null) return false;
 		
-		Map<String, Integer> 	rest 		= ASUtil.objectToMap(bid.getData());
+		Map<String, Integer> 	rest 		= ASUtil.objectToStringMap(bid.getData()[0]);
 		
 		return un.unifies(terms[3], ASUtil.mapToTerm(rest));
 	}

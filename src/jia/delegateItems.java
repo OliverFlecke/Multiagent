@@ -11,6 +11,7 @@ import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
 import util.ASUtil;
+import util.CartagoUtil;
 
 public class delegateItems extends DefaultInternalAction {
 	
@@ -21,21 +22,23 @@ public class delegateItems extends DefaultInternalAction {
 	{
 		Object[] args = Translator.termsToObject(terms);
 		
-		String 					shop		= (String) 			 args[0];
-		Map<String, Integer> 	items 		= ASUtil.objectToMap(args[1]);
-		String 					workshop 	= (String) 			 args[2];
-		String 					me	 		= (String) 			 args[3];
+		String 					shop		= (String) args[0];
+		Map<String, Integer> 	items 		= ASUtil.objectToStringMap(args[1]);
+		String 					workshop 	= (String) args[2];
+		String 					me	 		= (String) args[3];
 
-//		Bid bid = TaskArtifact.announceWithResult("retrieveRequest", shop, items, workshop, me);
-		Bid bid = TaskArtifact.delegateItems(shop, items, workshop, me);
+		Bid bid = TaskArtifact.announceWithResult("retrieveRequest", shop, items, workshop, me);
 		
 		if (bid == null) return false;
 		
-		String					agent		= 					 bid.getAgent();
-		Map<String, Integer> 	rest 		= ASUtil.objectToMap(bid.getData());
+		String					agent		= bid.getAgent();
+		Object[] 				data		= bid.getData();
+		Map<String, Integer> 	carry 		= CartagoUtil.objectToStringMap((Object[]) data[0]);
+		Map<String, Integer> 	rest 		= CartagoUtil.objectToStringMap((Object[]) data[1]);
 		
-		return un.unifies(terms[4], ASSyntax.createAtom(agent)) && 
-			   un.unifies(terms[5], ASUtil.mapToTerm(rest));
+		return un.unifies(terms[4], ASSyntax.createAtom(agent)) 
+			&& un.unifies(terms[5], ASUtil.mapToTerm(carry)) 
+			&& un.unifies(terms[6], ASUtil.mapToTerm(rest));
 	}
 
 }

@@ -36,7 +36,7 @@
 	
 	if (not ItemsToRetrieve = []) 
 	{ 
-		bid(Bid, RetrieveRest)[artifact_id(CNPId)]; 
+		bid(Bid, ItemsToRetrieve, RetrieveRest)[artifact_id(CNPId)]; 
 		winner(Won)[artifact_id(CNPId)];
 		
 		if (Won)

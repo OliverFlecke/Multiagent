@@ -43,27 +43,27 @@
 	!receiveItems(Items).	
 	
 +!initiateAssembleProtocol(Items) <-
-	.wait(.count(itemRetriever(_), N) & .count(retrieverReady(_), N));
+	.wait(.count(itemRetriever(_, _), N) & .count(retrieverReady(_), N));
 	!beginAssembleProtocol;	
 	!assembleItems(Items);	
 	!!completeAssembleProtocol.
 	
 +!beginAssembleProtocol : step(X) & ReadyStep = X + 1 <-
-	for (itemRetriever(Agent)) {
-		.send(Agent, tell, assembleReady(ReadyStep));
+	for (itemRetriever(A, _)) {
+		.send(A, tell, assembleReady(ReadyStep));
 	}
 	.wait({+step(ReadyStep)}).
 	
 +!completeAssembleProtocol <-	
-	for (itemRetriever(Agent)) {
-		.send(Agent, tell, assembleComplete);
+	for (itemRetriever(A, _)) {
+		.send(A, tell, assembleComplete);
 	}	
 	.wait({+step(_)});
 	// Clear assemble beliefs	
-	for (itemRetriever(Agent)) {
-		-itemRetriever(Agent);
-		.send(Agent, untell, assembleReady(_));
-		.send(Agent, untell, assembleComplete);
+	for (itemRetriever(A, I)) {
+		-itemRetriever(A, I);
+		.send(A, untell, assembleReady(_));
+		.send(A, untell, assembleComplete);
 	}.
 
 	

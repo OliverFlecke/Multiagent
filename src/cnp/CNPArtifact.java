@@ -30,33 +30,17 @@ public class CNPArtifact extends Artifact {
 		
 		this.isOpen = false;		
 	}
-	
+
+	/**
+	 * Lower bid is better
+	 */
 	@OPERATION
-	void bid(int bid)
+	void bid(int bid, Object... data)
 	{
-		if (bidIsBetter(bid))
-		{
-			bestBid = new Bid(getOpUserName(), bid);			
-		}
-	}
-	
-	@OPERATION
-	void bid(int bid, Object data)
-	{
-		if (bidIsBetter(bid))
+		if (isOpen && (bestBid == null || bid < bestBid.getBid()))
 		{
 			bestBid = new Bid(getOpUserName(), bid, data);			
 		}
-	}
-	
-	/**
-	 * Lower bid is better
-	 * @param bid
-	 * @return
-	 */
-	boolean bidIsBetter(int bid)
-	{
-		return isOpen && (bestBid == null || bid < bestBid.getBid());
 	}
 	
 	@GUARD

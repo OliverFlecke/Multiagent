@@ -16,10 +16,10 @@ free.
 	free & canSolve(Items) & Type \== "auction" <-
 	!doIntention(newTask(JobId, Items, Storage, Type, CNPId)).
 	
-+!newTask(JobId, Items, Storage, Type, CNPId) : capacity(C) <-
-	bid(-C)[artifact_id(CNPId)];
++!newTask(JobId, Items, Storage, Type, CNPId) : getBid(Items, Bid) <-
+	bid(Bid)[artifact_id(CNPId)];
 	winner(Won)[artifact_id(CNPId)];	
-	if (Won) {		
+	if (Won) {
 		clear("task", 5, CNPId);
 		!deliverJob(JobId, Items, Storage);
 	}.
@@ -30,11 +30,7 @@ free.
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait({+step(_)}).
 
 +step(X) : lastActionResult(R) & lastAction(A) & lastActionParam(P)
-		 & not A = "goto" & not A = "noAction" & not A = "charge" <- .print(R, " ", A, " ", P).
-
-+step(X) : lastAction("assist_assemble") & lastActionResult("failed_counterpart").
-+step(X) : lastAction("give") 		 & lastActionResult("successful") <- .print("Give successful!").
-+step(X) : lastAction("receive") 	 & lastActionResult("successful") <- .print("Receive successful!").
-+step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!").
+		 & not A = "goto" & not A = "noAction" & not A = "charge" 
+		 & not A = "assist_assemble" <- .print(R, " ", A, " ", P).
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P).

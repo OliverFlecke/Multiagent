@@ -48,7 +48,7 @@ public class ItemArtifact extends Artifact {
 	@OPERATION 
 	void getRequiredItems(String item, OpFeedbackParam<Object> ret)
 	{
-		ret.set(DataUtil.itemToStringMap(getBaseItems(item)));
+		ret.set(DataUtil.itemToStringMap(getItem(item).getRequiredItems()));
 	}
 	
 	@OPERATION
@@ -99,7 +99,7 @@ public class ItemArtifact extends Artifact {
 			
 			capacity -= volume * amountToCarry;
 			
-			if (amountToCarry > 0)  carry.put(item.getName(), amountToCarry);
+			if (amountToCarry > 0) carry.put(item.getName(), amountToCarry);
 			
 			if (amount > amountToCarry) rest.put(item.getName(), amount - amountToCarry);
 			
@@ -110,9 +110,30 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void collectInventories(Object[] inventories, OpFeedbackParam<Object> items)
+	void getMissingItems(Object[] objItems, Object[] objInventory, OpFeedbackParam<Object> ret)
 	{
-		items.set(null);
+		Map<String, Integer> items 		= CartagoUtil.objectToStringMap(objItems);
+		Map<String, Integer> inventory 	= CartagoUtil.objectToStringMap(objInventory);
+		
+		for (Entry<String, Integer> inv : inventory.entrySet())
+		{
+			if (items.containsKey(inv.getKey()))
+			{
+				int hasAmount 	= inv.getValue();
+				int needAmount	= items.get(inv.getKey());
+				
+				if (hasAmount >= needAmount) items.remove(inv.getKey());
+				else						 items.put(inv.getKey(), needAmount - hasAmount);
+			}
+		}
+		ret.set(items);
+	}
+	
+	@OPERATION
+	void collectInventories(Object[] inventories, OpFeedbackParam<Object> ret)
+	{
+		ret.set(Arrays.stream(inventories).map(inv -> CartagoUtil.objectToStringMap((Object[]) inv).entrySet())
+			.flatMap(Collection::stream).collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum)));
 	}
 	
 	public static Map<Item, Integer> getBaseItems(String item)

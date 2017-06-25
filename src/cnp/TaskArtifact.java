@@ -3,20 +3,19 @@ package cnp;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.ArtifactId;
+import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
 
 public class TaskArtifact extends Artifact {
 
 	private static final Logger logger = Logger.getLogger(TaskArtifact.class.getName());
-
 	
 	private static TaskArtifact instance;
 	private static int 			cnpId;
@@ -31,31 +30,6 @@ public class TaskArtifact extends Artifact {
 		instance.execInternalOp(method, args);
 	}
 	
-	public static Bid delegateJob(String taskId, Map<String, Integer> items, String facility)
-	{
-		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
-		
-		instance.execInternalOp("announceWithResult", "assembleRequest", bid, taskId, items, facility);
-
-		awaitResult(bid);
-		
-		return bid.get();
-	}
-
-	public static Bid delegateItems(String shop, Map<String, Integer> items, String workshop, String agent) 
-	{
-		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
-		
-		instance.execInternalOp("announceWithResult", "retrieveRequest", bid, shop, items, workshop, agent);
-		
-		awaitResult(bid);
-		
-		return bid.get();
-	}
-
-//	Bid bid = TaskArtifact.announceWithResult("assembleRequest", taskId, items, facility);
-//	Bid bid = TaskArtifact.delegateJob(taskId, items, facility);
-	
 	public static Bid announceWithResult(String property, Object... args)
 	{
 		OpFeedbackParam<Bid> bid = new OpFeedbackParam<>();
@@ -67,7 +41,7 @@ public class TaskArtifact extends Artifact {
 		return bid.get();
 	}
 	
-	@OPERATION
+	@INTERNAL_OPERATION
 	private void announceWithResult(String property, OpFeedbackParam<Bid> bid, Object... args)
 	{
 		try 

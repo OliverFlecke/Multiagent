@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
+import massim.scenario.city.data.Item;
 
 public class ASUtil {
 	
@@ -25,10 +26,18 @@ public class ASUtil {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static Map<String, Integer> objectToMap(Object obj)
+	public static Map<String, Integer> objectToStringMap(Object obj)
 	{
-		if (obj instanceof Map<?, ?>) return (Map<String, Integer>) obj;
-		else 						  return new HashMap<String, Integer>();
+		if (obj instanceof Object[]	&& ((Object[]) obj).length == 0)
+		{
+			return new HashMap<String, Integer>();			
+		}			 
+		return (Map<String, Integer>) obj;
+	}
+
+	public static Map<Item, Integer> objectToItemMap(Object obj) 
+	{
+		return DataUtil.stringToItemMap(ASUtil.objectToStringMap(obj));
 	}
 
 }
