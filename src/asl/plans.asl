@@ -53,18 +53,19 @@
 
 +!delegateItems([                         ], _).
 +!delegateItems([map(   _,    [])|ShopList], F) 				<- !delegateItems(ShopList, F).
-+!delegateItems([map(Shop, Items)|      []], F) 				<- .print("Retrieving: ", Shop, " ", Items); !retrieveItems(Shop, Items).
++!delegateItems([map(Shop, Items)|      []], F) 				<- !retrieveItems(Shop, Items).
 +!delegateItems([map(Shop, Items)|ShopList], F) : .my_name(Me)
 	& jia.delegateItems(Shop, Items, F, Me, Agent, Carry, Rest) <-
 	+itemRetriever(Agent, Carry); 
 	!delegateItems([map(Shop, Rest)|ShopList], F).
-+!delegateItems([map(Shop, Items)|ShopList], F)					<-  .print("Retrieving: ", Shop, " ", Items);
++!delegateItems([map(Shop, Items)|ShopList], F)					<-
 	if (not canCarry(Items)) { .print("delegateItems - ERROR"); }
 	!retrieveItems(Shop, Items);
 	!delegateItems(ShopList, F).
 	
 +!retrieveItems(   _, Items) : hasItems(Items).
 +!retrieveItems(Shop, Items) : inShop(Shop) 	<- !buyItems(Items); 	 !retrieveItems(Shop, Items).
++!retrieveItems(Shop, Items) : .print("Retrieving: ", Shop, " ", Items) & false.
 +!retrieveItems(Shop, Items) 					<- !getToFacility(Shop); !retrieveItems(Shop, Items).
 
 +!assembleItems([                       ]).
@@ -83,7 +84,6 @@
 +!coordinateAssemble(Items, F) : not inFacility(F) <- !getToFacility(F); !coordinateAssemble(Items, F).
 +!coordinateAssemble(Items, _) 					   <- !initiateAssembleProtocol(Items).
 
-+!assistRetrieve(Shop, Items, _, Agent) : .print("Assisting ", Agent, " ", Shop, " ", Items) & false.
 +!assistRetrieve(Shop, Items, F, Agent) <- 
 	!retrieveItems(Shop, Items);
 	!getToFacility(F);
