@@ -23,7 +23,6 @@ public class TaskArtifact extends Artifact {
 
 	private static final Logger logger = Logger.getLogger(TaskArtifact.class.getName());
 
-	
 	private static TaskArtifact instance;
 	private static int 			cnpId;
 	

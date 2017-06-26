@@ -342,4 +342,12 @@ public class AgentArtifact extends Artifact {
 			getObsProperty("routeLength").updateValue(this.getEntity().getRouteLength());
 		}
 	}
+
+	/**
+	 * Resets the agent artifact
+	 */
+	public void reset()
+	{
+		
+	}
 }

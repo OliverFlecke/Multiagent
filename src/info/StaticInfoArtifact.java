@@ -220,4 +220,23 @@ public class StaticInfoArtifact extends Artifact {
 	{
 		return team;
 	}
+	
+	/**
+	 * @return Number of steps in the simulation
+	 */
+	public static int getSteps()
+	{
+		return steps;
+	}
+
+	public static void reset() 
+	{
+		id 			= "";
+		map 		= "";
+		roles 		= new HashMap<>();
+		seedCapital = 0;
+		steps 		= 0;
+		team 		= "";
+		cityMap 	= null;
+	}
 }

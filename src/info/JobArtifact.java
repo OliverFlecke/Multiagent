@@ -317,5 +317,13 @@ public class JobArtifact extends Artifact {
 		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
 		toBeAnnounced.clear();
 	}
-	
+
+	public static void reset() 
+	{
+		auctions 		= new HashMap<>(); 
+		jobs 			= new HashMap<>(); 
+		missions 		= new HashMap<>(); 
+		postedJobs 		= new HashMap<>(); 
+		toBeAnnounced	= new HashMap<>(); 
+	}
 }

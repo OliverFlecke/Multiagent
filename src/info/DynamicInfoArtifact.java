@@ -142,4 +142,15 @@ public class DynamicInfoArtifact extends Artifact {
 		
 		timestamp = (long) args[0];
 	}
+
+	/**
+	 * Resets the dynamic info artifact
+	 */
+	public static void reset() {
+		deadline = 0;
+		money = 0;
+		timestamp = 0;
+//		step = 0;
+		jobsCompleted = 0;
+	}
 }

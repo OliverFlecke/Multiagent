@@ -323,4 +323,14 @@ public class FacilityArtifact extends Artifact {
 	public static void announceShops() {
 		TaskArtifact.announceShops(shops.values());
 	}
+
+	public static void reset() 
+	{
+		chargingStations 	= new HashMap<>();
+		dumps 			 	= new HashMap<>();
+		shops 				= new HashMap<>();
+		storages 			= new HashMap<>();
+		workshops 			= new HashMap<>();
+		resourceNodes		= new HashMap<>();
+	}
 }

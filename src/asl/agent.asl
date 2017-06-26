@@ -12,8 +12,7 @@ free.
 !register.
 !focusArtifacts.
 	
-// Percepts
-	
+// Percepts	
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait({+step(_)}).
 
 +step(X) : lastAction("assist_assemble") & lastActionResult("failed_counterpart").
@@ -22,3 +21,5 @@ free.
 +step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!"); incJobCompletedCount.
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P).
+		 
++reset <- .print("resetting"); .drop_all_desires; .drop_all_events; .drop_all_intentions; -reset.

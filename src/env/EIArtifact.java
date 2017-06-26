@@ -94,16 +94,22 @@ public class EIArtifact extends Artifact {
 
 			if (connections.size() == ei.getEntities().size())
 			{
-				// Perceive initial perceptions when all agents have connected
-				execInternalOp("perceiveInitial");
-				
 				// Attach listener for perceiving the following steps
 				ei.attachAgentListener(agentName, new AgentListener() 
 				{				
 					@Override
 					public void handlePercept(String agentName, Percept percept) 
 					{
-						if (percept.getName().equals("step"))
+						if (percept.getName().equals("simStart"))
+						{
+							execInternalOp("perceiveInitial");
+						}
+						else if (percept.getName().equals("simEnd"))
+						{
+							System.out.println("This is the end!");
+							System.out.println(percept);
+						}
+						else if (percept.getName().equals("step"))
 						{
 							execInternalOp("perceiveUpdate");
 						}
@@ -145,6 +151,11 @@ public class EIArtifact extends Artifact {
 	void perceiveInitial()
 	{
 		logger.finest("perceiveInitial");
+		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
+		{
+			this.reset();
+			execInternalOp("perceiveInitial");
+		}
 		
 		try 
 		{
@@ -162,6 +173,7 @@ public class EIArtifact extends Artifact {
 				
 				allPercepts.addAll(percepts);
 			}
+			
 			// Perceive static info
 			ItemArtifact        .perceiveInitial(allPercepts);
 			StaticInfoArtifact  .perceiveInitial(allPercepts);
@@ -169,7 +181,7 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
-	
+			
 			// Define roles
 			for (Role role : StaticInfoArtifact.getRoles())
 			{
@@ -194,6 +206,8 @@ public class EIArtifact extends Artifact {
 		{
 			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
+		
+		logger.finest("Perceive initial done");
 	}
 	
 	@INTERNAL_OPERATION
@@ -206,11 +220,11 @@ public class EIArtifact extends Artifact {
 			Set<Percept> allPercepts = new HashSet<>();
 
 			for (Entry<String, String> entry : connections.entrySet())
-			{				
+			{		
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
 				AgentArtifact.getAgentArtifact(entry.getKey()).perceiveUpdate(percepts);
-				
+
 				allPercepts.addAll(percepts);
 			}
 			
@@ -229,6 +243,42 @@ public class EIArtifact extends Artifact {
 			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
 	}	
+
+	private void reset() 
+	{
+		defineObsProperty("reset");
+		
+		DynamicInfoArtifact.reset();
+		StaticInfoArtifact.reset();
+		FacilityArtifact.reset();
+		JobArtifact.reset();
+		ItemArtifact.reset();
+		
+		for (Entry<String, String> entry : connections.entrySet())
+		{
+			AgentArtifact.getAgentArtifact(entry.getKey()).reset();
+		}
+		
+		fileLogger = LoggerFactory.createFileLogger(team);
+		
+		removeObsProperty("step");
+		for (Role role : StaticInfoArtifact.getRoles())
+		{
+			removeObsPropertyByTemplate("role", role.getName(), role.getSpeed(), role.getMaxLoad(), 
+					role.getMaxBattery(), role.getPermissions().toArray());
+		}
+		
+		removeObsProperty("reset");
+	}
+
+	/**
+	 * @param entity 
+	 * @return Get the name of the agent associated with the entity
+	 */
+	public static String getAgentName(String entity)
+	{
+		return entities.get(entity);
+	}
 	
 	private static Logger fileLogger;
 	
@@ -236,14 +286,9 @@ public class EIArtifact extends Artifact {
 	{
 		fileLogger.info("Step: " + DynamicInfoArtifact.getStep() + " - Money: " + DynamicInfoArtifact.getMoney());
 		
-		if (DynamicInfoArtifact.getStep() == 999)
+		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
 		{
 			fileLogger.info("Completed jobs: " + DynamicInfoArtifact.getJobsCompleted());
 		}
-	}
-	
-	public static String getAgentName(String entity)
-	{
-		return entities.get(entity);
 	}
 }
