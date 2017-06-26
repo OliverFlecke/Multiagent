@@ -29,17 +29,12 @@ public class delegateItems extends DefaultInternalAction {
 
 		Bid bid = TaskArtifact.announceWithResult("retrieveRequest", shop, items, workshop, me);
 		
-		if (bid == null) {
-			System.out.println(me + ": No help.");
-			return false;
-		}
+		if (bid == null) return false;
 		
 		String					agent		= bid.getAgent();
 		Object[] 				data		= bid.getData();
 		Map<String, Integer> 	carry 		= CartagoUtil.objectToStringMap((Object[]) data[0]);
 		Map<String, Integer> 	rest 		= CartagoUtil.objectToStringMap((Object[]) data[1]);
-		
-		System.out.println(me + ": Help from " + agent);
 		
 		return un.unifies(terms[4], ASSyntax.createAtom(agent)) 
 			&& un.unifies(terms[5], ASUtil.mapToTerm(carry)) 

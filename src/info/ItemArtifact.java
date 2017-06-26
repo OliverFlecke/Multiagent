@@ -358,4 +358,11 @@ public class ItemArtifact extends Artifact {
 			tools.get(toolName).getRoles().add(role);
 		}
 	}
+
+	public static void reset() 
+	{
+		tools 			= new HashMap<>();
+		items 			= new HashMap<>();
+		itemLocations 	= new HashMap<>();
+	}
 }

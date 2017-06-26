@@ -49,11 +49,6 @@ public class CNPArtifact extends Artifact {
 		return !isOpen;
 	}
 	
-	/**
-	 * Sets the ID of the best bid as a feedback parameter when the
-	 * bidding is closed.
-	 * @param id - ID of the best bid.
-	 */
 	@OPERATION
 	void winner(OpFeedbackParam<Boolean> won)
 	{		

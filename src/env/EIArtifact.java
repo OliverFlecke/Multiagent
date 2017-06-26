@@ -4,6 +4,7 @@ package env;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,7 +17,10 @@ import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
+import eis.iilang.Identifier;
+import eis.iilang.Parameter;
 import eis.iilang.Percept;
+import eis.iilang.PrologVisitor;
 import info.AgentArtifact;
 import info.DynamicInfoArtifact;
 import info.FacilityArtifact;
@@ -34,21 +38,32 @@ public class EIArtifact extends Artifact {
     public static final boolean LOGGING_ENABLED = false;
     
     private static EnvironmentInterfaceStandard ei;
+    private static final String TEAM_A = "conf/eismassimconfig.json";
+	private static final String TEAM_B = "conf/eismassimconfig_team_B.json";
     
+    private String configFile = TEAM_B;
+   
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
+    
+    private String team;
 
     /**
      * Instantiates and starts the environment interface.
      */
     void init() 
     {    	
-    	logger.setLevel(Level.INFO);
+    	logger.setLevel(Level.SEVERE);
 		logger.info("init");
 		
 		try 
 		{
-			ei = new EnvironmentInterface("conf/eismassimconfig.json");
+			ei = new EnvironmentInterface(configFile);
+			
+			// Get the team name from EI. Should be a better way
+			this.team = ((String) (ei.getEntities().toArray())[0]).substring(10, 11);
+			
+			fileLogger = LoggerFactory.createFileLogger(team);
 			
 			ei.start();
 		} 
@@ -59,9 +74,12 @@ public class EIArtifact extends Artifact {
     }
 	
 	@OPERATION
-	void register(String connection)  
+	void register()
 	{
-		String agentName = getOpUserName();
+		String agentName 	= getOpUserName();
+		String id 			= agentName.substring(5);
+		String connection 	= "connection" + team + id;
+		String entity 		= "agent" + team + id;
 		
 		logger.fine("register " + agentName + " on " + connection);
 		
@@ -72,20 +90,26 @@ public class EIArtifact extends Artifact {
 			ei.associateEntity(agentName, connection);
 			
 			connections	.put(agentName, connection);
-			entities	.put(agentName, agentName);			
+			entities	.put(agentName, entity);
 
 			if (connections.size() == ei.getEntities().size())
 			{
-				// Perceive initial perceptions when all agents have connected
-				execInternalOp("perceiveInitial");
-				
 				// Attach listener for perceiving the following steps
 				ei.attachAgentListener(agentName, new AgentListener() 
 				{				
 					@Override
 					public void handlePercept(String agentName, Percept percept) 
 					{
-						if (percept.getName().equals("step"))
+						if (percept.getName().equals("simStart"))
+						{
+							execInternalOp("perceiveInitial");
+						}
+						else if (percept.getName().equals("simEnd"))
+						{
+							System.out.println("This is the end!");
+							System.out.println(percept);
+						}
+						else if (percept.getName().equals("step"))
 						{
 							execInternalOp("perceiveUpdate");
 						}
@@ -105,6 +129,16 @@ public class EIArtifact extends Artifact {
 		
 		try 
 		{			
+			if (action.getName().equals("assist_assemble"))
+			{
+				String name = PrologVisitor.staticVisit(action.getParameters().get(0));
+				
+				LinkedList<Parameter> params = new LinkedList<>();
+				params.add(new Identifier(EIArtifact.getAgentName(name)));
+				
+				action.setParameters(params);
+			}
+			
 			ei.performAction(agentName, action);
 		} 
 		catch (Throwable e) 
@@ -117,6 +151,11 @@ public class EIArtifact extends Artifact {
 	void perceiveInitial()
 	{
 		logger.finest("perceiveInitial");
+		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
+		{
+			this.reset();
+			execInternalOp("perceiveInitial");
+		}
 		
 		try 
 		{
@@ -142,7 +181,7 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
-	
+			
 			// Define roles
 			for (Role role : StaticInfoArtifact.getRoles())
 			{
@@ -165,6 +204,8 @@ public class EIArtifact extends Artifact {
 		{
 			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
+		
+		logger.finest("Perceive initial done");
 	}
 	
 	@INTERNAL_OPERATION
@@ -177,18 +218,18 @@ public class EIArtifact extends Artifact {
 			Set<Percept> allPercepts = new HashSet<>();
 
 			for (Entry<String, String> entry : connections.entrySet())
-			{				
+			{		
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
 				AgentArtifact.getAgentArtifact(entry.getKey()).perceiveUpdate(percepts);
-				
+
 				allPercepts.addAll(percepts);
 			}
 			
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
-			
+
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			
 			logData();
@@ -200,16 +241,52 @@ public class EIArtifact extends Artifact {
 			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
 	}	
+
+	private void reset() 
+	{
+		defineObsProperty("reset");
+		
+		DynamicInfoArtifact.reset();
+		StaticInfoArtifact.reset();
+		FacilityArtifact.reset();
+		JobArtifact.reset();
+		ItemArtifact.reset();
+		
+		for (Entry<String, String> entry : connections.entrySet())
+		{
+			AgentArtifact.getAgentArtifact(entry.getKey()).reset();
+		}
+		
+		fileLogger = LoggerFactory.createFileLogger(team);
+		
+		removeObsProperty("step");
+		for (Role role : StaticInfoArtifact.getRoles())
+		{
+			removeObsPropertyByTemplate("role", role.getName(), role.getSpeed(), role.getMaxLoad(), 
+					role.getMaxBattery(), role.getPermissions().toArray());
+		}
+		
+		removeObsProperty("reset");
+	}
+
+	/**
+	 * @param entity 
+	 * @return Get the name of the agent associated with the entity
+	 */
+	public static String getAgentName(String entity)
+	{
+		return entities.get(entity);
+	}
 	
-	private static Logger fileLogger = LoggerFactory.createFileLogger();
+	private static Logger fileLogger;
 	
 	private void logData()
 	{
 		fileLogger.info("Step: " + DynamicInfoArtifact.getStep() + " - Money: " + DynamicInfoArtifact.getMoney());
-	}
-	
-	public static String getAgentName(String entity)
-	{
-		return entities.get(entity);
+		
+		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
+		{
+			fileLogger.info("Completed jobs: " + DynamicInfoArtifact.getJobsCompleted());
+		}
 	}
 }

@@ -328,5 +328,13 @@ public class JobArtifact extends Artifact {
 												getJobType(e.getValue())));
 		toBeAnnounced.clear();
 	}
-	
+
+	public static void reset() 
+	{
+		auctions 		= new HashMap<>(); 
+		jobs 			= new HashMap<>(); 
+		missions 		= new HashMap<>(); 
+		postedJobs 		= new HashMap<>(); 
+		toBeAnnounced	= new HashMap<>(); 
+	}
 }

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public class LoggerFactory {
 
-	public static Logger createFileLogger()
+	public static Logger createFileLogger(String team)
 	{
 		Logger logger = Logger.getLogger("DataLogger");
 
@@ -26,7 +26,7 @@ public class LoggerFactory {
 					+ date.getDayOfMonth() + " " 
 					+ date.getHour() + "-" + date.getMinute();
 			
-			handler = new FileHandler("logs\\client\\sim " + dateString + ".log");
+			handler = new FileHandler("logs\\client\\results-team-" + team + "-" + dateString + ".log");
 			
 			handler.setLevel(Level.ALL);
 			

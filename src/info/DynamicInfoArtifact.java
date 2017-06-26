@@ -30,6 +30,7 @@ public class DynamicInfoArtifact extends Artifact {
 	private static int					money;
 	private static int					step;
 	private static long					timestamp;
+	private static int					jobsCompleted;
 
 	void init()
 	{
@@ -58,6 +59,23 @@ public class DynamicInfoArtifact extends Artifact {
 	void getTimestamp(OpFeedbackParam<Long> ret)
 	{
 		ret.set(timestamp);
+	}
+	
+	@OPERATION
+	void incJobCompletedCount()
+	{
+		jobsCompleted++;
+	}
+	
+	@OPERATION
+	void getJobCompletedCount(OpFeedbackParam<Integer> ret)
+	{
+		ret.set(jobsCompleted);
+	}
+	
+	public static int getJobsCompleted()
+	{
+		return jobsCompleted;
 	}
 	
 	public static int getStep() 
@@ -123,5 +141,16 @@ public class DynamicInfoArtifact extends Artifact {
 		Object[] args = Translator.perceptToObject(percept);
 		
 		timestamp = (long) args[0];
+	}
+
+	/**
+	 * Resets the dynamic info artifact
+	 */
+	public static void reset() {
+		deadline = 0;
+		money = 0;
+		timestamp = 0;
+//		step = 0;
+		jobsCompleted = 0;
 	}
 }

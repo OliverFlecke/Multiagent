@@ -318,4 +318,14 @@ public class FacilityArtifact extends Artifact {
 		
 		return facilities.get(facilityName);
 	}
+
+	public static void reset() 
+	{
+		chargingStations 	= new HashMap<>();
+		dumps 			 	= new HashMap<>();
+		shops 				= new HashMap<>();
+		storages 			= new HashMap<>();
+		workshops 			= new HashMap<>();
+		resourceNodes		= new HashMap<>();
+	}
 }

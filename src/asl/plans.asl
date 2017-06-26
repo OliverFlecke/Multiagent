@@ -35,7 +35,6 @@
 	!coordinateAssemble(Items, F);
 	!acquireItems(Items, F).
 	
-	
 +!getMissingBaseItems(Items, Missing) : not itemRetriever(_, _) & getInventory([]) <- 
 	getBaseItems(Items, BaseItems); 
 	Missing = BaseItems.
@@ -62,7 +61,7 @@
 	if (not canCarry(Items)) { .print("delegateItems - ERROR"); }
 	!retrieveItems(Shop, Items);
 	!delegateItems(ShopList, F).
-	
+
 +!retrieveItems(   _, Items) : hasItems(Items).
 +!retrieveItems(Shop, Items) : inShop(Shop) 	<- !buyItems(Items); 	 !retrieveItems(Shop, Items).
 +!retrieveItems(Shop, Items) : .print("Retrieving: ", Shop, " ", Items) & false.
@@ -89,7 +88,7 @@
 	!getToFacility(F);
 	!acceptAssembleProtocol(Agent).
 
-+!assistAssemble(    _) : getInventory([]) | assembleComplete.
++!assistAssemble(    _) : load(0) | assembleComplete.
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	!assistAssemble(Agent).
@@ -103,10 +102,9 @@
 	!buyItems([map(Item, Amount - AmountAvailable)]).
 
 +!getToFacility(F) : inFacility(F).
-+!getToFacility(F) : not canMove			<- !doAction(recharge); !getToFacility(F).
-+!getToFacility(F) : isChargingStation(F) 	<- !doAction(goto(F)); 	!getToFacility(F).
-+!getToFacility(F) : not enoughCharge 		<- !charge; 			!getToFacility(F).
-+!getToFacility(F) 							<- !doAction(goto(F)); 	!getToFacility(F).
++!getToFacility(F) : not canMove									<- !doAction(recharge); !getToFacility(F).
++!getToFacility(F) : not enoughCharge & not isChargingStation(F)	<- !charge; 			!getToFacility(F).
++!getToFacility(F) 													<- !doAction(goto(F)); 	!getToFacility(F).
 
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation <- !doAction(charge); !charge.
