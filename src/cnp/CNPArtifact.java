@@ -14,6 +14,8 @@ public class CNPArtifact extends Artifact {
 	
 	void init()
 	{		
+		this.isOpen = true;
+		
 		execInternalOp("awaitBids", 500);
 	}
 	
@@ -23,9 +25,7 @@ public class CNPArtifact extends Artifact {
 	 */
 	@INTERNAL_OPERATION
 	void awaitBids(long duration)
-	{		
-		this.isOpen = true;
-		
+	{
 		await_time(duration);
 		
 		this.isOpen = false;		
@@ -73,7 +73,7 @@ public class CNPArtifact extends Artifact {
 		
 		if (canTake.get())
 		{			
-			bestBid = new Bid(null, 0);
+			bestBid = new Bid();
 		}
 	}
 	

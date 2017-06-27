@@ -36,6 +36,8 @@ public class delegateItems extends DefaultInternalAction {
 		Map<String, Integer> 	carry 		= CartagoUtil.objectToStringMap((Object[]) data[0]);
 		Map<String, Integer> 	rest 		= CartagoUtil.objectToStringMap((Object[]) data[1]);
 		
+		System.out.println(String.format("[%s] Helping %s", agent, me));
+		
 		return un.unifies(terms[4], ASSyntax.createAtom(agent)) 
 			&& un.unifies(terms[5], ASUtil.mapToTerm(carry)) 
 			&& un.unifies(terms[6], ASUtil.mapToTerm(rest));

@@ -101,25 +101,17 @@
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	!assistAssemble(Agent).
-
-+!buyItems([                       ]).
-+!buyItems([map(Item,      0)|Items]) 				 <- !buyItems(Items).
-+!buyItems([map(Item, Amount)|Items]) : inShop(Shop) <- 
-	getAvailableAmount(Item, Amount, Shop, AmountAvailable);
-	!doAction(buy(Item, AmountAvailable));
-	!buyItems(Items);
-	!buyItems([map(Item, Amount - AmountAvailable)]).
 	
 // Pre-condition: In shop and shop selling the items.
 // Post-condition: Items in inventory.
-//+!buyItems(Items) : hasItems(Items).
-//+!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
-//+!buyItems([map(Item, Amount)|Items]) <- 
-//	?hasAmount(Item, HasAmount); ?inShop(Shop);
-//	getAvailableAmount(Item, Amount - HasAmount, Shop, AmountAvailable);
-//	!doAction(buy(Item, AmountAvailable));
-//	!buyItems(Items);
-//	!buyItems([map(Item, Amount)]).
++!buyItems(Items) : hasItems(Items).
++!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
++!buyItems([map(Item, Amount)|Items]) <- 
+	?hasAmount(Item, HasAmount); ?inShop(Shop);
+	getAvailableAmount(Item, Amount - HasAmount, Shop, AmountAvailable);
+	!doAction(buy(Item, AmountAvailable));
+	!buyItems(Items);
+	!buyItems([map(Item, Amount)]).
 
 // Post-condition: In facility F.
 +!getToFacility(F) : inFacility(F).

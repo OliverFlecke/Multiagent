@@ -41,6 +41,7 @@
 		
 		if (Won)
 		{
+			.print("Helping ", Agent);
 			clear("retrieveRequest", 5, CNPId);
 			!assistRetrieve(Shop, ItemsToRetrieve, Workshop, Agent);
 		}

@@ -43,7 +43,9 @@
 	!receiveItems(Items).	
 	
 +!initiateAssembleProtocol(Items) <-
-	.wait(.count(itemRetriever(_, _), N) & .count(retrieverReady(_), N));
+	.wait(.findall(X, itemRetriever(X, _), L) 
+		& .findall(Y, retrieverReady(Y), L));
+//	.wait(.count(itemRetriever(_, _), N) & .count(retrieverReady(_), N));
 	!beginAssembleProtocol;	
 	!assembleItems(Items);	
 	!!completeAssembleProtocol.

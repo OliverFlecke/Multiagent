@@ -113,7 +113,7 @@ public class TaskArtifact extends Artifact {
 		{
 			int waitTime = 0;
 			
-			while (bid.get() == null && waitTime <= 5000)
+			while (bid.get() == null && waitTime <= 500)
 			{
 				Thread.sleep(100);
 				waitTime += 100;

@@ -6,6 +6,10 @@ public class Bid {
 	private int 		bid;
 	private Object[]	data;
 	
+	public Bid() {
+		this(null, 0);
+	}
+	
 	public Bid(String agent, int bid) {
 		this(agent, bid, null);
 	}
