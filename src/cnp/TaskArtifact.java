@@ -111,9 +111,9 @@ public class TaskArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void clearTask(String cnpName)
+	void clearTask(String taskId)
 	{
-		removeObsPropertyByTemplate("task", null, null); 
+		removeObsPropertyByTemplate("task", taskId, null); 
 	}
 	
 	@OPERATION

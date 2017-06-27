@@ -40,7 +40,7 @@ public class JobArtifact extends Artifact {
 
 	private static Map<String, AuctionJob> 	auctions 		= new HashMap<>();
 	private static Map<String, Job> 		jobs 			= new HashMap<>();
-	private static Map<String, Mission> 	missions 		= new HashMap<>();
+	private static Map<String, Job> 		missions 		= new HashMap<>();
 	private static Map<String, Job> 		postedJobs 		= new HashMap<>();
 	private static Map<String, String>		toBeAnnounced	= new HashMap<>();
 	
@@ -68,6 +68,12 @@ public class JobArtifact extends Artifact {
 		{
 			bid.set(Integer.MAX_VALUE);
 		}
+	}
+	
+	@OPERATION
+	void completeJob(String jobId)
+	{
+		activeJobs.remove(jobId);
 	}
 	
 	/**
@@ -100,9 +106,26 @@ public class JobArtifact extends Artifact {
 	{
 		int price = priceForItems(job);
 		
-		// TODO: Add some estimate for the charge cost
-		
 		return job.getReward() - price;
+	}
+	
+	@OPERATION
+	void getBid(String taskId, OpFeedbackParam<Integer> bid)
+	{
+		AuctionJob auction = auctions.get(taskId);
+		
+		if (auction.getLowestBid() == 0)
+		{
+			bid.set(auction.getReward());
+		}
+		else if (priceForItems(auction) < auction.getLowestBid() - 1)
+		{
+			bid.set(auction.getLowestBid() - 1);
+		}
+		else
+		{
+			bid.set(0);
+		}
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
@@ -166,7 +189,6 @@ public class JobArtifact extends Artifact {
 			auction.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
 		
-		// We have won the auction
 		if (auction.getBeginStep() + auction.getAuctionTime() > DynamicInfoArtifact.getStep())
 		{
 			if (!auctions.containsKey(id))
@@ -176,7 +198,11 @@ public class JobArtifact extends Artifact {
 		}
 		else 
 		{
-			TaskArtifact.announceAuction(id, auction);
+			// The team has won, and it can be considered a normal job
+			if (!missions.containsKey(id))
+				toBeAnnounced.put(id, "mission");
+
+			missions.put(id, auction);
 		}
 
 	}
@@ -312,9 +338,34 @@ public class JobArtifact extends Artifact {
 				.collect(Collectors.toMap(x -> x, x -> possibleEarning(x)));
 	}
 	
+	private static final int jobThreshold = 3000;
+	private static Map<String, String> activeJobs = new HashMap<>();
+	
 	public static void announceJobs()
 	{
-		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
+		for (Entry<String, String> entry: toBeAnnounced.entrySet())
+		{
+			Job job = getJob(entry.getKey());
+			
+			int earning = possibleEarning(job);
+
+			logger.info(entry.getKey() + " can earn " + earning + " Type: " + entry.getValue());
+			
+			if (earning >= jobThreshold || (activeJobs.size() < 3 && earning > 1000) || entry.getValue().equals("mission"))
+			{
+				if (entry.getValue().equals("auction")) 					
+				{
+					if (earning < ((AuctionJob) job).getLowestBid() || activeJobs.size() > 5) continue;
+				}
+				
+				activeJobs.put(entry.getKey(), entry.getValue());
+				
+				logger.info("Added " + entry.getKey() + " Reward: " + job.getReward() + ". Number of jobs: " + activeJobs.size());
+				
+				TaskArtifact.announceJob(entry.getKey(), entry.getValue());
+			}
+		}
+
 		toBeAnnounced.clear();
 	}
 
@@ -325,5 +376,6 @@ public class JobArtifact extends Artifact {
 		missions 		= new HashMap<>(); 
 		postedJobs 		= new HashMap<>(); 
 		toBeAnnounced	= new HashMap<>(); 
+		activeJobs 		= new HashMap<>();
 	}
 }

@@ -40,8 +40,6 @@
 	// Negative volume since lower is better
 	Bid = math.ceil(Distance/Speed) * 10 - Volume; 
 	
-//	.print("+request ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve, Volume);
-	
 	if (not ItemsToRetrieve = []) 
 	{ 
 		bid(Bid)[artifact_id(CNPId)];
@@ -53,6 +51,16 @@
 			clearAssemble(CNPId);
 			!assemble(ItemsToRetrieve, ItemsToAssemble, AssembleRest, Workshop, TaskId, DeliveryLocation);
 		}
+	}
+	+free.
+	
++auction(TaskId, CNPId) : free <- 
+	-free;
+	takeTask(Can)[artifact_id(CNPId)];
+	if (Can)
+	{
+		getBid(TaskId, Bid);
+		if (Bid \== 0) { !doAction(bid_for_job(TaskId, Bid)); }
 	}
 	+free.
 	
@@ -140,13 +148,11 @@
 		}
 	}.
 	
-+free : assembleRequest(Items, Workshop, TaskId, DeliveryLocation, "old", CNPId)
++free : assembleRequest(Items, Workshop, TaskId, DeliveryLocation, _, CNPId)
 		& capacity(Capacity) <-
 		
 	getItemsToCarry(Items, Capacity, ItemsToAssemble, AssembleRest);
 	getBaseItems(ItemsToAssemble, ItemsToRetrieve);
-	
-//	.print("+free ", Items, Capacity, ItemsToAssemble, AssembleRest, ItemsToRetrieve);
 	
 	if (not ItemsToRetrieve = [])
 	{
