@@ -54,14 +54,17 @@
 	}
 	.wait({+step(ReadyStep)}).
 	
-+!completeAssembleProtocol <-	
-	for (itemRetriever(A, _)) {
++!completeAssembleProtocol <-
+	.findall(X, itemRetriever(X, _), L);	
+	
+	for (itemRetriever(A, I)) {
+		-itemRetriever(A, I);
 		.send(A, tell, assembleComplete);
 	}	
 	.wait({+step(_)});
-	// Clear assemble beliefs	
-	for (itemRetriever(A, I)) {
-		-itemRetriever(A, I);
+	.wait({+step(_)});
+	
+	for (.member(A, L)) {
 		.send(A, untell, assembleReady(_));
 		.send(A, untell, assembleComplete);
 	}.

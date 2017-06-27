@@ -31,11 +31,15 @@ public class hasItems extends DefaultInternalAction {
 		
 		for (Entry<String, Integer> item : items.entrySet())
 		{
+			int needAmount = item.getValue().intValue();
+			
+			if (needAmount == 0) continue;
+			
 			Integer hasAmount = inventory.get(item.getKey());
 			
 			if (hasAmount == null) return false;
 			
-			if (hasAmount < item.getValue()) return false;
+			if (hasAmount.intValue() < needAmount) return false;
 		}
 
 		return true;

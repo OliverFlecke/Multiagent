@@ -36,3 +36,5 @@ hasItems(Items) 				:- .my_name(Me) & hasItems(Me, Items).
 hasItems(Agent, Items) 			:- jia.hasItems(Agent, Items).
 hasBaseItems(Items) 			:- .my_name(Me) & hasBaseItems(Me, Items).
 hasBaseItems(Agent, Items) 		:- jia.hasBaseItems(Agent, Items).
+hasAmount(Item, Amount)			:- .my_name(Me) & hasAmount(Me, Item, Amount).
+hasAmount(Agent, Item, Amount)	:- jia.hasAmount(Agent, Item, Amount).

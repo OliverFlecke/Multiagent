@@ -127,7 +127,7 @@
           "productTypesMax" : 5,
           "difficultyMin" : 1,
           "difficultyMax" : 12,
-          "timeMin" : 100,
+          "timeMin" : 400,
           "timeMax" : 400,
           "auctions" : {
             "auctionTimeMin" : 2,
