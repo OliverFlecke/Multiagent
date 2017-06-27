@@ -19,6 +19,9 @@ free.
 	bid(Bid)[artifact_id(CNPId)];
 	winner(Won)[artifact_id(CNPId)];	
 	if (Won) {
+		jia.getBaseVolume(Items, V);
+		?capacity(C);
+		.print(JobId, " ", V, " ", C);
 		clear("task", 5, CNPId);
 		!deliverJob(JobId, Items, Storage);
 	}.

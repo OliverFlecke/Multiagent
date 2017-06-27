@@ -2,6 +2,7 @@
 speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
 maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
 maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
+tools(T)		:- myRole(Role) & role(Role, _, _, _, T).
 canUseTool(T)	:- myRole(Role) & role(Role, _, _, _, Tools) & .member(T, Tools).
 // Facility types
 isChargingStation(F)	:- .substring("chargingStation", F).

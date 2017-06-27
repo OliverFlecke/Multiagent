@@ -7,7 +7,6 @@
 +!delegateJob(Id, Items, F) : jia.delegateJob(Id, Items, F, Rest) <- !delegateJob(Id, Rest, F).
 +!delegateJob(Id, Items, F) : capacity(C) 						  <- 
 	getItemsToCarry(Items, C, ItemsToCarry, Rest);
-	if (ItemsToCarry = []) { .print("delegateJob - ERROR ", Items, " ", C); }
 	!solveJob(Id, ItemsToCarry, F);
 	!delegateJob(Id, Rest, F).
 
@@ -20,45 +19,21 @@
 
 +!acquireItems(Items, _) : hasItems(Items).
 +!acquireItems(Items, F) : hasBaseItems(Items) 	<- !getToFacility(F); !assembleItems(Items).
-//+!acquireItems(Items, F)						<- 
-//	!getMissingBaseItems(Items, BaseItems);
-//	if (BaseItems = [])	{
-//		!coordinateAssemble(Items, F);
-//	} else {
-//		getShoppingList(BaseItems, ShoppingList);
-//		!delegateItems(ShoppingList, F);
-//	} !acquireItems(Items, F).
-+!acquireItems(Items, F) : not itemRetriever(_, _) <- 
++!acquireItems(Items, F) : not assistant(_, _, _) <- 
 	getBaseItems(Items, BaseItems);
 	getShoppingList(BaseItems, ShoppingList);
 	!delegateItems(ShoppingList, F);
 	!coordinateAssemble(Items, F);
 	!acquireItems(Items, F).
-	
-+!getMissingBaseItems(Items, Missing) : not itemRetriever(_, _) & getInventory([]) <- 
-	getBaseItems(Items, BaseItems); 
-	Missing = BaseItems.
-+!getMissingBaseItems(Items, Missing) : not itemRetriever(_, _) & getInventory(Inventory) <-
-	getMissingItems(Items, Inventory, MissingItems);
-	getBaseItems(MissingItems, MissingBaseItems);
-	Missing = MissingBaseItems.
-+!getMissingBaseItems(Items, Missing) : getInventory(Inventory) <-
-	getMissingItems(Items, Inventory, MissingItems);
-	.findall(I, itemRetriever(A, I), AllInv);
-	collectInventories([Inventory|AllInv], InvItems);
-	getBaseItems(MissingItems, RequiredBaseItems);
-	getMissingItems(RequiredBaseItems, InvItems, MissingBaseItems);
-	Missing = MissingBaseItems.
 
 +!delegateItems([                         ], _).
 +!delegateItems([map(   _,    [])|ShopList], F) 				<- !delegateItems(ShopList, F).
 +!delegateItems([map(Shop, Items)|      []], F) 				<- !retrieveItems(Shop, Items).
 +!delegateItems([map(Shop, Items)|ShopList], F) : .my_name(Me)
 	& jia.delegateItems(Shop, Items, F, Me, Agent, Carry, Rest) <-
-	+itemRetriever(Agent, Carry); 
+	+assistant(Agent, Shop, Carry); 
 	!delegateItems([map(Shop, Rest)|ShopList], F).
 +!delegateItems([map(Shop, Items)|ShopList], F)					<-
-	if (not canCarry(Items)) { .print("delegateItems - ERROR"); }
 	!retrieveItems(Shop, Items);
 	!delegateItems(ShopList, F).
 
@@ -87,7 +62,7 @@
 	!doAction(assemble(Name));
 	!assembleItem(map(Name, Amount), ReqItems).
 
-+!coordinateAssemble(    _, _) : not itemRetriever(_, _).
++!coordinateAssemble(    _, _) : not assistant(_, _, _).
 +!coordinateAssemble(Items, F) : not inFacility(F) <- !getToFacility(F); !coordinateAssemble(Items, F).
 +!coordinateAssemble(Items, _) 					   <- !initiateAssembleProtocol(Items).
 
@@ -96,17 +71,18 @@
 	!getToFacility(F);
 	!acceptAssembleProtocol(Agent).
 
-// Post-condition: Empty inventory or +assembleComplete.
-+!assistAssemble(    _) : load(0) | assembleComplete.
+// Post-condition: Empty inventory or -assemble.
++!assistAssemble(    _) : load(0) | not assemble.
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	!assistAssemble(Agent).
 	
 // Pre-condition: In shop and shop selling the items.
 // Post-condition: Items in inventory.
-+!buyItems(Items) : hasItems(Items).
+//+!buyItems([]) <- !doAction(skip).
++!buyItems(Items) 		 : hasItems(Items).
 +!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
-+!buyItems([map(Item, Amount)|Items]) <- 
++!buyItems([map(Item, Amount)|Items])		<- 
 	?hasAmount(Item, HasAmount); ?inShop(Shop);
 	getAvailableAmount(Item, Amount - HasAmount, Shop, AmountAvailable);
 	!doAction(buy(Item, AmountAvailable));

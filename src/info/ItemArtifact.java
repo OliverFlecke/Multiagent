@@ -52,6 +52,13 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getRequiredTools(Object[] items, OpFeedbackParam<Object> ret)
+	{
+		ret.set(getRequiredTools(CartagoUtil.objectToItemMap(items))
+				.stream().map(Tool::getName).toArray());
+	}
+	
+	@OPERATION
 	void getVolume(Object[] items, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(getVolume(CartagoUtil.objectToItemMap(items)));
@@ -61,6 +68,18 @@ public class ItemArtifact extends Artifact {
 	void getBaseVolume(Object[] items, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(getBaseVolume(CartagoUtil.objectToItemMap(items)));
+	}
+	
+	@OPERATION
+	void getNearestShopSelling(String item, OpFeedbackParam<String> ret)
+	{
+		String agent = getOpUserName();
+
+		ret.set(Collections.min(getShopSelling(item).stream()
+				.collect(Collectors.toMap(Shop::getName, shop -> StaticInfoArtifact
+									.getRoute(agent, shop.getLocation())
+									.getRouteLength())).entrySet(), 
+				Map.Entry.comparingByValue()).getKey());
 	}
 	
 	@OPERATION
@@ -165,6 +184,26 @@ public class ItemArtifact extends Artifact {
 						.entrySet())
 				.flatMap(Collection::stream)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
+	}
+	
+	public static Set<Tool> getRequiredTools(Entry<Item, Integer> item)
+	{
+		Map<Item, Integer> reqItems = item.getKey().getRequiredItems();
+		
+		if (reqItems.isEmpty()) return Collections.emptySet();
+		
+		Set<Tool> reqTools = item.getKey().getRequiredTools();
+		
+		reqTools.addAll(getRequiredTools(reqItems));
+		
+		return reqTools;
+	}
+	
+	public static Set<Tool> getRequiredTools(Map<Item, Integer> items)
+	{
+		return items.entrySet().stream()
+				.flatMap(e -> e.getKey().getRequiredTools().stream())
+				.collect(Collectors.toSet());
 	}
 	
 	/**

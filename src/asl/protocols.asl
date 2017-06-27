@@ -43,41 +43,25 @@
 	!receiveItems(Items).	
 	
 +!initiateAssembleProtocol(Items) <-
-	.wait(.findall(X, itemRetriever(X, _), L) 
-		& .findall(Y, retrieverReady(Y), L));
-//	.wait(.count(itemRetriever(_, _), N) & .count(retrieverReady(_), N));
-	!beginAssembleProtocol;	
-	!assembleItems(Items);	
-	!!completeAssembleProtocol.
-	
-+!beginAssembleProtocol : step(X) & ReadyStep = X + 1 <-
-	for (itemRetriever(A, _)) {
-		.send(A, tell, assembleReady(ReadyStep));
+	.wait(.count(assistant(_, _, _), N) 
+		& .count(assistantReady(_), N));
+		
+	for (assistant(A, _, _)) {
+		.send(A, tell, assemble);
 	}
-	.wait({+step(ReadyStep)}).
 	
-+!completeAssembleProtocol <-
-	.findall(X, itemRetriever(X, _), L);	
+	!assembleItems(Items);	
 	
-	for (itemRetriever(A, I)) {
-		-itemRetriever(A, I);
-		.send(A, tell, assembleComplete);
-	}	
-	.wait({+step(_)});
-	.wait({+step(_)});
-	
-	for (.member(A, L)) {
-		.send(A, untell, assembleReady(_));
-		.send(A, untell, assembleComplete);
+	for (assistant(A, _, _)) {
+		-assistant(A, _ ,_);
+		.send(A, untell, assemble);
 	}.
-
 	
 +!acceptAssembleProtocol(Agent) : .my_name(Me) <-
-	.send(Agent, tell, retrieverReady(Me));
+	.send(Agent, tell, assistantReady(Me));
 	
-	.wait({+assembleReady(ReadyStep)});
-	.wait({+step(ReadyStep)});
+	.wait(assemble);
 	
-	!assistAssemble(Agent); // Waits for assembleComplete
+	!assistAssemble(Agent);
 	
-	.send(Agent, untell, retrieverReady(Me)).
+	.send(Agent, untell, assistantReady(Me)).
