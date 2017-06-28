@@ -79,7 +79,7 @@
 	
 // Pre-condition: In shop and shop selling the items.
 // Post-condition: Items in inventory.
-//+!buyItems([]) <- !doAction(skip).
+//+!buyItems([]) <- !doAction(skip). // To prevent duplicate purchases.
 +!buyItems(Items) 		 : hasItems(Items).
 +!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
 +!buyItems([map(Item, Amount)|Items])		<- 

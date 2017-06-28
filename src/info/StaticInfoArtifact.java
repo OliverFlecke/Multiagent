@@ -204,6 +204,17 @@ public class StaticInfoArtifact extends Artifact {
 		
 		team = (String) args[0];
 	}
+	
+	public static Object[] getRoleData(Role role)
+	{
+		return new Object[] {
+				role.getName(),
+				role.getSpeed(),
+				role.getMaxLoad(),
+				role.getMaxBattery(),
+				role.getPermissions().toArray()
+		};
+	}
 
 	/**
 	 * @return The roles in this simulation

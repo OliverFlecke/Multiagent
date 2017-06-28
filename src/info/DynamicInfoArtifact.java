@@ -31,11 +31,6 @@ public class DynamicInfoArtifact extends Artifact {
 	private static int					step;
 	private static long					timestamp;
 	private static int					jobsCompleted;
-
-	void init()
-	{
-		defineObsProperty("step", 0);
-	}	
 	
 	@OPERATION
 	void getDeadline(OpFeedbackParam<Long> ret)
@@ -86,6 +81,11 @@ public class DynamicInfoArtifact extends Artifact {
 	public static int getMoney()
 	{
 		return money;
+	}
+	
+	public static long getDeadline()
+	{
+		return deadline;
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)

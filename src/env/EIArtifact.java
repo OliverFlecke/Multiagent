@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Identifier;
@@ -94,27 +93,7 @@ public class EIArtifact extends Artifact {
 
 			if (connections.size() == ei.getEntities().size())
 			{
-				// Attach listener for perceiving the following steps
-				ei.attachAgentListener(agentName, new AgentListener() 
-				{				
-					@Override
-					public void handlePercept(String agentName, Percept percept) 
-					{
-						if (percept.getName().equals("simStart"))
-						{
-							execInternalOp("perceiveInitial");
-						}
-						else if (percept.getName().equals("simEnd"))
-						{
-							System.out.println("This is the end!");
-							System.out.println(percept);
-						}
-						else if (percept.getName().equals("step"))
-						{
-							execInternalOp("perceiveUpdate");
-						}
-					}
-				});
+				execInternalOp("perceiveInitial");
 			}
 		}
 		catch (Throwable e) 
@@ -124,9 +103,16 @@ public class EIArtifact extends Artifact {
 	}
 	
 	public static void performAction(String agentName, Action action)
-	{
-		logger.fine("Step " + DynamicInfoArtifact.getStep() + ": " + agentName + " doing " + action);
-		
+	{				
+		if (System.currentTimeMillis() > DynamicInfoArtifact.getDeadline())
+		{
+			System.out.println(String.format("[%s] Too slow: %s", agentName, action));
+			return;
+		}
+		if (agentName.equals("agent22"))
+		{
+			System.out.println(String.format("[%s] Doing: %s", agentName, action));
+		}
 		try 
 		{			
 			if (action.getName().equals("assist_assemble"))
@@ -154,7 +140,6 @@ public class EIArtifact extends Artifact {
 		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
 		{
 			this.reset();
-			execInternalOp("perceiveInitial");
 		}
 		
 		try 
@@ -185,8 +170,7 @@ public class EIArtifact extends Artifact {
 			// Define roles
 			for (Role role : StaticInfoArtifact.getRoles())
 			{
-				defineObsProperty("role", role.getName(), role.getSpeed(), role.getMaxLoad(), 
-						role.getMaxBattery(), role.getPermissions().toArray());
+				defineObsProperty("role", StaticInfoArtifact.getRoleData(role));
 			}
 
 			// Perceive agent info
@@ -206,6 +190,8 @@ public class EIArtifact extends Artifact {
 		}
 		
 		logger.finest("Perceive initial done");
+		
+		execInternalOp("perceiveUpdate");
 	}
 	
 	@INTERNAL_OPERATION
@@ -222,6 +208,13 @@ public class EIArtifact extends Artifact {
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
 				AgentArtifact.getAgentArtifact(entry.getKey()).perceiveUpdate(percepts);
+				
+				if (entry.getKey().equals("agent22"))
+				{
+					System.out.print(String.format("[%s] Percepts: ", entry.getKey()));
+					percepts.stream().filter(p -> p.getName().equals("hasItem")).forEach(p -> System.out.print(p + " "));
+					System.out.println();					
+				}
 
 				allPercepts.addAll(percepts);
 			}
@@ -235,12 +228,14 @@ public class EIArtifact extends Artifact {
 			logData();
 
 			JobArtifact.announceJobs();
+
+			execInternalOp("perceiveUpdate");
 		} 
 		catch (Throwable e) 
 		{
 			logger.log(Level.SEVERE, "Failure in perceive: " + e.getMessage(), e);
 		}
-	}	
+	}
 
 	private void reset() 
 	{
@@ -252,19 +247,15 @@ public class EIArtifact extends Artifact {
 		JobArtifact.reset();
 		ItemArtifact.reset();
 		
-		for (Entry<String, String> entry : connections.entrySet())
+		for (String agent : connections.keySet())
 		{
-			AgentArtifact.getAgentArtifact(entry.getKey()).reset();
+			AgentArtifact.getAgentArtifact(agent).reset();
 		}
 		
 		fileLogger = LoggerFactory.createFileLogger(team);
 		
 		removeObsProperty("step");
-		for (Role role : StaticInfoArtifact.getRoles())
-		{
-			removeObsPropertyByTemplate("role", role.getName(), role.getSpeed(), role.getMaxLoad(), 
-					role.getMaxBattery(), role.getPermissions().toArray());
-		}
+		removeObsProperty("role");
 		
 		removeObsProperty("reset");
 	}
