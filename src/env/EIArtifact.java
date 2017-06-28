@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
+import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
 import eis.iilang.Action;
 import eis.iilang.Identifier;
@@ -93,7 +94,27 @@ public class EIArtifact extends Artifact {
 
 			if (connections.size() == ei.getEntities().size())
 			{
-				execInternalOp("perceiveInitial");
+				// Attach listener for perceiving the following steps
+				ei.attachAgentListener(agentName, new AgentListener() 
+				{				
+					@Override
+					public void handlePercept(String agentName, Percept percept) 
+					{
+						if (percept.getName().equals("simStart"))
+						{
+							execInternalOp("perceiveInitial");
+						}
+						else if (percept.getName().equals("simEnd"))
+						{
+							System.out.println("This is the end!");
+							System.out.println(percept);
+						}
+						else if (percept.getName().equals("step"))
+						{
+							execInternalOp("perceiveUpdate");
+						}
+					}
+				});
 			}
 		}
 		catch (Throwable e) 
@@ -218,8 +239,6 @@ public class EIArtifact extends Artifact {
 			logData();
 
 			JobArtifact.announceJobs();
-
-			execInternalOp("perceiveUpdate");
 		} 
 		catch (Throwable e) 
 		{
