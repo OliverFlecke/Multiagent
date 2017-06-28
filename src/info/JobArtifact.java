@@ -1,5 +1,6 @@
 package info;
 
+import java.security.Permission;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +25,13 @@ import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
 import massim.scenario.city.data.Mission;
+import massim.scenario.city.data.Role;
+import massim.scenario.city.data.Route;
+import massim.scenario.city.data.facilities.Facility;
+import massim.scenario.city.data.facilities.Shop;
 import massim.scenario.city.data.facilities.Storage;
+import massim.scenario.city.data.facilities.Workshop;
+import massim.scenario.city.util.GraphHopperManager;
 
 public class JobArtifact extends Artifact {
 	
@@ -104,9 +111,48 @@ public class JobArtifact extends Artifact {
 	 */
 	public static int possibleEarning(Job job)
 	{
-		int price = priceForItems(job);
+		return job.getReward() - priceForItems(job);
+	}
+	
+	/**
+	 * @param job 
+	 * @return The estimate of how many steps it is going to take to complete this job
+	 */
+	public static int estimateSteps(Job job)
+	{
+		Map<Item, Integer> items = job.getRequiredItems()
+				.toItemAmountData().stream()
+				.collect(Collectors.toMap(x -> ItemArtifact.getItem(x.getName()), x -> x.getAmount()));
+		Map<Shop, Map<Item, Integer>> shoppingList = ItemArtifact.getShoppingList(ItemArtifact.getBaseItems(items));
 		
-		return job.getReward() - price;
+		// Use the car role to estimate
+		Role role = StaticInfoArtifact.getRole("car");
+		
+		Set<String> permissions = new HashSet<>();
+		permissions.add(GraphHopperManager.PERMISSION_ROAD);
+		
+		Shop lastShop = null;
+		int length = 0;
+		
+		// Find distance between all shops
+		for (Shop shop : shoppingList.keySet())
+		{
+			if (lastShop != null) 
+			{
+				Route route = StaticInfoArtifact.getMap().findRoute(lastShop.getLocation(), shop.getLocation(), permissions);
+				length += route.getRouteLength();
+			}
+			lastShop = shop;
+		}
+		
+		Facility workshop = FacilityArtifact.getFacilities("workshop").stream().findAny().get();
+		length += StaticInfoArtifact.getMap().findRoute(lastShop.getLocation(), workshop.getLocation(), permissions).getRouteLength();
+		
+		length += StaticInfoArtifact.getMap().findRoute(workshop.getLocation(), job.getStorage().getLocation(), permissions).getRouteLength();
+		
+		int steps = length / role.getSpeed();
+		
+		return steps;
 	}
 	
 	@OPERATION
@@ -347,12 +393,15 @@ public class JobArtifact extends Artifact {
 		{
 			Job job = getJob(entry.getKey());
 			
-			int earning = possibleEarning(job);
+			int earning 	= possibleEarning(job);
+			int duration 	= estimateSteps(job);
+			int ratio		= earning / duration;
 
-			logger.info(entry.getKey() + " can earn " + earning + " Type: " + entry.getValue());
+			logger.info(entry.getKey() + " can earn " + earning + " in " + duration + " steps. Ratio: " + earning / duration + " - Type: " + entry.getValue());
 			
-			if (earning >= jobThreshold || (activeJobs.size() < 3 && earning > 1000) || entry.getValue().equals("mission"))
+			if (ratio >= 30 || (activeJobs.size() < 3 && ratio > 20) || entry.getValue().equals("mission"))
 			{
+				// If it is an auction, consider bidding on it.
 				if (entry.getValue().equals("auction")) 					
 				{
 					if (earning < ((AuctionJob) job).getLowestBid() || activeJobs.size() > 5) continue;

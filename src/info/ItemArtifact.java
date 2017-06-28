@@ -137,7 +137,7 @@ public class ItemArtifact extends Artifact {
 	 * @param items The items to buy along with the amount
 	 * @return A map of shops and what to buy where
 	 */
-	public Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
+	public static Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
 	{	
 		Map<Shop, Map<Item, Integer>> shoppingList = new HashMap<>();
 		

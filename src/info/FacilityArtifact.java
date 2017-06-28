@@ -319,6 +319,20 @@ public class FacilityArtifact extends Artifact {
 		
 		return facilities.get(facilityName);
 	}
+	
+	public static Collection<Facility> getFacilities(String facilityType)
+	{
+		switch (facilityType)
+		{
+		case CHARGING_STATION: 	return chargingStations	.values().stream().map(x -> (Facility) x).collect(Collectors.toList()); 
+		case DUMP:				return dumps			.values().stream().map(x -> (Facility) x).collect(Collectors.toList());        
+		case SHOP:				return shops			.values().stream().map(x -> (Facility) x).collect(Collectors.toList());           
+		case STORAGE:			return storages			.values().stream().map(x -> (Facility) x).collect(Collectors.toList()); 
+		case WORKSHOP:			return workshops		.values().stream().map(x -> (Facility) x).collect(Collectors.toList()); 
+		case RESOURCE_NODE:		return resourceNodes	.values().stream().map(x -> (Facility) x).collect(Collectors.toList()); 
+		}
+		return null;
+	}
 
 	public static void announceShops() {
 		TaskArtifact.announceShops(shops.values());

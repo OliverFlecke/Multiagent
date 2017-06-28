@@ -154,7 +154,6 @@ public class EIArtifact extends Artifact {
 		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
 		{
 			this.reset();
-			execInternalOp("perceiveInitial");
 		}
 		
 		try 

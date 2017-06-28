@@ -10,9 +10,9 @@
 	getClosestWorkshopToStorage(Storage, Workshop);
 	if (Type = "mission") { !announceAssemble(Items, Workshop, TaskId, Storage, "mission"); }
 	else { !announceAssemble(Items, Workshop, TaskId, Storage, "new"); }
-	clearTask(TaskId).
+	clearTask(TaskId); -task(TaskId, _).
 	
-+task(TaskId, "auction") <- announceAuction(TaskId).
++task(TaskId, "auction") <- announceAuction(TaskId); clearTask(TaskId); -task(TaskId, _).
 	
 +!announceAssemble([], _, _, _, _).
 +!announceAssemble(Items, Workshop, TaskId, Storage, Type) 	 <- announceAssemble(Items, Workshop, TaskId, Storage, Type).
