@@ -109,10 +109,7 @@ public class EIArtifact extends Artifact {
 			System.out.println(String.format("[%s] Too slow: %s", agentName, action));
 			return;
 		}
-		if (agentName.equals("agent22"))
-		{
-			System.out.println(String.format("[%s] Doing: %s", agentName, action));
-		}
+
 		try 
 		{			
 			if (action.getName().equals("assist_assemble"))
@@ -208,13 +205,6 @@ public class EIArtifact extends Artifact {
 				Collection<Percept> percepts = ei.getAllPercepts(entry.getKey()).get(entry.getValue());
 				
 				AgentArtifact.getAgentArtifact(entry.getKey()).perceiveUpdate(percepts);
-				
-				if (entry.getKey().equals("agent22"))
-				{
-					System.out.print(String.format("[%s] Percepts: ", entry.getKey()));
-					percepts.stream().filter(p -> p.getName().equals("hasItem")).forEach(p -> System.out.print(p + " "));
-					System.out.println();					
-				}
 
 				allPercepts.addAll(percepts);
 			}
