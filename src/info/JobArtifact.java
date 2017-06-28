@@ -1,5 +1,6 @@
 package info;
 
+import java.security.Permission;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +25,13 @@ import massim.scenario.city.data.AuctionJob;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
 import massim.scenario.city.data.Mission;
+import massim.scenario.city.data.Role;
+import massim.scenario.city.data.Route;
+import massim.scenario.city.data.facilities.Facility;
+import massim.scenario.city.data.facilities.Shop;
 import massim.scenario.city.data.facilities.Storage;
+import massim.scenario.city.data.facilities.Workshop;
+import massim.scenario.city.util.GraphHopperManager;
 
 public class JobArtifact extends Artifact {
 	
@@ -40,7 +47,7 @@ public class JobArtifact extends Artifact {
 
 	private static Map<String, AuctionJob> 	auctions 		= new HashMap<>();
 	private static Map<String, Job> 		jobs 			= new HashMap<>();
-	private static Map<String, Mission> 	missions 		= new HashMap<>();
+	private static Map<String, Job> 		missions 		= new HashMap<>();
 	private static Map<String, Job> 		postedJobs 		= new HashMap<>();
 	private static Map<String, String>		toBeAnnounced	= new HashMap<>();
 	
@@ -68,6 +75,12 @@ public class JobArtifact extends Artifact {
 		{
 			bid.set(Integer.MAX_VALUE);
 		}
+	}
+	
+	@OPERATION
+	void completeJob(String jobId)
+	{
+		activeJobs.remove(jobId);
 	}
 	
 	/**
@@ -98,11 +111,67 @@ public class JobArtifact extends Artifact {
 	 */
 	public static int possibleEarning(Job job)
 	{
-		int price = priceForItems(job);
+		return job.getReward() - priceForItems(job);
+	}
+	
+	/**
+	 * @param job 
+	 * @return The estimate of how many steps it is going to take to complete this job
+	 */
+	public static int estimateSteps(Job job)
+	{
+		Map<Item, Integer> items = job.getRequiredItems()
+				.toItemAmountData().stream()
+				.collect(Collectors.toMap(x -> ItemArtifact.getItem(x.getName()), x -> x.getAmount()));
+		Map<Shop, Map<Item, Integer>> shoppingList = ItemArtifact.getShoppingList(ItemArtifact.getBaseItems(items));
 		
-		// TODO: Add some estimate for the charge cost
+		// Use the car role to estimate
+		Role role = StaticInfoArtifact.getRole("car");
 		
-		return job.getReward() - price;
+		Set<String> permissions = new HashSet<>();
+		permissions.add(GraphHopperManager.PERMISSION_ROAD);
+		
+		Shop lastShop = null;
+		int length = 0;
+		
+		// Find distance between all shops
+		for (Shop shop : shoppingList.keySet())
+		{
+			if (lastShop != null) 
+			{
+				Route route = StaticInfoArtifact.getMap().findRoute(lastShop.getLocation(), shop.getLocation(), permissions);
+				length += route.getRouteLength();
+			}
+			lastShop = shop;
+		}
+		
+		Facility workshop = FacilityArtifact.getFacilities("workshop").stream().findAny().get();
+		length += StaticInfoArtifact.getMap().findRoute(lastShop.getLocation(), workshop.getLocation(), permissions).getRouteLength();
+		
+		length += StaticInfoArtifact.getMap().findRoute(workshop.getLocation(), job.getStorage().getLocation(), permissions).getRouteLength();
+		
+		int steps = length / role.getSpeed();
+		
+		return steps;
+	}
+	
+	@OPERATION
+	void getBid(String taskId, OpFeedbackParam<Integer> bid)
+	{
+		AuctionJob auction = auctions.get(taskId);
+		
+		if (auction.getLowestBid() == 0)
+		{
+			bid.set(auction.getReward());
+		}
+		else if (priceForItems(auction) < auction.getLowestBid() - 1)
+		{
+			bid.set(auction.getLowestBid() - 1);
+		}
+		else
+		{
+			bid.set(0);
+		}
 	}
 	
 	public static void perceiveUpdate(Collection<Percept> percepts)
@@ -166,7 +235,6 @@ public class JobArtifact extends Artifact {
 			auction.addRequiredItem(ItemArtifact.getItem(itemId), quantity);
 		}
 		
-		// We have won the auction
 		if (auction.getBeginStep() + auction.getAuctionTime() > DynamicInfoArtifact.getStep())
 		{
 			if (!auctions.containsKey(id))
@@ -176,7 +244,11 @@ public class JobArtifact extends Artifact {
 		}
 		else 
 		{
-			TaskArtifact.announceAuction(id, auction);
+			// The team has won, and it can be considered a normal job
+			if (!missions.containsKey(id))
+				toBeAnnounced.put(id, "mission");
+
+			missions.put(id, auction);
 		}
 
 	}
@@ -312,9 +384,37 @@ public class JobArtifact extends Artifact {
 				.collect(Collectors.toMap(x -> x, x -> possibleEarning(x)));
 	}
 	
+	private static final int jobThreshold = 3000;
+	private static Map<String, String> activeJobs = new HashMap<>();
+	
 	public static void announceJobs()
 	{
-		toBeAnnounced.entrySet().stream().forEach(e -> TaskArtifact.announceJob(e.getKey(), e.getValue()));
+		for (Entry<String, String> entry: toBeAnnounced.entrySet())
+		{
+			Job job = getJob(entry.getKey());
+			
+			int earning 	= possibleEarning(job);
+			int duration 	= estimateSteps(job);
+			int ratio		= earning / duration;
+
+			logger.info(entry.getKey() + " can earn " + earning + " in " + duration + " steps. Ratio: " + earning / duration + " - Type: " + entry.getValue());
+			
+			if (ratio >= 30 || (activeJobs.size() < 3 && ratio > 20) || entry.getValue().equals("mission"))
+			{
+				// If it is an auction, consider bidding on it.
+				if (entry.getValue().equals("auction")) 					
+				{
+					if (earning < ((AuctionJob) job).getLowestBid() || activeJobs.size() > 5) continue;
+				}
+				
+				activeJobs.put(entry.getKey(), entry.getValue());
+				
+				logger.info("Added " + entry.getKey() + " Reward: " + job.getReward() + ". Number of jobs: " + activeJobs.size());
+				
+				TaskArtifact.announceJob(entry.getKey(), entry.getValue());
+			}
+		}
+
 		toBeAnnounced.clear();
 	}
 
@@ -325,5 +425,6 @@ public class JobArtifact extends Artifact {
 		missions 		= new HashMap<>(); 
 		postedJobs 		= new HashMap<>(); 
 		toBeAnnounced	= new HashMap<>(); 
+		activeJobs 		= new HashMap<>();
 	}
 }

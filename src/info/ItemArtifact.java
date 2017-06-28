@@ -137,7 +137,7 @@ public class ItemArtifact extends Artifact {
 	 * @param items The items to buy along with the amount
 	 * @return A map of shops and what to buy where
 	 */
-	public Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
+	public static Map<Shop, Map<Item, Integer>> getShoppingList(Map<Item, Integer> items)
 	{	
 		Map<Shop, Map<Item, Integer>> shoppingList = new HashMap<>();
 		
@@ -149,7 +149,9 @@ public class ItemArtifact extends Artifact {
 			int amount 	= entry.getValue();
 			
 			Optional<Shop> shop = shops.stream()
-					.filter(x -> x.getItemCount(item) > amount).findAny();
+					.filter(x -> x.getItemCount(item) > amount)
+//					.findAny();
+					.min((x, y) -> x.getPrice(item) - y.getPrice(item));
 			
 			if (shop.isPresent())
 			{
@@ -163,12 +165,13 @@ public class ItemArtifact extends Artifact {
 					// If there is only one shop remaining, it should buy the rest
 					if (shops.size() == 1)
 					{
-						CUtil.addToMapOfMaps(shoppingList, shops.stream().findAny().get(), item, amountRemaining);
+						CUtil.addToMapOfMaps(shoppingList, shops.stream().sorted((x,y) -> x.getPrice(item) - y.getPrice(item)).findFirst().get(), item, amountRemaining);
 						break;
 					}
 					
 					// Find the shop with the largest number of the item
-					shop = shops.stream().max((x, y) -> x.getItemCount(item) - y.getItemCount(item));
+//					shop = shops.stream().max((x, y) -> x.getItemCount(item) - y.getItemCount(item));
+					shop = shops.stream().min((x, y) -> x.getPrice(item) - y.getPrice(item));
 					
 					if (shop.isPresent())
 					{
@@ -295,19 +298,12 @@ public class ItemArtifact extends Artifact {
 			int 	amount 	= entry.getValue();			
 			int		volume	= capacity + 1;
 			
-			if (item.getRequiredBaseItems().isEmpty())
-			{
-				volume = item.getVolume() * amount;				
-			}
-			else
-			{
-				volume = ItemArtifact.getVolume(item.getRequiredBaseItems()) * amount;				
-			}			
+			if (item.getRequiredBaseItems().isEmpty())	volume = item.getVolume() * amount;				
+			else										volume = ItemArtifact.getVolume(item.getRequiredBaseItems()) * amount;				
 			
 			if (volume <= capacity)
 			{
 				capacity -= volume;
-				
 				retrieve.put(item.getName(), amount);
 			}
 			else 
@@ -392,10 +388,7 @@ public class ItemArtifact extends Artifact {
 	// Used by the FacilityArtifact when adding items to shops.
 	public static Item getItem(String itemId)
 	{
-        if (items.containsKey(itemId)) 
-        {
-        	return items.get(itemId);
-        }
+        if (items.containsKey(itemId)) return items.get(itemId);
         return tools.get(itemId);
 	}
 	

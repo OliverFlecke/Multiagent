@@ -18,7 +18,9 @@ free.
 +step(X) : lastAction("assist_assemble") & lastActionResult("failed_counterpart").
 +step(X) : lastAction("give") 		 & lastActionResult("successful") <- .print("Give successful!").
 +step(X) : lastAction("receive") 	 & lastActionResult("successful") <- .print("Receive successful!").
-+step(X) : lastAction("deliver_job") & lastActionResult("successful") <- .print("Job successful!"); incJobCompletedCount.
++step(X) : lastAction("deliver_job") & lastActionResult("successful") & lastActionParam([Id])
+	<- .print("Job successful! ID: ", Id); incJobCompletedCount; completeJob(Id).
+//+step(X) : lastAction("bid_for_job") & lastActionResult("successful") & .print("Bid on job successful ") & false.
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P).
 		 

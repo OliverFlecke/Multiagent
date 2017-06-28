@@ -41,7 +41,7 @@ public class EIArtifact extends Artifact {
     private static final String TEAM_A = "conf/eismassimconfig.json";
 	private static final String TEAM_B = "conf/eismassimconfig_team_B.json";
     
-    private String configFile = TEAM_B;
+    private String configFile = TEAM_A;
    
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
@@ -154,7 +154,6 @@ public class EIArtifact extends Artifact {
 		if (DynamicInfoArtifact.getStep() == StaticInfoArtifact.getSteps() - 1)
 		{
 			this.reset();
-			execInternalOp("perceiveInitial");
 		}
 		
 		try 
