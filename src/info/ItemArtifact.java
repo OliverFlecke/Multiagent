@@ -75,6 +75,12 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getToolsVolume(Object[] tools, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(getVolume(CartagoUtil.objectToToolArray(tools)));
+	}
+	
+	@OPERATION
 	void sortByPermissionCount(Object[] objTools, OpFeedbackParam<Object> ret)
 	{
 		List<Tool> tools = Arrays.stream(objTools)
@@ -174,12 +180,37 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getToolsToCarry(Object[] tools, int capacity, OpFeedbackParam<Object> retCarry, OpFeedbackParam<Object> retRest)
+	{
+		Set<String> carry 	= new HashSet<>();
+		Set<String> rest	= new HashSet<>();
+		
+		for (String tool : CartagoUtil.objectToStringArray(tools))
+		{
+			int volume = getTool(tool).getVolume();
+			
+			if (capacity >= volume)
+			{
+				carry.add(tool);
+				capacity -= volume;
+			}
+			else
+			{
+				rest.add(tool);
+			}
+		}
+		
+		retCarry.set(carry.toArray(new String[carry.size()]));
+		retRest .set(rest .toArray(new String[rest .size()]));
+	}
+	
+	@OPERATION
 	void getMissingTools(Object[] tools, Object[] objInventory, OpFeedbackParam<String[]> ret)
 	{
 		Set<String>			 missing	= new HashSet<>();
 		Map<String, Integer> inventory 	= CartagoUtil.objectToStringMap(objInventory);
 
-		for (String tool : CartagoUtil.objectToStringTools(tools))
+		for (String tool : CartagoUtil.objectToStringArray(tools))
 		{
 			if (!inventory.containsKey(tool)) missing.add(tool);
 		}
@@ -192,6 +223,11 @@ public class ItemArtifact extends Artifact {
 	{
 		ret.set(Arrays.stream(inventories).map(inv -> CartagoUtil.objectToStringMap((Object[]) inv).entrySet())
 			.flatMap(Collection::stream).collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum)));
+	}
+	
+	public static int getVolume(Tool[] tools)
+	{
+		return Arrays.stream(tools).mapToInt(Tool::getVolume).sum();
 	}
 	
 	public static Map<Item, Integer> getBaseItems(String item)

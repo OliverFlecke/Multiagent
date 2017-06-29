@@ -13,7 +13,7 @@ public class CNPArtifact extends Artifact {
 	private boolean 	isOpen;
 	
 	void init()
-	{		
+	{
 		this.isOpen = true;
 		
 		execInternalOp("awaitBids", 500);
@@ -64,25 +64,14 @@ public class CNPArtifact extends Artifact {
 		}
 	}
 	
-	@OPERATION @LINK
-	void takeTask(OpFeedbackParam<Boolean> canTake)
-	{
-		await("biddingClosed");
-		
-		canTake.set(bestBid == null);
-		
-		if (canTake.get())
-		{			
-			bestBid = new Bid();
-		}
-	}
-	
 	@LINK
 	void getBid(OpFeedbackParam<Bid> ret)
 	{
 		await("biddingClosed");
 		
-		ret.set(bestBid);
+		ret.set(bestBid != null ? new Bid(bestBid) : new Bid(null, 0));
+		
+		this.dispose();
 	}
 	
 	@LINK

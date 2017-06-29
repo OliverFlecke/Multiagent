@@ -35,7 +35,7 @@
 +!retrieveItems(   _, Items) : hasItems(Items).
 +!retrieveItems(Shop, Items) : inShop(Shop) 	<- !buyItems(Items).
 +!retrieveItems(Shop, Items) : .print("Retrieving: ", Shop, " ", Items) & false.
-+!retrieveItems(Shop, Items) <- !getToFacility(Shop); !buyItems(Items).
++!retrieveItems(Shop, Items) <- !getToFacility(Shop); !retrieveItems(Shop, Items).
 
 // Pre-condition: In workshop and all base items available.
 // Post-condition: Items in inventory.
@@ -59,21 +59,25 @@
 
 +!coordinateAssemble(Items, [], F) <-
 	!getToFacility(F);
-	!initiateAssembleProtocol(Items).	
+	!initiateAssembleProtocol(Items).
 +!coordinateAssemble(Items, Tools, _) : not assistant(_, _, _) & hasTools(Tools).
 +!coordinateAssemble(Items, Tools, F) : not assistant(_, _, _) & getInventory(Inv) <-
 	getMissingTools(Tools, Inv, MissingTools);
-	!!delegateTools(MissingTools, F);
-	!coordinateAssemble(Items, [], F).
+	!!getToFacility(F);
+	!delegateTools(MissingTools, F);
+	.wait(inFacility(F));
+	!initiateAssembleProtocol(Items).
 +!coordinateAssemble(Items, Tools, F) : getInventory(Inv) <-
 	.findall(I, assistant(X, _, _) & getInventory(X, I), AllInv);
 	collectInventories([Inv|AllInv], Inventory);
 	getMissingTools(Tools, Inventory, MissingTools);
-	!!delegateTools(MissingTools, F);	
-	!coordinateAssemble(Items, [], F).
+	!!getToFacility(F);
+	!delegateTools(MissingTools, F);
+	.wait(inFacility(F));
+	!initiateAssembleProtocol(Items).
 	
 +!delegateTools([], _).
-+!delegateTools(Tools, F) : .my_name(Me) 
++!delegateTools(Tools, F) : .my_name(Me) & .print("delegateTools: ", Tools)
 	& jia.delegateTools(Tools, F, Me, Agent, Carry, Rest) <-
 	+assistant(Agent, "tool", Carry); 
 	!delegateTools(Rest, F).
@@ -82,12 +86,13 @@
 	!delegateTools(Tools, F).	
 
 +!coordinateAssist(Workshop, Agent) <-
+	+idle;
 	!getToFacility(Workshop);
-	!acceptAssembleProtocol(Agent).
+	!acceptAssembleProtocol(Agent);
+	-idle.
 	
 +!acquireTools : tools(Tools) <-
 	sortByPermissionCount(Tools, SortedTools);
-	.print(Tools, " ", SortedTools);
 	for (.member(T, SortedTools))	{
 		getToolVolume(T, V); ?capacity(C);
 		if (C - 50 >= V) {

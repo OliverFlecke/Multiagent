@@ -30,8 +30,8 @@ public class delegateTools extends DefaultInternalAction {
 		
 		String		agent	= bid.getAgent();
 		Object[] 	data	= bid.getData();
-		String[] 	carry 	= CartagoUtil.objectToStringTools((Object[]) data[0]);
-		String[]	rest 	= CartagoUtil.objectToStringTools((Object[]) data[1]);
+		String[] 	carry 	= CartagoUtil.objectToStringArray((Object[]) data[0]);
+		String[]	rest 	= CartagoUtil.objectToStringArray((Object[]) data[1]);
 		
 		System.out.println(String.format("[%s] Helping %s", agent, me));
 		

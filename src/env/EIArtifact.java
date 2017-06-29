@@ -46,6 +46,8 @@ public class EIArtifact extends Artifact {
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
     
+    private static Set<String> hasPerformedAction	= new HashSet<>();
+    
     private String team;
 
     /**
@@ -125,11 +127,19 @@ public class EIArtifact extends Artifact {
 	
 	public static void performAction(String agentName, Action action)
 	{				
+		if (hasPerformedAction.contains(agentName))
+		{
+			System.out.println(String.format("[%s] Has performed action: %s", agentName, action));
+			return;
+		}
+		
 		if (System.currentTimeMillis() > DynamicInfoArtifact.getDeadline())
 		{
 			System.out.println(String.format("[%s] Too slow: %s", agentName, action));
 			return;
 		}
+		
+		hasPerformedAction.add(agentName);
 
 		try 
 		{			
@@ -233,6 +243,8 @@ public class EIArtifact extends Artifact {
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);
 			JobArtifact			.perceiveUpdate(allPercepts);
+			
+			hasPerformedAction.clear();
 
 			getObsProperty("step").updateValue(DynamicInfoArtifact.getStep());
 			

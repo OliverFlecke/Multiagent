@@ -4,12 +4,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import info.ItemArtifact;
 import jason.NoValueException;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Literal;
 import jason.asSyntax.NumberTerm;
 import jason.asSyntax.parser.ParseException;
 import massim.scenario.city.data.Item;
+import massim.scenario.city.data.Tool;
 
 public class CartagoUtil {
 
@@ -37,12 +39,17 @@ public class CartagoUtil {
 
 	public static Map<Item, Integer> objectToItemMap(Object[] objs) 
 	{
-		return DataUtil.stringToItemMap(CartagoUtil.objectToStringMap(objs));
+		return DataUtil.stringToItemMap(objectToStringMap(objs));
 	}
 	
-	public static String[] objectToStringTools(Object[] objs)
+	public static String[] objectToStringArray(Object[] objs)
 	{
 		return Arrays.stream(objs).map(String.class::cast).toArray(String[]::new);
+	}
+
+	public static Tool[] objectToToolArray(Object[] objs) 
+	{
+		return DataUtil.stringToToolArray(objectToStringArray(objs));
 	}
 
 }

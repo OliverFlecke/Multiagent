@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,6 +10,7 @@ import info.ItemArtifact;
 import massim.protocol.scenario.city.data.ItemAmountData;
 import massim.scenario.city.data.Item;
 import massim.scenario.city.data.Job;
+import massim.scenario.city.data.Tool;
 import massim.scenario.city.data.facilities.Shop;
 
 public class DataUtil {
@@ -59,6 +61,10 @@ public class DataUtil {
 			map.put(first, new HashMap<B, C>());
 		}
 		map.get(first).put(second, content);
+	}
+
+	public static Tool[] stringToToolArray(String[] strings) {
+		return Arrays.stream(strings).map(ItemArtifact::getTool).toArray(Tool[]::new);
 	}
 
 }

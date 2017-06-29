@@ -38,7 +38,7 @@ public class TaskArtifact extends Artifact {
 		
 		awaitResult(bid);
 		
-		return bid.get();
+		return bid.get().getAgent() != null ? bid.get() : null;
 	}
 	
 	@INTERNAL_OPERATION
@@ -49,6 +49,10 @@ public class TaskArtifact extends Artifact {
 			ArtifactId id = instance.announce(property, args);
 			
 			execLinkedOp(id, "getBid", bid);
+			
+			awaitResult(bid);
+			
+			instance.clear(property, args.length + 1, id);
 		}
 		catch (Throwable e) 
 		{
