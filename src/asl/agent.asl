@@ -28,7 +28,7 @@ free.
 	
 +!doIntention(_) : not free <- .print("Illegal execution").
 +!doIntention(Intention) 	<- -free; !Intention; +free.
-	
+
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait({+step(_)}).
 
 +step(0) <- !doIntention(acquireTools).
@@ -40,6 +40,4 @@ free.
 +step(X) : lastActionResult(R) &   not lastActionResult("successful") 
 		 & lastAction(A) & lastActionParam(P) <- .print(R, " ", A, " ", P).
 		 
-+reset <- .print("resetting"); !reset; -reset.
-
-+!reset <- .drop_all_desires; .drop_all_events; .drop_all_intentions.
++reset <- .print("resetting"); .drop_all_desires; .drop_all_events; .drop_all_intentions; -reset.

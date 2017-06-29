@@ -86,18 +86,14 @@
 	!delegateTools(Tools, F).	
 
 +!coordinateAssist(Workshop, Agent) <-
-	+idle;
 	!getToFacility(Workshop);
-	!acceptAssembleProtocol(Agent);
-	-idle.
+	!acceptAssembleProtocol(Agent).
 	
 +!acquireTools : tools(Tools) <-
 	sortByPermissionCount(Tools, SortedTools);
-	for (.member(T, SortedTools))	{
+	for (.member(T, SortedTools)) {
 		getToolVolume(T, V); ?capacity(C);
-		if (C - 50 >= V) {
-			!retrieveTool(T);
-		}
+		if (C >= V) { !retrieveTool(T);	}
 	}.
 -!acquireTools <- .wait(100); !acquireTools.
 
@@ -115,6 +111,7 @@
 +!assistAssemble(    _) : load(0) | not assemble.
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
+	.wait(1000); // To allow assembler to remove assemble
 	!assistAssemble(Agent).
 	
 // Pre-condition: In shop and shop selling the items.

@@ -1,14 +1,11 @@
 +assembleRequest(JobId, Items, Storage, CNPId) : free <-
 	!!doIntention(assembleRequest(JobId, Items, Storage, CNPId)).
 	
-+retrieveRequest(Shop, Items, Workshop, Agent, CNPId) : free & not myRole("drone") <-
++retrieveRequest(Shop, Items, Workshop, Agent, CNPId) : free <-
 	!!doIntention(retrieveRequest(Shop, Items, Workshop, Agent, CNPId)). 
 	
 +toolRequest(Tools, Workshop, Agent, CNPId) : free <-
 	!!doIntention(toolRequest(Tools, Workshop, Agent, CNPId)).
-	
-+toolRequest(Tools, Workshop, Agent, CNPId) : assisting(Agent) & idle <-
-	!toolRequestAssist(Tools, Workshop, Agent, CNPId).
 
 +!assembleRequest(JobId, Items, Storage, CNPId) 
 	: capacity(Capacity) & speed(Speed) <-
@@ -26,7 +23,6 @@
 		if (Won)
 		{
 			.print("Job: ", JobId, "Assembling: ", ItemsToAssemble);
-//			clear("assembleRequest", 4, CNPId);
 			!solveJob(JobId, ItemsToAssemble, Storage);
 		}
 	}.
@@ -48,36 +44,9 @@
 		if (Won)
 		{
 			.print("Helping ", Agent);
-			+assisting(Agent);
-//			clear("retrieveRequest", 5, CNPId);
 			!retrieveItems(Shop, ItemsToRetrieve);
 			!coordinateAssist(Workshop, Agent);
 		}
-	}.
-
-+!toolRequestAssist(Tools, Workshop, Agent, CNPId) 
-	: capacity(Capacity) & speed(Speed) <-
-	?getUsableTools(Tools, Usable, NotUsable);
-	?getInvTools(Usable, InInv, NotInInv);
-	
-	getToolsToCarry(NotInInv, Capacity, ToolsToRetrieve, RetrieveRest);
-	.concat(InInv, ToolsToRetrieve, AllTools);
-	.concat(NotUsable, RetrieveRest, RestTools);
-	
-	if (not AllTools = [])
-	{
-		bid(-Speed - 1000, AllTools, RestTools)[artifact_id(CNPId)];
-		winner(Won)[artifact_id(CNPId)];
-		
-		if (Won)
-		{
-			.send(Agent, untell, assistantReady(Me));
-			!reset;
-			-idle;
-			.print("Helping ", Agent, " with ", AllTools);
-			!retrieveTools(ToolsToRetrieve);
-			!coordinateAssist(Workshop, Agent);
-		}		
 	}.
 	
 +!toolRequest(Tools, Workshop, Agent, CNPId) 
@@ -100,7 +69,6 @@
 		if (Won)
 		{
 			.print("Helping ", Agent, " with ", AllTools);
-			+assisting(Agent);
 			!retrieveTools(ToolsToRetrieve);
 			!coordinateAssist(Workshop, Agent);
 		}		
