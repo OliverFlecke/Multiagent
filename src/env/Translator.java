@@ -126,11 +126,10 @@ public class Translator
 		return arguments;
 	}
 
-	/**
-	 * 
-	 * @param percept
-	 * @return
-	 */
+	public static String perceptToString(Percept percept) {
+		return PrologVisitor.staticVisit(percept);
+	}
+	
 	public static Literal perceptToLiteral(Percept percept) {
 		return Literal.parseLiteral(PrologVisitor.staticVisit(percept));
 	}

@@ -174,9 +174,9 @@ public class StaticInfoArtifact extends Artifact {
 		
 		Role role = new Role(name, speed, battery, load, permissions);
 		
-		permissions.forEach(tool -> ItemArtifact.addToolPermession(tool, name));
-		
-		role.addTools(permissions.stream().map(x -> ItemArtifact.getTool(x)).collect(Collectors.toList()));
+//		permissions.forEach(tool -> ItemArtifact.addToolPermession(tool, name));
+//		
+//		role.addTools(permissions.stream().map(x -> ItemArtifact.getTool(x)).collect(Collectors.toList()));
 		
 		roles.put(name, role);
 	}
@@ -223,6 +223,11 @@ public class StaticInfoArtifact extends Artifact {
 	{
 		return roles.values();
 	}	
+	
+	public static Role getRole(String role)
+	{
+		return roles.get(role);
+	}
 	
 	/**
 	* @return The name of the team

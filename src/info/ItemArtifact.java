@@ -5,12 +5,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cartago.Artifact;
 import cartago.OPERATION;
@@ -19,6 +22,7 @@ import eis.iilang.Percept;
 import env.EIArtifact;
 import env.Translator;
 import massim.scenario.city.data.Item;
+import massim.scenario.city.data.Role;
 import massim.scenario.city.data.Tool;
 import massim.scenario.city.data.facilities.Shop;
 import util.CartagoUtil;
@@ -53,15 +57,36 @@ public class ItemArtifact extends Artifact {
 	
 	@OPERATION
 	void getRequiredTools(Object[] items, OpFeedbackParam<Object> ret)
-	{
+	{		
 		ret.set(getRequiredTools(CartagoUtil.objectToItemMap(items))
-				.stream().map(Tool::getName).toArray());
+				.stream().map(Tool::getName).toArray(String[]::new));
 	}
 	
 	@OPERATION
 	void getVolume(Object[] items, OpFeedbackParam<Integer> ret)
 	{
 		ret.set(getVolume(CartagoUtil.objectToItemMap(items)));
+	}
+	
+	@OPERATION
+	void getToolVolume(String tool, OpFeedbackParam<Integer> ret)
+	{
+		ret.set(getTool(tool).getVolume());
+	}
+	
+	@OPERATION
+	void sortByPermissionCount(Object[] objTools, OpFeedbackParam<Object> ret)
+	{
+		List<Tool> tools = Arrays.stream(objTools)
+								.map(String.class::cast)
+								.map(ItemArtifact::getTool)
+								.collect(Collectors.toList());
+		
+		Collections.shuffle(tools);
+		
+		ret.set(tools.stream()
+				.sorted((t1, t2) -> t1.getRoles().size() - t2.getRoles().size())
+				.map(Tool::getName).toArray());
 	}
 	
 	@OPERATION 
@@ -71,7 +96,7 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
-	void getNearestShopSelling(String item, OpFeedbackParam<String> ret)
+	void getClosestShopSelling(String item, OpFeedbackParam<String> ret)
 	{
 		String agent = getOpUserName();
 
@@ -149,6 +174,20 @@ public class ItemArtifact extends Artifact {
 	}
 	
 	@OPERATION
+	void getMissingTools(Object[] tools, Object[] objInventory, OpFeedbackParam<String[]> ret)
+	{
+		Set<String>			 missing	= new HashSet<>();
+		Map<String, Integer> inventory 	= CartagoUtil.objectToStringMap(objInventory);
+
+		for (String tool : CartagoUtil.objectToStringTools(tools))
+		{
+			if (!inventory.containsKey(tool)) missing.add(tool);
+		}
+		
+		ret.set(missing.toArray(new String[missing.size()]));
+	}
+	
+	@OPERATION
 	void collectInventories(Object[] inventories, OpFeedbackParam<Object> ret)
 	{
 		ret.set(Arrays.stream(inventories).map(inv -> CartagoUtil.objectToStringMap((Object[]) inv).entrySet())
@@ -186,23 +225,23 @@ public class ItemArtifact extends Artifact {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
 	}
 	
-	public static Set<Tool> getRequiredTools(Entry<Item, Integer> item)
+	public static Stream<Tool> getRequiredTools(Entry<Item, Integer> item)
 	{
 		Map<Item, Integer> reqItems = item.getKey().getRequiredItems();
 		
-		if (reqItems.isEmpty()) return Collections.emptySet();
+		if (reqItems.isEmpty()) return Stream.empty();
 		
 		Set<Tool> reqTools = item.getKey().getRequiredTools();
 		
 		reqTools.addAll(getRequiredTools(reqItems));
 		
-		return reqTools;
+		return reqTools.stream();
 	}
 	
 	public static Set<Tool> getRequiredTools(Map<Item, Integer> items)
 	{
 		return items.entrySet().stream()
-				.flatMap(e -> e.getKey().getRequiredTools().stream())
+				.flatMap(ItemArtifact::getRequiredTools)
 				.collect(Collectors.toSet());
 	}
 	
@@ -284,8 +323,12 @@ public class ItemArtifact extends Artifact {
 	{		
 		Map<Item, Set<Object[]>> requirements = new HashMap<>();
 		
-		percepts.stream().filter(percept -> percept.getName() == ITEM)
-						 .forEach(item -> perceiveItem(item, requirements));
+		Map<Boolean, List<Percept>> groups = percepts.stream()
+				.filter(percept -> percept.getName() == ITEM)
+				.collect(Collectors.partitioningBy(p -> Translator.perceptToString(p).startsWith("tool", 5)));
+		
+		groups.get(true)	.forEach(tool -> perceiveTool(tool));
+		groups.get(false)	.forEach(item -> perceiveItem(item, requirements));
 		
 		// Item requirements has to be added after all items have been created, 
 		// since they are not necessarily given in a chronological order.
@@ -309,43 +352,54 @@ public class ItemArtifact extends Artifact {
 				logger.info(item.toString());
 		}
 	}
+	
+	private static void perceiveTool(Percept percept) 
+	{
+		Object[] args = Translator.perceptToObject(percept);
+		
+		String     id		= (String) args[0];
+		int 	   volume	= (int)    args[1];
+
+		Set<Role> roles = StaticInfoArtifact.getRoles().stream()
+							.filter(role -> role.getPermissions().contains(id))
+							.collect(Collectors.toSet());
+		
+		Tool tool = new Tool(id, volume, 0, roles.stream().map(Role::getName).toArray(String[]::new));
+		
+		roles.stream().forEach(role -> role.addTools(Arrays.asList(tool)));
+		
+		tools.put(id, tool);
+	}
 
 	// Literal(String, int, Literal(List<String>), Literal(List<List<String, int>>))
 	private static void perceiveItem(Percept percept, Map<Item, Set<Object[]>> requirements)
-	{				
+	{
 		Object[] args = Translator.perceptToObject(percept);
 		
 		String     id		= (String) args[0];
 		int 	   volume	= (int)    args[1];
 		
-		if (id.contains("tool"))
+		Item item = new Item(id, volume, 0, Collections.emptySet());
+		
+		for (Object toolArg : ((Object[]) ((Object[]) args[2])[0]))
 		{
-			tools.put(id, new Tool(id, volume, 0));
-		}
-		else 
-		{
-			Item item = new Item(id, volume, 0, Collections.emptySet());
-	
-			for (Object toolArg : ((Object[]) ((Object[]) args[2])[0]))
-			{
-				String toolId = (String) toolArg;
-				
-				if (!tools.containsKey(toolId))
-				{
-					tools.put(toolId, new Tool(toolId, 0, 0));
-				}				
-				item.addRequiredTool(tools.get(toolId));
-			}
+			String toolId = (String) toolArg;
 			
-			Set<Object[]> parts = new HashSet<>();
-	
-			for (Object part : ((Object[]) ((Object[]) args[3])[0]))
-			{			
-				parts.add((Object[]) part);	
-			}
-			items.put(id, item);
-			requirements.put(item, parts);
+			if (!tools.containsKey(toolId))
+			{
+				logger.log(Level.WARNING, "Tool not perceived: " + toolId);
+			}				
+			item.addRequiredTool(tools.get(toolId));
 		}
+		
+		Set<Object[]> parts = new HashSet<>();
+		
+		for (Object part : ((Object[]) ((Object[]) args[3])[0]))
+		{			
+			parts.add((Object[]) part);	
+		}
+		items.put(id, item);
+		requirements.put(item, parts);
 	}
 	
 	// Used by the FacilityArtifact when adding items to shops.

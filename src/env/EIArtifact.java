@@ -178,8 +178,8 @@ public class EIArtifact extends Artifact {
 			}
 			
 			// Perceive static info
-			ItemArtifact        .perceiveInitial(allPercepts);
 			StaticInfoArtifact  .perceiveInitial(allPercepts);
+			ItemArtifact        .perceiveInitial(allPercepts);
 			// Perceive dynamic info
 			FacilityArtifact	.perceiveUpdate(allPercepts);
 			DynamicInfoArtifact	.perceiveUpdate(allPercepts);

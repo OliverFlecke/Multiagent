@@ -31,6 +31,7 @@ free.
 	
 +!doAction(Action) : .my_name(Me) <- jia.action(Me, Action); .wait({+step(_)}).
 
+//+step(0) <- !doIntention(acquireTools).
 +step(X) : lastAction("deliver_job") & lastActionResult("successful") <- incJobCompletedCount.
 +step(X) : lastActionResult(R) & lastAction(A) & lastActionParam(P)
 		 & not A = "goto" & not A = "noAction" & not A = "charge" 

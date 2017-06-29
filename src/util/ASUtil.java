@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +39,20 @@ public class ASUtil {
 	public static Map<Item, Integer> objectToItemMap(Object obj) 
 	{
 		return DataUtil.stringToItemMap(ASUtil.objectToStringMap(obj));
+	}
+	
+	public static Term stringsToTerm(String[] strings)
+	{
+		return Arrays.stream(strings)
+				.map(ASSyntax::createAtom)
+				.collect(Collectors.toCollection(ASSyntax::createList));
+	}
+	
+	public static String[] objectToStrings(Object obj)
+	{
+		return Arrays.stream((Object[]) obj)
+				.map(String.class::cast)
+				.toArray(String[]::new);
 	}
 
 }

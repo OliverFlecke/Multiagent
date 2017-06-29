@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,11 @@ public class CartagoUtil {
 	public static Map<Item, Integer> objectToItemMap(Object[] objs) 
 	{
 		return DataUtil.stringToItemMap(CartagoUtil.objectToStringMap(objs));
+	}
+	
+	public static String[] objectToStringTools(Object[] objs)
+	{
+		return Arrays.stream(objs).map(String.class::cast).toArray(String[]::new);
 	}
 
 }

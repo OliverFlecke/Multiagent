@@ -14,17 +14,12 @@
 +!solveJob(Id, Items, Storage) : .print("Solving ", Id, " ", Items) & false.
 +!solveJob(Id, Items, Storage) <- 
 	getClosestWorkshopToStorage(Storage, Workshop);
-	!acquireItems(Items, Workshop); 
-	!deliverJob(Id, Items, Storage).
-
-+!acquireItems(Items, _) : hasItems(Items).
-+!acquireItems(Items, F) : hasBaseItems(Items) 	<- !getToFacility(F); !assembleItems(Items).
-+!acquireItems(Items, F) : not assistant(_, _, _) <- 
+	getRequiredTools(Items, Tools);
 	getBaseItems(Items, BaseItems);
 	getShoppingList(BaseItems, ShoppingList);
-	!delegateItems(ShoppingList, F);
-	!coordinateAssemble(Items, F);
-	!acquireItems(Items, F).
+	!delegateItems(ShoppingList, Workshop);
+	!coordinateAssemble(Items, Tools, Workshop);
+	!deliverJob(Id, Items, Storage).
 
 +!delegateItems([                         ], _).
 +!delegateItems([map(   _,    [])|ShopList], F) 				<- !delegateItems(ShopList, F).
@@ -62,14 +57,54 @@
 	!doAction(assemble(Name));
 	!assembleItem(map(Name, Amount), ReqItems).
 
-+!coordinateAssemble(    _, _) : not assistant(_, _, _).
-+!coordinateAssemble(Items, F) : not inFacility(F) <- !getToFacility(F); !coordinateAssemble(Items, F).
-+!coordinateAssemble(Items, _) 					   <- !initiateAssembleProtocol(Items).
-
-+!assistRetrieve(Shop, Items, F, Agent) <- 
-	!retrieveItems(Shop, Items);
++!coordinateAssemble(Items, [], F) <-
 	!getToFacility(F);
+	!initiateAssembleProtocol(Items).	
++!coordinateAssemble(Items, Tools, _) : not assistant(_, _, _) & hasTools(Tools).
++!coordinateAssemble(Items, Tools, F) : not assistant(_, _, _) & getInventory(Inv) <-
+	getMissingTools(Tools, Inv, MissingTools);
+	!!delegateTools(MissingTools, F);
+	!coordinateAssemble(Items, [], F).
++!coordinateAssemble(Items, Tools, F) : getInventory(Inv) <-
+	.findall(I, assistant(X, _, _) & getInventory(X, I), AllInv);
+	collectInventories([Inv|AllInv], Inventory);
+	getMissingTools(Tools, Inventory, MissingTools);
+	!!delegateTools(MissingTools, F);	
+	!coordinateAssemble(Items, [], F).
+	
++!delegateTools([], _).
++!delegateTools(Tools, F) : .my_name(Me) 
+	& jia.delegateTools(Tools, F, Me, Agent, Carry, Rest) <-
+	+assistant(Agent, "tool", Carry); 
+	!delegateTools(Rest, F).
++!delegateTools(Tools, F) <-
+	.wait({+step(_)});
+	!delegateTools(Tools, F).	
+
++!coordinateAssist(Workshop, Agent) <-
+	!getToFacility(Workshop);
 	!acceptAssembleProtocol(Agent).
+	
++!acquireTools : tools(Tools) <-
+	sortByPermissionCount(Tools, SortedTools);
+	.print(Tools, " ", SortedTools);
+	for (.member(T, SortedTools))	{
+		getToolVolume(T, V); ?capacity(C);
+		if (C - 50 >= V) {
+			!retrieveTool(T);
+		}
+	}.
+-!acquireTools <- .wait(100); !acquireTools.
+
++!retrieveTools([]).
++!retrieveTools([Tool|Tools]) <-
+	!retrieveTool(Tool);
+	!retrieveTools(Tools).
+
++!retrieveTool(Tool) : hasTools([Tool]).
++!retrieveTool(Tool) <- 
+	getClosestShopSelling(Tool, Shop);
+	!retrieveItems(Shop, [map(Tool, 1)]).
 
 // Post-condition: Empty inventory or -assemble.
 +!assistAssemble(    _) : load(0) | not assemble.
