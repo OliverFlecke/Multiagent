@@ -11,7 +11,7 @@
 	!delegateJob(Id, Rest, F).
 
 // Pre-condition: Items can be carried by agent
-+!solveJob(Id, Items, Storage) : .print("Solving ", Id, " ", Items) & false.
+//+!solveJob(Id, Items, Storage) : .print("Solving ", Id, " ", Items) & false.
 +!solveJob(Id, Items, Storage) <- 
 	getClosestWorkshopToStorage(Storage, Workshop);
 	getRequiredTools(Items, Tools);
@@ -34,7 +34,7 @@
 
 +!retrieveItems(   _, Items) : hasItems(Items).
 +!retrieveItems(Shop, Items) : inShop(Shop) 	<- !buyItems(Items).
-+!retrieveItems(Shop, Items) : .print("Retrieving: ", Shop, " ", Items) & false.
+//+!retrieveItems(Shop, Items) : .print("Retrieving: ", Shop, " ", Items) & false.
 +!retrieveItems(Shop, Items) <- !getToFacility(Shop); !retrieveItems(Shop, Items).
 
 // Pre-condition: In workshop and all base items available.

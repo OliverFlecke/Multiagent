@@ -6,6 +6,16 @@
 	
 +toolRequest(Tools, Workshop, Agent, CNPId) : free <-
 	!!doIntention(toolRequest(Tools, Workshop, Agent, CNPId)).
+		
++auction(TaskId, CNPId) : free <- 
+	-free;
+	takeTask(Can)[artifact_id(CNPId)];
+	if (Can)
+	{
+		getBid(TaskId, Bid);
+		if (Bid \== 0) { !doAction(bid_for_job(TaskId, Bid)); }
+	}
+	+free.
 
 +!assembleRequest(JobId, Items, Storage, CNPId) 
 	: capacity(Capacity) & speed(Speed) <-
@@ -48,7 +58,7 @@
 			!coordinateAssist(Workshop, Agent);
 		}
 	}.
-	
+
 +!toolRequest(Tools, Workshop, Agent, CNPId) 
 	: capacity(Capacity) & speed(Speed) <-
 	?getUsableTools(Tools, Usable, NotUsable);

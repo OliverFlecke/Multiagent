@@ -81,7 +81,7 @@ public class TaskArtifact extends Artifact {
 		{
 			logger.log(Level.SEVERE, "Failure in announce: " + e.getMessage(), e);
 			return null;
-		}
+		}		
 	}
 	
 	@OPERATION

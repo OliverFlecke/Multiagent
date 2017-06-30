@@ -10,7 +10,7 @@
 	makeArtifact("TaskArtifact", "cnp.TaskArtifact", [], TaskId);
 	focus(Id);
 	focus(TaskId).
-	
+
 +reset <- 
 	for (assembleRequest(_, _, _, _, _, CnpId)) { clear("assembleRequest", 6, CnpId); };
 	for (retrieveRequest(_, _, _, CnpId)) 		{ clear("retrieveRequest", 4, CnpId); };

@@ -59,6 +59,15 @@ public class StaticInfoArtifact extends Artifact {
 	}
 	
 	/**
+	 * @param type of the role to get
+	 * @return The role associated with the type
+	 */
+	public static Role getRole(String type)
+	{
+		return roles.get(type);
+	}
+	
+	/**
 	 * @return The map of the city, which is able to calculate route between points
 	 */
 	public static CCityMap getMap()
@@ -223,11 +232,6 @@ public class StaticInfoArtifact extends Artifact {
 	{
 		return roles.values();
 	}	
-	
-	public static Role getRole(String role)
-	{
-		return roles.get(role);
-	}
 	
 	/**
 	* @return The name of the team
