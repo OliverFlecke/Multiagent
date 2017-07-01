@@ -9,7 +9,7 @@ touch temp.csv
 cat $1 >> temp.csv
 sed -i -e 's/Step: //g' temp.csv
 sed -i -e 's/ - Money: /,/g' temp.csv
-sed -i -e 's/999/1000/g' temp.csv
+sed -i -e 's/999,/1000,/g' temp.csv
 sed -i -i 's/^1,/0,/g' temp.csv
 grep -e '^[0-9]*00' -e '^[0-9]*50,' -e '^999' -e '^0' temp.csv >> $2
 rm temp.csv
