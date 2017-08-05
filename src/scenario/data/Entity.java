@@ -1,8 +1,6 @@
 package scenario.data;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import massim.scenario.city.data.Location;
 
 public class Entity {
 	

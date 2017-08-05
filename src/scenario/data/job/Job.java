@@ -1,13 +1,16 @@
 package scenario.data.job;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Job {
 	
-	String 					id, storage;
-	int						reward;
-	long					start, end;
-	Map<String, Integer> 	items;
+	private String 					id, 
+									storage;
+	private int						reward;
+	private long					start, 
+									end;
+	private Map<String, Integer> 	items;
 
 	public Job(String id, String storage, int reward, 
 			long start, long end, Map<String, Integer> items) {
@@ -21,6 +24,30 @@ public class Job {
 	
 	public Job(Job job) {
 		this(job.id, job.storage, job.reward, job.start, job.end, job.items);
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getStorage() {
+		return storage;
+	}
+
+	public int getReward() {
+		return reward;
+	}
+
+	public long getStart() {
+		return start;
+	}
+
+	public long getEnd() {
+		return end;
+	}
+
+	public Map<String, Integer> getItems() {
+		return new HashMap<>(items);
 	}
 
 }

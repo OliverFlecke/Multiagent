@@ -2,7 +2,9 @@ package scenario.data.job;
 
 public class AuctionJob extends Job {
 	
-	int fine, bid, steps;
+	private int fine, 
+				bid, 
+				steps;
 
 	public AuctionJob(Job job, int fine, int bid, int steps) {
 		super(job);
@@ -13,6 +15,18 @@ public class AuctionJob extends Job {
 	
 	public AuctionJob(AuctionJob job) {
 		this(job, job.fine, job.bid, job.steps);
+	}
+
+	public int getFine() {
+		return fine;
+	}
+
+	public int getBid() {
+		return bid;
+	}
+
+	public int getSteps() {
+		return steps;
 	}
 
 }

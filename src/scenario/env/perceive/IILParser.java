@@ -1,22 +1,12 @@
-package scenario.info.bridge;
+package scenario.env.perceive;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import eis.iilang.*;
 import scenario.data.*;
 import scenario.data.facility.*;
-import scenario.data.job.AuctionJob;
-import scenario.data.job.Job;
-import scenario.data.job.MissionJob;
-import scenario.data.job.PostedJob;
+import scenario.data.job.*;
 
 public class IILParser {
 	
@@ -44,19 +34,19 @@ public class IILParser {
 	// JAVALANG //
 	//////////////
 	
-	static String parseString(Parameter p) {
+	public static String parseString(Parameter p) {
 		return parseIdentifier(p).getValue();
 	}
 	
-	static int parseInt(Parameter p) {
+	public static int parseInt(Parameter p) {
 		return (int) parseNumeral(p).getValue();
 	}
 	
-	static long parseLong(Parameter p) {
+	public static long parseLong(Parameter p) {
 		return (long) parseNumeral(p).getValue();
 	}
 	
-	static double parseDouble(Parameter p) {
+	public static double parseDouble(Parameter p) {
 		return (double) parseNumeral(p).getValue();
 	}
 	
@@ -166,7 +156,7 @@ public class IILParser {
 	// FACILITIES //
 	////////////////
 	
-	static Facility parseFacility(Percept p) {
+	private static Facility parseFacility(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		String 					name 	= parseString	(params.get(0));
 		long					lat 	= parseLong		(params.get(1));
@@ -215,7 +205,7 @@ public class IILParser {
 	// JOBS //
 	//////////
 	
-	static Job parseJob(Percept p) {
+	private static Job parseJob(Percept p) {
 		LinkedList<Parameter> 	params 	= p.getParameters();
 		String					id		= parseString	(params.get(0));
 		String					storage	= parseString	(params.get(1));
@@ -224,6 +214,10 @@ public class IILParser {
 		long					end		= parseLong		(params.get(4));
 		Map<String, Integer>	items	= parseMap1		(params.getLast());
 		return new Job(id, storage, reward, start, end, items);
+	}
+	
+	static SimpleJob parseSimple(Percept p) {
+		return new SimpleJob(parseJob(p));
 	}
 	
 	static PostedJob parsePosted(Percept p) {
