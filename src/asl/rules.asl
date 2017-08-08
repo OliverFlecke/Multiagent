@@ -1,8 +1,8 @@
 // Rules
-speed(S)		:- myRole(Role) & role(Role, S, _, _, _).
-maxLoad(L)		:- myRole(Role) & role(Role, _, L, _, _).
-maxCharge(C)	:- myRole(Role) & role(Role, _, _, C, _).
-tools(T)		:- myRole(Role) & role(Role, _, _, _, T).
+speed(S)		:- role(_, S, _, _, _).
+maxLoad(L)		:- role(_, _, L, _, _).
+maxCharge(C)	:- role(_, _, _, C, _).
+tools(T)		:- role(_, _, _, _, T).
 canUseTool(T)	:- tools(Tools) & .member(T, Tools).
 canUseAll(Req)	:- tools(Tools) & .findall(T, .member(T, Req) & .member(T, Tools), Use) &
 					.length(Req, N) & .length(Use, N).
@@ -15,19 +15,18 @@ isStorage(F)			:- .substring("storage",  F).
 isShop(F)				:- .substring("shop",     F).
 isDump(F)				:- .substring("dump",     F).
 // In facility
-inChargingStation 	:- inFacility(F) & isChargingStation(F).
-inWorkshop 			:- inFacility(F) & isWorkshop(F).
-inStorage 			:- inFacility(F) & isStorage(F).
-inShop	    		:- inFacility(F) & isShop(F).
-inShop(F)			:- inFacility(F) & inShop.
-inDump				:- inFacility(F) & isDump(F).
+inChargingStation 	:- facility(F) & isChargingStation(F).
+inWorkshop 			:- facility(F) & isWorkshop(F).
+inStorage 			:- facility(F) & isStorage(F).
+inShop	    		:- facility(F) & isShop(F).
+inDump				:- facility(F) & isDump(F).
 // Utility
 routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 capacity(C) 		:- maxLoad(M) & load(L) & C = M - L.
 canMove 			:- charge(X) & X >= 10.
 chargeThreshold(X) 	:- maxCharge(C) & X = 0.35 * C.
-enoughCharge 		:- routeLength(L) & enoughCharge(L).
-enoughCharge(L) 	:- speed(S) & charge(C) & chargeThreshold(Threshold) & 
+enoughCharge(F) 	:- getRouteLength(F, L) & speed(S) & 
+						charge(C) & chargeThreshold(Threshold) & 
 						Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
 // Internal utility actions
 canCarry(Items)					:- capacity(C) & jia.getBaseVolume(Items, V) & V <= C.
@@ -45,6 +44,8 @@ hasAmount(Item, Amount)			:- .my_name(Me) & hasAmount(Me, Item, Amount).
 hasAmount(Agent, Item, Amount)	:- jia.hasAmount(Agent, Item, Amount).
 hasTools(Tools)					:- .my_name(Me) & hasTools(Me, Tools).
 hasTools(Agent, Tools)			:- jia.hasTools(Agent, Tools).
+
+getRouteLength(F, L)			:- .my_name(Me) & jia.getRouteLength(Me, F, L).
 
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y.
 contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 

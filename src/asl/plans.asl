@@ -1,6 +1,6 @@
-+!deliverJob(Id, Items, F) : hasItems(Items) & inFacility(F) <- !doAction(deliver_job(Id)).
-+!deliverJob(Id, Items, F) : hasItems(Items) 				 <- !getToFacility(F); !deliverJob(Id, Items, F).
-+!deliverJob(Id, Items, F)									 <- !delegateJob(Id, Items, F).
++!deliverJob(Id, Items, F) : hasItems(Items) & facility(F) 	<- !doAction(deliver_job(Id)).
++!deliverJob(Id, Items, F) : hasItems(Items) 				<- !getToFacility(F); !deliverJob(Id, Items, F).
++!deliverJob(Id, Items, F)									<- !delegateJob(Id, Items, F).
 
 +!delegateJob( _,    [], _).
 +!delegateJob(Id, Items, F) : canCarry(Items) 					  <- !solveJob(Id, Items, F).
@@ -33,7 +33,7 @@
 	!delegateItems(ShopList, F).
 
 +!retrieveItems(   _, Items) : hasItems(Items).
-+!retrieveItems(Shop, Items) : inShop(Shop) 	<- !buyItems(Items).
++!retrieveItems(Shop, Items) : facility(Shop) 	<- !buyItems(Items).
 +!retrieveItems(Shop, Items) : .print("Retrieving: ", Shop, " ", Items) & false.
 +!retrieveItems(Shop, Items) <- !getToFacility(Shop); !retrieveItems(Shop, Items).
 
@@ -120,19 +120,19 @@
 +!buyItems(Items) 		 : hasItems(Items).
 +!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
 +!buyItems([map(Item, Amount)|Items])		<- 
-	?hasAmount(Item, HasAmount); ?inShop(Shop);
+	?hasAmount(Item, HasAmount); ?facility(Shop);
 	getAvailableAmount(Item, Amount - HasAmount, Shop, AmountAvailable);
 	!doAction(buy(Item, AmountAvailable));
 	!buyItems(Items);
 	!buyItems([map(Item, Amount)]).
 
 // Post-condition: In facility F.
-+!getToFacility(F) : inFacility(F).
++!getToFacility(F) : facility(F).
 +!getToFacility(F) : not canMove									<- !doAction(recharge); !getToFacility(F).
-+!getToFacility(F) : not enoughCharge & not isChargingStation(F)	<- !charge; 			!getToFacility(F).
++!getToFacility(F) : not enoughCharge(F) & not isChargingStation(F)	<- !charge; 			!getToFacility(F).
 +!getToFacility(F) 													<- !doAction(goto(F)); 	!getToFacility(F).
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation <- !doAction(charge); !charge.
-+!charge <-	getClosestFacility("chargingStation", F); !getToFacility(F); !charge.
++!charge <-	getClosestFacility("chargingStation", F); .print(F); !getToFacility(F); !charge.

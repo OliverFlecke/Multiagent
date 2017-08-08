@@ -2,28 +2,25 @@ package jia;
 
 import java.util.Map;
 
-import env.Translator;
-import info.AgentArtifact;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
+import mapc2017.env.info.AgentInfo;
 
 public class hasTools extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object execute(TransitionSystem ts, Unifier un, Term[] terms) throws Exception 
-	{
-		Object[] args = Translator.termsToObject(terms);
-		
-		String 		agent		= (String) 		args[0];
-		Object[] 	tools 		= (Object[]) 	args[1];
+	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
+	{		
+		String 		agent		= ASLParser.parseString	(args[0]);
+		String[] 	tools 		= ASLParser.parseArray	(args[1]);
 		
 		if (tools.length == 0) return true;
 		
-		Map<String, Integer> 	inventory 	= AgentArtifact.getAgentInventory(agent);
+		Map<String, Integer> 	inventory 	= AgentInfo.get(agent).getInventory();
 
 		if (inventory.isEmpty()) return false;
 		

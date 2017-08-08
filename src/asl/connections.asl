@@ -1,10 +1,7 @@
-+!register <- register.
--!register <- .wait(100); !register.
-
 +!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
-+!focusArtifacts : .my_name(Me) & .term2string(Me, Name) <-
++!focusArtifacts : .my_name(Me) & .term2string(Me, AgentPerceiver) <-
 	!focusArtifact("TaskArtifact");
-	!focusArtifact("EIArtifact");
-	makeArtifact(Name, "info.AgentArtifact", [], _);
-	!focusArtifact(Name).
+	!focusArtifact("SimStartPerceiver");
+	!focusArtifact("ReqActionPerceiver");
+	!focusArtifact(AgentPerceiver).
 -!focusArtifacts <- .wait(500); !focusArtifacts.

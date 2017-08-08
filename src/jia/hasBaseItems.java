@@ -3,40 +3,35 @@ package jia;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import env.Translator;
-import info.AgentArtifact;
-import info.ItemArtifact;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
-import massim.scenario.city.data.Item;
-import util.ASUtil;
-import util.DataUtil;
+import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.ItemInfo;
 
 public class hasBaseItems extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object execute(TransitionSystem ts, Unifier un, Term[] terms) throws Exception 
+	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
-		Object[] args = Translator.termsToObject(terms);
 		
-		String 					agent		= (String) 			 args[0];
-		Map<String, Integer> 	items 		= ASUtil.objectToStringMap(args[1]);
+		String 					agent		= ASLParser.parseString	(args[0]);
+		Map<String, Integer> 	items 		= ASLParser.parseMap	(args[1]);
 		
 		if (items.isEmpty()) return true;
 		
-		Map<String, Integer> 	inventory 	= AgentArtifact.getAgentInventory(agent);
+		Map<String, Integer> 	inventory 	= AgentInfo.get(agent).getInventory();
 		
 		if (inventory.isEmpty()) return false;
 		
-		Map<Item, Integer> 		baseItems	= ItemArtifact.getBaseItems(DataUtil.stringToItemMap(items));	
+		Map<String, Integer> 	baseItems	= ItemInfo.get().getBaseItems(items);	
 		
-		for (Entry<Item, Integer> item : baseItems.entrySet())
+		for (Entry<String, Integer> item : baseItems.entrySet())
 		{
-			Integer hasAmount = inventory.get(item.getKey().getName());
+			Integer hasAmount = inventory.get(item.getKey());
 			
 			if (hasAmount == null) return false;
 			

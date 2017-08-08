@@ -2,27 +2,24 @@ package jia;
 
 import java.util.Map;
 
-import env.Translator;
-import info.ItemArtifact;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
-import massim.scenario.city.data.Item;
+import mapc2017.env.info.ItemInfo;
 import util.ASUtil;
-import util.DataUtil;
 
 public class getReqItems extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object execute(TransitionSystem ts, Unifier un, Term[] terms) throws Exception 
+	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
-		String 				item 	= (String) Translator.termToObject(terms[0]);		
-		Map<Item, Integer> 	req 	= ItemArtifact.getItem(item).getRequiredItems();
+		String 					item 	= ASLParser.parseString(args[0]);		
+		Map<String, Integer> 	req 	= ItemInfo.get().getItem(item).getReqItems();
 		
-		return un.unifies(terms[1], ASUtil.mapToTerm(DataUtil.itemToStringMap(req)));
+		return un.unifies(args[1], ASUtil.mapToTerm(req));
 	}
 
 }
