@@ -38,10 +38,7 @@ public class EIArtifact extends Artifact {
     public static final boolean LOGGING_ENABLED = false;
     
     private static EnvironmentInterfaceStandard ei;
-    private static final String TEAM_A = "conf/eismassimconfig.json";
-	private static final String TEAM_B = "conf/eismassimconfig_team_B.json";
-    
-    private String configFile = TEAM_A;
+    private static final String configFile = "conf/eismassimconfig.json";
    
     private static Map<String, String> connections 	= new HashMap<>();
     private static Map<String, String> entities		= new HashMap<>();
