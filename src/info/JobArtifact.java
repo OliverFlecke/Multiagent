@@ -1,6 +1,5 @@
 package info;
 
-import java.security.Permission;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import massim.scenario.city.data.Route;
 import massim.scenario.city.data.facilities.Facility;
 import massim.scenario.city.data.facilities.Shop;
 import massim.scenario.city.data.facilities.Storage;
-import massim.scenario.city.data.facilities.Workshop;
 import massim.scenario.city.util.GraphHopperManager;
 
 public class JobArtifact extends Artifact {

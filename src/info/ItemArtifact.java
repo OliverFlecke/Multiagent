@@ -415,7 +415,7 @@ public class ItemArtifact extends Artifact {
 		}
 	}
 
-	public static void addToolPermession(String toolName, String role) 
+	public static void addToolPermission(String toolName, String role) 
 	{
 		if (tools.containsKey(toolName))
 		{

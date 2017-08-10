@@ -190,7 +190,7 @@ public class EIArtifact extends Artifact {
 			{			
 				String agentName = entry.getKey();
 				
-				AgentArtifact.getAgentArtifact(agentName).precevieInitial(entry.getValue());
+				AgentArtifact.getAgentArtifact(agentName).perceiveInitial(entry.getValue());
 			}
 			
 			// Define step

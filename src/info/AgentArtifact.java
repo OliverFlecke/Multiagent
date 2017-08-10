@@ -129,7 +129,7 @@ public class AgentArtifact extends Artifact {
 				.collect(Collectors.toMap(e -> e.getName(), e -> e.getAmount()));
 	}
 	
-	public void precevieInitial(Collection<Percept> percepts)
+	public void perceiveInitial(Collection<Percept> percepts)
 	{
 		defineObsProperty("myRole", this.getEntity().getRole().getName());
 		

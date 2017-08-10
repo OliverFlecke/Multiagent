@@ -183,7 +183,7 @@ public class StaticInfoArtifact extends Artifact {
 		
 		Role role = new Role(name, speed, battery, load, permissions);
 		
-		permissions.forEach(tool -> ItemArtifact.addToolPermession(tool, name));
+		permissions.forEach(tool -> ItemArtifact.addToolPermission(tool, name));
 		
 		role.addTools(permissions.stream().map(x -> ItemArtifact.getTool(x)).collect(Collectors.toList()));
 		
