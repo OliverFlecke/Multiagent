@@ -1,4 +1,4 @@
-package jia;
+package jia.agent;
 
 import java.util.Map;
 
@@ -6,21 +6,22 @@ import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
+import jia.ASLParser;
 import mapc2017.env.info.AgentInfo;
-import util.ASUtil;
 
 public class getInventory extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
+	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
+	{
+		int i = 0;
 		
-		String agentName = ASLParser.parseString(args[0]);
-
-		Map<String, Integer> inventory = AgentInfo.get(agentName).getInventory();
+		String 				 agent 		= ASLParser.parseString(args[i++]);
+		Map<String, Integer> inventory 	= AgentInfo.get(agent).getInventory();
 		
-		return un.unifies(args[1], ASUtil.mapToTerm(inventory));
+		return un.unifies(args[i], ASLParser.createMap(inventory));
 	}
 
 }

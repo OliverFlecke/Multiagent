@@ -9,6 +9,7 @@ import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
 import mapc2017.data.Role;
 import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.DynamicInfo;
 
 public class AgentPerceiver extends Artifact {
 	
@@ -74,7 +75,7 @@ public class AgentPerceiver extends Artifact {
 			case HAS_ITEM			: aInfo.addItem				(IILParser.parseEntry	(p)); break; 
 			case LAST_ACTION 		: aInfo.setLastAction		(IILParser.parseString	(p)); break; 
 			case LAST_ACTION_RESULT : aInfo.setLastActionResult	(IILParser.parseString	(p)); break; 
-			case LAST_ACTION_PARAMS : aInfo.setLastActionParams	(IILParser.parseStrings	(p)); break; 
+			case LAST_ACTION_PARAMS : aInfo.setLastActionParams	(IILParser.parseArray	(p)); break; 
 			case LAT 				: aInfo.setLat				(IILParser.parseDouble	(p)); break; 
 			case LON 				: aInfo.setLon				(IILParser.parseDouble	(p)); break; 
 			case LOAD				: aInfo.setLoad				(IILParser.parseInt		(p)); break; 
@@ -96,6 +97,12 @@ public class AgentPerceiver extends Artifact {
 		for (String property : PROPERTIES)
 		{
 			getObsProperty(property).updateValue(getValue(property));
+		}
+		
+		if (aInfo.getLastAction().equals("deliver_job") &&
+			aInfo.getLastActionResult().equals("successful"))
+		{
+			DynamicInfo.get().incJobsCompleted();
 		}
 	}
 	

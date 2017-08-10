@@ -1,52 +1,61 @@
 package mapc2017.env;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import cartago.Artifact;
 import cartago.OPERATION;
 import cartago.OpFeedbackParam;
-import mapc2017.data.*;
-import mapc2017.data.facility.*;
-import mapc2017.env.info.*;
+import jason.NoValueException;
+import jason.asSyntax.ASSyntax;
+import jason.asSyntax.Literal;
+import jason.asSyntax.NumberTerm;
+import jason.asSyntax.parser.ParseException;
+import mapc2017.data.Item;
+import mapc2017.data.Tool;
+import mapc2017.data.facility.Facility;
+import mapc2017.data.facility.Shop;
+import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.info.FacilityInfo;
+import mapc2017.env.info.ItemInfo;
+import mapc2017.env.info.StaticInfo;
 import massim.scenario.city.data.Location;
-import massim.scenario.city.util.GraphHopperManager;
-import util.CartagoUtil;
-import util.DataUtil;
 
 public class OpArtifact extends Artifact {
-	
-	private String getClosestFacility(Location from, 
-			Collection<? extends Facility> facilities, String permission)
-	{
-		StaticInfo 	sInfo = StaticInfo.get();
-		
-		return facilities.stream().min(Comparator.comparingInt(f -> 
-				sInfo.getRouteLength(
-					from, 
-					f.getLocation(), 
-					permission))).get().getName();
-	}
 
 	@OPERATION
 	void getClosestFacility(String type, OpFeedbackParam<String> ret)
 	{		
-		AgentInfo 	aInfo = AgentInfo.get(getOpUserName());
-		
-		Collection<? extends Facility> facilities = FacilityInfo.get().getFacilities(type);
-
-		ret.set(getClosestFacility(aInfo.getLocation(), facilities, aInfo.getPermission()));
+		ret.set(FacilityInfo.get().getFacilities(type).stream()
+				.min(Comparator.comparingInt(f -> 
+					StaticInfo.get().getRouteDuration(
+						AgentInfo.get(getOpUserName()), 
+						f.getLocation())))
+				.get().getName());
 	}
 	
 	@OPERATION
-	void getClosestWorkshopToStorage(String storage, OpFeedbackParam<String> workshop)
+	void getClosestWorkshopToStorage(String storage, OpFeedbackParam<String> ret)
 	{
 		Location from = FacilityInfo.get().getFacility(storage).getLocation();
-		
-		Collection<? extends Facility> facilities = FacilityInfo.get().getFacilities("workshop");
 
-		workshop.set(getClosestFacility(from, facilities, GraphHopperManager.PERMISSION_ROAD));
+		ret.set(FacilityInfo.get().getFacilities("workshop").stream()
+				.min(Comparator.comparingInt(f -> 
+						StaticInfo.get().getRouteLength(
+								from, 
+								f.getLocation())))
+				.get().getName());
 	}
 	
 	@OPERATION
@@ -57,7 +66,7 @@ public class OpArtifact extends Artifact {
 		
 		Facility facility = FacilityInfo.get().getFacility(name);
 		
-		ret.set(sInfo.getRouteLength(aInfo.getLocation(), facility.getLocation(), aInfo.getPermission()));
+		ret.set(sInfo.getRouteDuration(aInfo, facility.getLocation()));
 	}
 	
 	@OPERATION
@@ -69,7 +78,7 @@ public class OpArtifact extends Artifact {
 	@OPERATION
 	void getBaseItems(Object[] items, OpFeedbackParam<Object> ret)
 	{
-		ret.set(ItemInfo.get().getBaseItems(CartagoUtil.objectToStringMap(items)));
+		ret.set(ItemInfo.get().getBaseItems(objectToStringMap(items)));
 	}
 	
 	@OPERATION 
@@ -81,7 +90,7 @@ public class OpArtifact extends Artifact {
 	@OPERATION
 	void getRequiredTools(Object[] items, OpFeedbackParam<Object> ret)
 	{		
-		ret.set(CartagoUtil.objectToStringMap(items)
+		ret.set(objectToStringMap(items)
 				.keySet().stream()
 				.map(ItemInfo.get()::getItem)
 				.map(Item::getReqBaseTools)
@@ -92,7 +101,7 @@ public class OpArtifact extends Artifact {
 	@OPERATION
 	void getVolume(Object[] items, OpFeedbackParam<Integer> ret)
 	{
-		ret.set(ItemInfo.get().getVolume(CartagoUtil.objectToStringMap(items)));
+		ret.set(ItemInfo.get().getVolume(objectToStringMap(items)));
 	}
 	
 	@OPERATION
@@ -131,7 +140,7 @@ public class OpArtifact extends Artifact {
 	{
 		ItemInfo iInfo = ItemInfo.get();
 		
-		ret.set(iInfo.getBaseVolume(CartagoUtil.objectToStringMap(items)));
+		ret.set(iInfo.getBaseVolume(objectToStringMap(items)));
 	}
 	
 	@OPERATION
@@ -140,17 +149,16 @@ public class OpArtifact extends Artifact {
 		AgentInfo agent = AgentInfo.get(getOpUserName());
 
 		ret.set(ItemInfo.get().getItemLocations(item).stream()
-				.min(Comparator.comparingInt(shop -> StaticInfo.get().getRouteLength(
-						agent.getLocation(), 
-						shop.getLocation(), 
-						agent.getPermission())))
+				.min(Comparator.comparingInt(shop -> StaticInfo.get().getRouteDuration(
+						agent, 
+						shop.getLocation())))
 				.get().getName());
 	}
 	
 	@OPERATION
 	void getShoppingList(Object[] items, OpFeedbackParam<Object> ret)
 	{
-		ret.set(getShoppingList(CartagoUtil.objectToStringMap(items)));
+		ret.set(getShoppingList(objectToStringMap(items)));
 	}
 	
 	@OPERATION
@@ -167,7 +175,7 @@ public class OpArtifact extends Artifact {
 		Map<String, Integer> carry 	= new HashMap<>();
 		Map<String, Integer> rest	= new HashMap<>();
 
-		for (Entry<String, Integer> entry : CartagoUtil.objectToStringMap(items).entrySet())
+		for (Entry<String, Integer> entry : objectToStringMap(items).entrySet())
 		{
 			Item 	item 	= ItemInfo.get().getItem(entry.getKey());
 			int 	amount 	= entry.getValue();
@@ -195,8 +203,8 @@ public class OpArtifact extends Artifact {
 	@OPERATION
 	void getMissingItems(Object[] objItems, Object[] objInventory, OpFeedbackParam<Object> ret)
 	{
-		Map<String, Integer> items 		= CartagoUtil.objectToStringMap(objItems);
-		Map<String, Integer> inventory 	= CartagoUtil.objectToStringMap(objInventory);
+		Map<String, Integer> items 		= objectToStringMap(objItems);
+		Map<String, Integer> inventory 	= objectToStringMap(objInventory);
 		
 		for (Entry<String, Integer> inv : inventory.entrySet())
 		{
@@ -218,7 +226,7 @@ public class OpArtifact extends Artifact {
 		Set<String> carry 	= new HashSet<>();
 		Set<String> rest	= new HashSet<>();
 		
-		for (String tool : CartagoUtil.objectToStringArray(tools))
+		for (String tool : objectToStringArray(tools))
 		{
 			int volume = ItemInfo.get().getTool(tool).getVolume();
 			
@@ -241,9 +249,9 @@ public class OpArtifact extends Artifact {
 	void getMissingTools(Object[] tools, Object[] objInventory, OpFeedbackParam<String[]> ret)
 	{
 		Set<String>			 missing	= new HashSet<>();
-		Map<String, Integer> inventory 	= CartagoUtil.objectToStringMap(objInventory);
+		Map<String, Integer> inventory 	= objectToStringMap(objInventory);
 
-		for (String tool : CartagoUtil.objectToStringArray(tools))
+		for (String tool : objectToStringArray(tools))
 		{
 			if (!inventory.containsKey(tool)) missing.add(tool);
 		}
@@ -254,7 +262,7 @@ public class OpArtifact extends Artifact {
 	@OPERATION
 	void collectInventories(Object[] inventories, OpFeedbackParam<Object> ret)
 	{
-		ret.set(Arrays.stream(inventories).map(inv -> CartagoUtil.objectToStringMap((Object[]) inv).entrySet())
+		ret.set(Arrays.stream(inventories).map(inv -> objectToStringMap((Object[]) inv).entrySet())
 			.flatMap(Collection::stream).collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum)));
 	}
 	
@@ -274,7 +282,7 @@ public class OpArtifact extends Artifact {
 			
 			if (shop.isPresent())
 			{
-				DataUtil.addToMapOfMaps(shoppingList, shop.get().getName(), item, amount);
+				addToMapOfMaps(shoppingList, shop.get().getName(), item, amount);
 			}
 			else 
 			{
@@ -284,7 +292,7 @@ public class OpArtifact extends Artifact {
 					// If there is only one shop remaining, it should buy the rest
 					if (shops.size() == 1)
 					{
-						DataUtil.addToMapOfMaps(shoppingList, shops.stream().findAny().get().getName(), item, amountRemaining);
+						addToMapOfMaps(shoppingList, shops.stream().findAny().get().getName(), item, amountRemaining);
 						break;
 					}
 					
@@ -299,7 +307,7 @@ public class OpArtifact extends Artifact {
 						
 						amountRemaining -= amountToBuy;
 						
-						DataUtil.addToMapOfMaps(shoppingList, shop.get().getName(), item, amountToBuy);
+						addToMapOfMaps(shoppingList, shop.get().getName(), item, amountToBuy);
 					}
 				}
 				while (amountRemaining > 0);
@@ -307,6 +315,42 @@ public class OpArtifact extends Artifact {
 		}
 		
 		return shoppingList;
+	}
+
+	public static Map<String, Integer> objectToStringMap(Object[] objs)
+	{
+		Map<String, Integer> map = new HashMap<>();
+		
+		try 
+		{		
+			for (Object obj : objs) 
+			{
+				Literal literal	= ASSyntax.parseLiteral(obj.toString());	
+				String 	item 	= literal.getTerm(0).toString().replaceAll("\"", "");				
+				int 	amount 	= (int) ((NumberTerm) literal.getTerm(1)).solve();
+	
+				map.put(item, amount);
+			}
+		} 
+		catch (NoValueException | ParseException e) {
+			e.printStackTrace();
+		}
+		
+		return map;
+	}
+	
+	public static String[] objectToStringArray(Object[] objs)
+	{
+		return Arrays.stream(objs).map(String.class::cast).toArray(String[]::new);
+	}
+	
+	public static <A,B,C> void addToMapOfMaps(Map<A, Map<B, C>> map, A first, B second, C content) 
+	{
+		if (!map.containsKey(first))
+		{
+			map.put(first, new HashMap<B, C>());
+		}
+		map.get(first).put(second, content);
 	}
 
 }

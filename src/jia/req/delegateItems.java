@@ -1,4 +1,4 @@
-package jia;
+package jia.req;
 
 import java.util.Map;
 
@@ -9,8 +9,8 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
-import util.ASUtil;
-import util.CartagoUtil;
+import jia.ASLParser;
+import mapc2017.env.OpArtifact;
 
 public class delegateItems extends DefaultInternalAction {
 	
@@ -30,14 +30,14 @@ public class delegateItems extends DefaultInternalAction {
 		
 		String					agent		= bid.getAgent();
 		Object[] 				data		= bid.getData();
-		Map<String, Integer> 	carry 		= CartagoUtil.objectToStringMap((Object[]) data[0]);
-		Map<String, Integer> 	rest 		= CartagoUtil.objectToStringMap((Object[]) data[1]);
+		Map<String, Integer> 	carry 		= OpArtifact.objectToStringMap((Object[]) data[0]);
+		Map<String, Integer> 	rest 		= OpArtifact.objectToStringMap((Object[]) data[1]);
 		
 		System.out.println(String.format("[%s] Helping %s", agent, me));
 		
 		return un.unifies(args[4], ASSyntax.createAtom(agent)) 
-			&& un.unifies(args[5], ASUtil.mapToTerm(carry)) 
-			&& un.unifies(args[6], ASUtil.mapToTerm(rest));
+			&& un.unifies(args[5], ASLParser.createMap(carry)) 
+			&& un.unifies(args[6], ASLParser.createMap(rest));
 	}
 
 }

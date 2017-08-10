@@ -1,4 +1,4 @@
-package jia;
+package jia.agent;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,6 +7,7 @@ import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
+import jia.ASLParser;
 import mapc2017.env.info.AgentInfo;
 
 public class hasItems extends DefaultInternalAction {
@@ -15,13 +16,15 @@ public class hasItems extends DefaultInternalAction {
 
 	@Override
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
-	{		
-		String 					agent		= ASLParser.parseString	(args[0]);
-		Map<String, Integer> 	items 		= ASLParser.parseMap	(args[1]);
+	{
+		int i = 0;
+		
+		String 				 agent	= ASLParser.parseString	(args[i++]);
+		Map<String, Integer> items 	= ASLParser.parseMap	(args[i++]);
 		
 		if (items.isEmpty()) return true;
 		
-		Map<String, Integer> 	inventory 	= AgentInfo.get(agent).getInventory();
+		Map<String, Integer> inventory 	= AgentInfo.get(agent).getInventory();
 		
 		if (inventory.isEmpty()) return false;
 		

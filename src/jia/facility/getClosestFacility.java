@@ -1,9 +1,15 @@
 package jia.facility;
 
+import java.util.Comparator;
+
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.*;
+import jia.ASLParser;
+import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.FacilityInfo;
+import mapc2017.env.info.StaticInfo;
 
 public class getClosestFacility extends DefaultInternalAction {
 
@@ -12,11 +18,27 @@ public class getClosestFacility extends DefaultInternalAction {
 	@Override
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
-		String type = ((Atom) args[0]).getFunctor();
+		int i = 0;
 		
+		String from 	= ASLParser.parseString(args[i++]);
+		String type 	= ASLParser.parseString(args[i++]);
+		String closest;
 		
+		if (from.startsWith("agent"))
+		{
+			closest = FacilityInfo.get().getFacilities(type).stream()
+					.min(Comparator.comparingInt(f -> StaticInfo.get().getRouteDuration(
+							AgentInfo.get(from), f.getLocation()))).get().getName();			
+		}
+		else
+		{
+			closest = FacilityInfo.get().getFacilities(type).stream()
+					.min(Comparator.comparingInt(f -> StaticInfo.get().getRouteLength(
+							FacilityInfo.get().getFacility(from).getLocation(), 
+							f.getLocation()))).get().getName();			
+		}
 		
-		return super.execute(ts, un, args);
+		return un.unifies(args[i], ASSyntax.createAtom(closest));
 	}
 
 }

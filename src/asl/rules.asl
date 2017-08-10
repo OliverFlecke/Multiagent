@@ -25,27 +25,35 @@ routeDuration(D)	:- routeLength(L) & speed(S) & D = math.ceil(L / S).
 capacity(C) 		:- maxLoad(M) & load(L) & C = M - L.
 canMove 			:- charge(X) & X >= 10.
 chargeThreshold(X) 	:- maxCharge(C) & X = 0.35 * C.
-enoughCharge(F) 	:- getRouteLength(F, L) & speed(S) & 
-						charge(C) & chargeThreshold(Threshold) & 
-						Steps = math.ceil(L / S) & Steps <= (C - Threshold) / 10.
+enoughCharge(F) 	:- charge(C) & chargeThreshold(T)
+					 & getDurationToFacility(F, D) & D <= (C - T) / 10.
 // Internal utility actions
-canCarry(Items)					:- capacity(C) & jia.getBaseVolume(Items, V) & V <= C.
-canSolve(Items)					:- capacity(C) & jia.getLoadReq(Items, R) & R <= C.
-getBid(Items, Bid)				:- capacity(C) & speed(S) & jia.getBaseVolume(Items, V) & 
+canCarry(Items)					:- capacity(C) & jia.items.getBaseVolume(Items, V) & V <= C.
+canSolve(Items)					:- capacity(C) & jia.items.getLoadReq(Items, R) & R <= C.
+getBid(Items, Bid)				:- capacity(C) & speed(S) & jia.items.getBaseVolume(Items, V) & 
 									.min([C, V], Min) & Bid = -S-Min.
-// Internal actions
+// Agent
 getInventory(Inventory)			:- .my_name(Me) & getInventory(Me, Inventory).
-getInventory(Agent, Inventory) 	:- jia.getInventory(Agent, Inventory).
+getInventory(Agent, Inventory) 	:- jia.agent.getInventory(Agent, Inventory).
 hasItems(Items) 				:- .my_name(Me) & hasItems(Me, Items).
-hasItems(Agent, Items) 			:- jia.hasItems(Agent, Items).
+hasItems(Agent, Items) 			:- jia.agent.hasItems(Agent, Items).
 hasBaseItems(Items) 			:- .my_name(Me) & hasBaseItems(Me, Items).
-hasBaseItems(Agent, Items) 		:- jia.hasBaseItems(Agent, Items).
+hasBaseItems(Agent, Items) 		:- jia.agent.hasBaseItems(Agent, Items).
 hasAmount(Item, Amount)			:- .my_name(Me) & hasAmount(Me, Item, Amount).
-hasAmount(Agent, Item, Amount)	:- jia.hasAmount(Agent, Item, Amount).
+hasAmount(Agent, Item, Amount)	:- jia.agent.hasAmount(Agent, Item, Amount).
 hasTools(Tools)					:- .my_name(Me) & hasTools(Me, Tools).
-hasTools(Agent, Tools)			:- jia.hasTools(Agent, Tools).
-
-getRouteLength(F, L)			:- .my_name(Me) & jia.getRouteLength(Me, F, L).
+hasTools(Agent, Tools)			:- jia.agent.hasTools(Agent, Tools).
+// Facility
+getClosestFacility(F, T, C)		:- 				  jia.facility.getClosestFacility(F , T, C).
+getClosestFacility(T, C)		:- .my_name(Me) & jia.facility.getClosestFacility(Me, T, C).
+getClosestShopSelling(I, S)		:- .my_name(Me) & jia.facility.getClosestShopSelling(Me, I, S).
+getDurationToFacility(F, D)		:- .my_name(Me) & jia.facility.getDurationToFacility(Me, F, D).
+// Items
+getBaseItems	(L, B)			:- .list(L)   & jia.items.getBaseItems	(L, B).
+getLoadReq		(L, R)			:- .list(L)   & jia.items.getLoadReq	(L, R).
+getBaseVolume	(L, V)			:- .list(L)   & jia.items.getBaseVolume	(L, V).
+getReqItems		(I, R)			:- .string(I) & jia.items.getReqItems	(I, R).
+getVolume		(I, V)			:- .string(I) & jia.items.getVolume		(I, V).
 
 contains(map(Item, X), [map(Item, Y) | _]) 	:- X <= Y.
 contains(Item, [_ | Inventory]) 			:- contains(Item, Inventory). 

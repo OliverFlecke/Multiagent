@@ -1,4 +1,4 @@
-package jia;
+package jia.req;
 
 import java.util.Map;
 
@@ -8,7 +8,8 @@ import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
-import util.ASUtil;
+import jia.ASLParser;
+import mapc2017.env.OpArtifact;
 
 public class delegateJob extends DefaultInternalAction {
 
@@ -25,9 +26,10 @@ public class delegateJob extends DefaultInternalAction {
 		
 		if (bid == null) return false;
 		
-		Map<String, Integer> 	rest 		= ASUtil.objectToStringMap(bid.getData()[0]);
+		Object[] 				data		= bid.getData();		
+		Map<String, Integer> 	rest 		= OpArtifact.objectToStringMap((Object[]) data[0]);
 		
-		return un.unifies(args[3], ASUtil.mapToTerm(rest));
+		return un.unifies(args[3], ASLParser.createMap(rest));
 	}
 	
 }

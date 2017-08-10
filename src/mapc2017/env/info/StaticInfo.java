@@ -11,6 +11,7 @@ import mapc2017.data.CityMap;
 import mapc2017.data.Entity;
 import mapc2017.data.Role;
 import massim.scenario.city.data.Location;
+import massim.scenario.city.util.GraphHopperManager;
 
 public class StaticInfo {
 	
@@ -69,8 +70,14 @@ public class StaticInfo {
 		return roles.values();
 	}
 	
-	public int getRouteLength(Location from, Location to, String permission) {
-		return cityMap.findRoute(from, to, permission).getRouteLength();
+	public int getRouteLength(Location from, Location to) {
+		return cityMap.findRoute(from, to, GraphHopperManager.PERMISSION_ROAD)
+				.getRouteLength();
+	}
+	
+	public int getRouteDuration(AgentInfo agent, Location to) {
+		return cityMap.findRoute(agent.getLocation(), to, agent.getPermission())
+				.getRouteDuration(agent.getRole().getSpeed());
 	}
 	
 	public void setId(String id) {

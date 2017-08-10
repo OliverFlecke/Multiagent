@@ -17,7 +17,14 @@ import jason.asSyntax.Term;
 
 public class ASLParser {
 	
-
+	/*******************/
+	/** PARSE METHODS **/
+	/*******************/
+	
+	////////////
+	// ASLANG //
+	////////////
+	
 	static Atom parseAtom(Term t) {
 		return (Atom) t;
 	}
@@ -34,11 +41,15 @@ public class ASLParser {
 		return (Literal) t;
 	}
 	
-	static String parseString(Term t) {
+	//////////////
+	// JAVALANG //
+	//////////////
+	
+	public static String parseString(Term t) {
 		return parseAtom(t).getFunctor();
 	}
 	
-	static double parseDouble(Term t) {
+	public static double parseDouble(Term t) {
 		try {
 			return parseNumber(t).solve();
 		} catch (NoValueException e) {
@@ -47,15 +58,15 @@ public class ASLParser {
 		}
 	}
 	
-	static int parseInt(Term t) {
+	public static int parseInt(Term t) {
 		return (int) parseDouble(t);
 	}
 	
-	static long parseLong(Term t) {
+	public static long parseLong(Term t) {
 		return (long) parseDouble(t);
 	}
 	
-	static String[] parseArray(Term t) {
+	public static String[] parseArray(Term t) {
 		List<String> list = new ArrayList<>();
 		for (Term tm : parseList(t)) {
 			list.add(parseString(tm));
@@ -63,7 +74,7 @@ public class ASLParser {
 		return list.toArray(new String[list.size()]);
 	}
 	
-	static Map<String, Integer> parseMap(Term t) {
+	public static Map<String, Integer> parseMap(Term t) {
 		Map<String, Integer> map = new HashMap<>();
 		for (Term tm : parseList(t)) {
 			Literal entry 	= parseLiteral(tm);
@@ -74,8 +85,19 @@ public class ASLParser {
 		return map;
 	}
 	
+	/********************/
+	/** CREATE METHODS **/
+	/********************/
 	
-	static Literal createEntry(Entry<String, Integer> entry) 
+	public static ListTerm createArray(String[] array) {
+		ListTerm list = ASSyntax.createList();
+		for (String s : array) {
+			list.add(ASSyntax.createAtom(s));
+		}
+		return list;
+	}
+	
+	public static Literal createEntry(Entry<String, Integer> entry) 
 	{
 		return ASSyntax.createLiteral("map", 
 				  ASSyntax.createAtom(entry.getKey()),

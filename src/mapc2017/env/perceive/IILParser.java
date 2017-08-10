@@ -127,7 +127,7 @@ public class IILParser {
 	/** PERCEPT METHODS **/
 	/*********************/
 	
-	static String parseString(Percept p) {
+	public static String parseString(Percept p) {
 		return parseString(p.getParameters().getFirst());
 	}
 	
@@ -135,19 +135,19 @@ public class IILParser {
 		return parseInt(p.getParameters().getFirst());
 	}
 	
-	static long parseLong(Percept p) {
+	public static long parseLong(Percept p) {
 		return parseLong(p.getParameters().getFirst());
 	}
 	
-	static double parseDouble(Percept p) {
+	public static double parseDouble(Percept p) {
 		return parseDouble(p.getParameters().getFirst());
 	}
 	
-	static List<String> parseList(Percept p) {
+	public static List<String> parseList(Percept p) {
 		return parseList(p.getParameters().getFirst());
 	}
 	
-	static String[] parseStrings(Percept p) {
+	public static String[] parseArray(Percept p) {
 		return parseArray(p.getParameters().getFirst());
 	}
 	
