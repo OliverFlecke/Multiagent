@@ -24,6 +24,7 @@ public class CityMap {
 			double minLat, double maxLat, 
 			double minLon, double maxLon) 
 	{
+		Location.setProximity(5);
 		this.cellSize 	= cellSize;
 		this.minLon 	= minLon;
 		this.maxLon 	= maxLon;

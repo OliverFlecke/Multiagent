@@ -38,9 +38,7 @@ import massim.eismassim.EnvironmentInterface;
 public class EISHandler extends Artifact implements AgentListener {
 
     private static final Logger logger = Logger.getLogger(EISHandler.class.getName());
-	
-	// Team configs
-    
+	    
     private static final String CONFIG = "conf/eismassimconfig.json";
 //    private static final String CONFIG = "conf/eismassimconfig_mapc2017.json";
     

@@ -20,10 +20,8 @@ free.
 +job(AgentStr, ShoppingList, Workshop) : .term2string(Agent, AgentStr) <-
 	!helpJob(Agent, ShoppingList, Workshop).
 
-//+step(X) : .my_name(agent1) & .print("Step: ", X) & false.
-//+step(1) <- ?getClosestFacility("dump"		, A) !getToFacility(A);
-//			?getClosestFacility("shop"		, B) !getToFacility(B);
-//			?getClosestFacility("workshop"	, C) !getToFacility(C).
++step(X) : .my_name(agent1) & .print("Step: ", X) & false.
++step(1) <- ?getClosestFacility("shop", F); !goToFacility(F).
 
 +step(X) : lastActionResult(R) & lastAction(A) & lastActionParams(P)
 		 & not A = "goto" & not A = "noAction" & not A = "charge" 
