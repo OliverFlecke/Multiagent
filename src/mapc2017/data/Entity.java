@@ -45,4 +45,9 @@ public class Entity {
 	public Location getLocation() {
 		return new Location(lat, lon);
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

@@ -1,4 +1,4 @@
-package jia;
+package mapc2017.env.parse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +13,7 @@ import jason.asSyntax.Atom;
 import jason.asSyntax.ListTerm;
 import jason.asSyntax.Literal;
 import jason.asSyntax.NumberTerm;
+import jason.asSyntax.StringTerm;
 import jason.asSyntax.Term;
 
 public class ASLParser {
@@ -25,19 +26,23 @@ public class ASLParser {
 	// ASLANG //
 	////////////
 	
-	static Atom parseAtom(Term t) {
+	public static Atom parseAtom(Term t) {
 		return (Atom) t;
 	}
 	
-	static NumberTerm parseNumber(Term t) {
+	public static StringTerm parseStringTerm(Term t) {
+		return (StringTerm) t;
+	}
+	
+	public static NumberTerm parseNumberTerm(Term t) {
 		return (NumberTerm) t;
 	}
 	
-	static ListTerm parseList(Term t) {
+	public static ListTerm parseListTerm(Term t) {
 		return (ListTerm) t;
 	}
 	
-	static Literal parseLiteral(Term t) {
+	public static Literal parseLiteral(Term t) {
 		return (Literal) t;
 	}
 	
@@ -45,13 +50,17 @@ public class ASLParser {
 	// JAVALANG //
 	//////////////
 	
-	public static String parseString(Term t) {
+	public static String parseFunctor(Term t) {
 		return parseAtom(t).getFunctor();
+	}
+	
+	public static String parseString(Term t) {
+		return parseStringTerm(t).getString();
 	}
 	
 	public static double parseDouble(Term t) {
 		try {
-			return parseNumber(t).solve();
+			return parseNumberTerm(t).solve();
 		} catch (NoValueException e) {
 			e.printStackTrace();
 			return Double.NaN;
@@ -68,7 +77,7 @@ public class ASLParser {
 	
 	public static String[] parseArray(Term t) {
 		List<String> list = new ArrayList<>();
-		for (Term tm : parseList(t)) {
+		for (Term tm : parseListTerm(t)) {
 			list.add(parseString(tm));
 		}
 		return list.toArray(new String[list.size()]);
@@ -76,7 +85,7 @@ public class ASLParser {
 	
 	public static Map<String, Integer> parseMap(Term t) {
 		Map<String, Integer> map = new HashMap<>();
-		for (Term tm : parseList(t)) {
+		for (Term tm : parseListTerm(t)) {
 			Literal entry 	= parseLiteral(tm);
 			String 	key 	= parseString(entry.getTerm(0));
 			int		value	= parseInt(entry.getTerm(1));
@@ -92,7 +101,7 @@ public class ASLParser {
 	public static ListTerm createArray(String[] array) {
 		ListTerm list = ASSyntax.createList();
 		for (String s : array) {
-			list.add(ASSyntax.createAtom(s));
+			list.add(ASSyntax.createString(s));
 		}
 		return list;
 	}
@@ -100,7 +109,7 @@ public class ASLParser {
 	public static Literal createEntry(Entry<String, Integer> entry) 
 	{
 		return ASSyntax.createLiteral("map", 
-				  ASSyntax.createAtom(entry.getKey()),
+				  ASSyntax.createString(entry.getKey()),
 				  ASSyntax.createNumber(entry.getValue()));
 	}
 	

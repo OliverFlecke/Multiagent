@@ -43,25 +43,13 @@
 	!receiveItems(Items).	
 	
 +!initiateAssembleProtocol(Items) <-
-	.wait(.count(assistant(_, _, _), N) 
-		& .count(assistantReady(_), N));
-		
-	for (assistant(A, _, _)) {
-		.send(A, tell, assemble);
-	}
-	
+	.wait(.count(assistant(_), N) & .count(assistantReady(_), N));
+	for (assistant(A)) { .send(A, tell, assemble); }
 	!assembleItems(Items);	
-	
-	for (assistant(A, _, _)) {
-		-assistant(A, _ ,_);
-		.send(A, untell, assemble);
-	}.
+	for (assistant(A)) { .send(A, untell, assemble); }.
 	
 +!acceptAssembleProtocol(Agent) : .my_name(Me) <-
-	.send(Agent, tell, assistantReady(Me));
-	
-	.wait(assemble);
-	
-	!assistAssemble(Agent);
-	
+	.send(Agent, tell, assistantReady(Me));	
+	.wait(assemble);	
+	!assistAssemble(Agent);	
 	.send(Agent, untell, assistantReady(Me)).

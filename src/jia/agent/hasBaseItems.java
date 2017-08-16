@@ -7,9 +7,9 @@ import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
-import jia.ASLParser;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.ItemInfo;
+import mapc2017.env.parse.ASLParser;
 
 public class hasBaseItems extends DefaultInternalAction {
 	
@@ -19,8 +19,8 @@ public class hasBaseItems extends DefaultInternalAction {
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
 		int i = 0;
-		
-		String 				 agent	= ASLParser.parseString	(args[i++]);
+
+		String 				 agent	= ASLParser.parseFunctor(args[i++]);
 		Map<String, Integer> items 	= ASLParser.parseMap	(args[i++]);
 		
 		if (items.isEmpty()) return true;

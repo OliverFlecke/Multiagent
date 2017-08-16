@@ -7,9 +7,9 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
-import jia.ASLParser;
 import mapc2017.data.Item;
 import mapc2017.env.info.ItemInfo;
+import mapc2017.env.parse.ASLParser;
 
 public class getLoadReq extends DefaultInternalAction {
 	

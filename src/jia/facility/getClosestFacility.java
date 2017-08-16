@@ -6,10 +6,10 @@ import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.*;
-import jia.ASLParser;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.StaticInfo;
+import mapc2017.env.parse.ASLParser;
 
 public class getClosestFacility extends DefaultInternalAction {
 
@@ -20,8 +20,8 @@ public class getClosestFacility extends DefaultInternalAction {
 	{
 		int i = 0;
 		
-		String from 	= ASLParser.parseString(args[i++]);
-		String type 	= ASLParser.parseString(args[i++]);
+		String from 	= ASLParser.parseFunctor(args[i++]);
+		String type 	= ASLParser.parseString	(args[i++]);
 		String closest;
 		
 		if (from.startsWith("agent"))
@@ -38,7 +38,7 @@ public class getClosestFacility extends DefaultInternalAction {
 							f.getLocation()))).get().getName();			
 		}
 		
-		return un.unifies(args[i], ASSyntax.createAtom(closest));
+		return un.unifies(args[i], ASSyntax.createString(closest));
 	}
 
 }

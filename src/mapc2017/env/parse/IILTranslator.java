@@ -1,4 +1,4 @@
-package mapc2017.env;
+package mapc2017.env.parse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +20,7 @@ public class IILTranslator {
 		return l;
 	}
 
-	private static Term parameterToTerm(Parameter par) throws JasonException {
+	public static Term parameterToTerm(Parameter par) throws JasonException {
 		if (par instanceof Numeral) {
 			return ASSyntax.createNumber(((Numeral) par).getValue().doubleValue());
 		} else if (par instanceof Identifier) {
@@ -59,7 +59,7 @@ public class IILTranslator {
 		return new Action(action.getFunctor(), pars);
 	}
 
-	private static Parameter termToParameter(Term t) {
+	public static Parameter termToParameter(Term t) {
 		if (t.isNumeric()) {
 			try {
 				double d = ((NumberTerm) t).solve();

@@ -8,8 +8,12 @@ import eis.iilang.Percept;
 import mapc2017.data.Entity;
 import mapc2017.data.Item;
 import mapc2017.data.Role;
+import mapc2017.env.EISHandler;
+import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
+import mapc2017.env.job.JobEvaluator;
+import mapc2017.env.parse.IILParser;
 
 public class SimStartPerceiver extends Artifact {
 
@@ -40,8 +44,8 @@ public class SimStartPerceiver extends Artifact {
 	{
 		instance = this;
 		
-		iInfo = new ItemInfo();
-		sInfo = new StaticInfo();
+		iInfo = ItemInfo.get();
+		sInfo = StaticInfo.get();
 	}
 	
 	public static void perceive(Collection<Percept> percepts) 
@@ -85,10 +89,11 @@ public class SimStartPerceiver extends Artifact {
 	{
 		for (Entity entity : sInfo.getTeamEntities())
 		{			
-			String 	agent 	= "agent" + entity.getName().substring(6);			
+			String 	agent 	= EISHandler.getAgent(entity.getName());	
 			Role 	role 	= sInfo.getRole(entity.getRole());
 			
-			AgentPerceiver.updateAgentRole(agent, role);
+			AgentInfo.get(agent).setRole(role);
+			AgentPerceiver.updateRole(agent);
 		}
 		
 		for (Role role : sInfo.getRoles())
@@ -105,5 +110,7 @@ public class SimStartPerceiver extends Artifact {
 		{
 			item.calculateBaseRequirements();
 		}
+		
+		JobEvaluator.get().init();
 	}
 }

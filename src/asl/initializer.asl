@@ -1,9 +1,7 @@
 !init.
 	
 +!init : .my_name(Me) <-
-	makeArtifact("TaskArtifact", 		"cnp.TaskArtifact", [], _);
-	makeArtifact("EISHandler", 			"mapc2017.env.EISHandler", [], _);
-	makeArtifact("OpArtifact",			"mapc2017.env.OpArtifact", [], _);
+	makeArtifact("EISHandler", "mapc2017.env.EISHandler", [], _);
 	.
 	
 +reset <- 

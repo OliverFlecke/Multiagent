@@ -21,9 +21,16 @@ import eis.iilang.Action;
 import eis.iilang.Identifier;
 import eis.iilang.Parameter;
 import eis.iilang.Percept;
+import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.info.FacilityInfo;
+import mapc2017.env.info.ItemInfo;
+import mapc2017.env.info.JobInfo;
+import mapc2017.env.info.StaticInfo;
+import mapc2017.env.job.JobEvaluator;
+import mapc2017.env.parse.IILParser;
+import mapc2017.env.parse.IILTranslator;
 import mapc2017.env.perceive.AgentPerceiver;
-import mapc2017.env.perceive.IILParser;
 import mapc2017.env.perceive.ReqActionPerceiver;
 import mapc2017.env.perceive.SimStartPerceiver;
 import massim.eismassim.EnvironmentInterface;
@@ -33,14 +40,12 @@ public class EISHandler extends Artifact implements AgentListener {
     private static final Logger logger = Logger.getLogger(EISHandler.class.getName());
 	
 	// Team configs
-    private static final String TEAM_A = "conf/eismassimconfig.json";
-//	private static final String TEAM_B = "conf/eismassimconfig_team_B.json";
+    
+    private static final String CONFIG = "conf/eismassimconfig.json";
+//    private static final String CONFIG = "conf/eismassimconfig_mapc2017.json";
     
     private Map<String, String> agentsToEntities 	= new HashMap<>();    
     private Set<String> 		hasPerformedAction	= new HashSet<>();
-	
-	// Config in use
-    private String configFile = TEAM_A;
 
     private EnvironmentInterfaceStandard ei;
 
@@ -48,11 +53,15 @@ public class EISHandler extends Artifact implements AgentListener {
     {		
 		try 
 		{
-			ei = new EnvironmentInterface(configFile);
+//			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("output.txt")), true));
+
+			ei = new EnvironmentInterface(CONFIG);
 			
 			ei.start();
 			
 			registerAgents();
+			
+			instantiateInfo();
 						
 			execInternalOp("makeArtifacts");
 		} 
@@ -84,18 +93,31 @@ public class EISHandler extends Artifact implements AgentListener {
 		}
     }
     
+    private void instantiateInfo()
+    {
+    	for (String agent : agentsToEntities.keySet())
+    		new AgentInfo(agent);
+    	
+    	new DynamicInfo();
+    	new FacilityInfo();
+    	new ItemInfo();
+    	new JobInfo();
+    	new StaticInfo();
+    	
+    	new JobEvaluator();
+    }
+    
     @INTERNAL_OPERATION
     private void makeArtifacts()
     {
     	try 
     	{			
-			makeArtifact("SimStartPerceiver", 	"mapc2017.env.perceive.SimStartPerceiver", ArtifactConfig.DEFAULT_CONFIG);
-			makeArtifact("ReqActionPerceiver", 	"mapc2017.env.perceive.ReqActionPerceiver", ArtifactConfig.DEFAULT_CONFIG);
-	    	
-			for (String agent : agentsToEntities.keySet())
-	    	{
-				makeArtifact(agent, "mapc2017.env.perceive.AgentPerceiver", ArtifactConfig.DEFAULT_CONFIG);
-	    	}
+    		makeArtifact("JobDelegator",		"mapc2017.env.job.JobDelegator", 			ArtifactConfig.DEFAULT_CONFIG);
+    		makeArtifact("SimStartPerceiver", 	"mapc2017.env.perceive.SimStartPerceiver", 	ArtifactConfig.DEFAULT_CONFIG);
+    		makeArtifact("ReqActionPerceiver", 	"mapc2017.env.perceive.ReqActionPerceiver", ArtifactConfig.DEFAULT_CONFIG);
+
+    		for (String agent : agentsToEntities.keySet())
+				makeArtifact(agent, 			"mapc2017.env.perceive.AgentPerceiver", 	ArtifactConfig.DEFAULT_CONFIG);
     	}
 		catch (Throwable e) 
 		{
@@ -172,9 +194,9 @@ public class EISHandler extends Artifact implements AgentListener {
 		
 		if (action.getName().equals("assist_assemble"))
 		{
-			String arg = IILParser.parseString(action.getParameters().getFirst());
+			String agent = IILParser.parseString(action.getParameters().getFirst());
 			
-			Identifier agentToAssist = new Identifier(getUserName(arg));
+			Identifier agentToAssist = new Identifier(getEntity(agent));
 			
 			action.setParameters(new LinkedList<Parameter>(Arrays.asList(agentToAssist)));
 		}
@@ -182,19 +204,14 @@ public class EISHandler extends Artifact implements AgentListener {
 		return action;
 	}
 	
-	private String getAgent(String entity)
+	public static String getAgent(String entity)
 	{
-		return "agent" + entity.substring(11);
+		return "agent" + entity.replaceAll("[^0-9]", "");
 	}
 	
 	private String getEntity(String agent)
 	{
 		return agentsToEntities.get(agent);
-	}
-	
-	private String getUserName(String agent)
-	{
-		return "agent" + getEntity(agent).substring(10);
 	}
 
 	@Override

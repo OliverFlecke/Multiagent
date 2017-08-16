@@ -1,31 +1,34 @@
 package mapc2017.env.info;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-import cnp.TaskArtifact;
-import mapc2017.data.job.*;
+import mapc2017.data.job.AuctionJob;
+import mapc2017.data.job.Job;
+import mapc2017.data.job.MissionJob;
+import mapc2017.data.job.PostedJob;
+import mapc2017.data.job.SimpleJob;
 
 public class JobInfo {
 	
 	private static JobInfo instance;
-	
-	public JobInfo() {
-		instance = this;
-	}
-	
-	public static JobInfo get() {
-		return instance;
-	}
+	public  static JobInfo get() { return instance; }
 
 	private Map<String, AuctionJob> auctionJobs 	= new HashMap<>();
 	private Map<String, SimpleJob> 	simpleJobs 		= new HashMap<>();
 	private Map<String, MissionJob> missionJobs 	= new HashMap<>();
-	private Map<String, PostedJob> 	postedJobs 		= new HashMap<>();
+	private Map<String, PostedJob> 	postedJobs 		= new HashMap<>();	
+	private Set<Job> 				newJobs 		= new HashSet<>();
+	
+	public JobInfo() {
+		instance = this;
+	}
 
 	public void addJob(Job job) 
 	{
-		if (getJob(job.getId()) == null) announceJob(job);
+		if (getJob(job.getId()) == null && !(job instanceof AuctionJob)) newJobs.add(job);
 			
 			 if (job instanceof SimpleJob ) simpleJobs .put(job.getId(), (SimpleJob ) job);
 		else if (job instanceof MissionJob)	missionJobs.put(job.getId(), (MissionJob) job);
@@ -50,12 +53,7 @@ public class JobInfo {
 		else 								return "posted";
 	}
 	
-	private void announceJob(Job job)
-	{
-		TaskArtifact.invoke("announce", "task", 
-				job.getId(), 
-				job.getItems(), 
-				job.getStorage(), 
-				getJobType(job));
+	public Set<Job> getNewJobs() {
+		return newJobs;
 	}
 }

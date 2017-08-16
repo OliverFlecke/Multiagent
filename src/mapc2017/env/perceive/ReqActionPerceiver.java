@@ -1,15 +1,20 @@
 package mapc2017.env.perceive;
 
 import java.util.Collection;
+import java.util.Set;
 
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.job.Job;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.JobInfo;
+import mapc2017.env.job.JobDelegator;
+import mapc2017.env.job.JobEvaluator;
+import mapc2017.env.parse.IILParser;
 
 public class ReqActionPerceiver extends Artifact {
 
@@ -39,16 +44,19 @@ public class ReqActionPerceiver extends Artifact {
 	private FacilityInfo 	fInfo;
 	private ItemInfo		iInfo;
 	private JobInfo			jInfo;
+	private JobEvaluator 	evaluator;
+	private JobDelegator	delegator;
 	
 	void init()
 	{
 		instance = this;
 		
-		dInfo = new DynamicInfo();
-		fInfo = new FacilityInfo();
-		jInfo = new JobInfo();
-		// Instantiated by SimStartPerceiver
-		iInfo = ItemInfo.get();
+		dInfo 		= DynamicInfo	.get();
+		fInfo 		= FacilityInfo	.get();
+		iInfo 		= ItemInfo		.get();
+		jInfo 		= JobInfo		.get();		
+		evaluator 	= JobEvaluator	.get();
+		delegator 	= JobDelegator	.get();
 		
 		defineObsProperty(STEP, "");
 	}
@@ -56,7 +64,6 @@ public class ReqActionPerceiver extends Artifact {
 	public static void perceive(Collection<Percept> percepts) 
 	{
 		instance.execInternalOp("process", percepts);
-//		instance.process(percepts);
 	}
 
 	@INTERNAL_OPERATION
@@ -104,6 +111,16 @@ public class ReqActionPerceiver extends Artifact {
 				iInfo.addItemLocation(item, shop);
 			}
 		}
+		
+		Set<Job> jobs = jInfo.getNewJobs();
+		
+		for (Job job : jobs)
+		{
+			evaluator.evaluate(job);
+		}
+		jobs.clear();
+		
+		delegator.select(evaluator.getEvaluations());
 	}
 
 }

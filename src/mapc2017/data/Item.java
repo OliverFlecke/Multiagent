@@ -3,6 +3,7 @@ package mapc2017.data;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import mapc2017.env.info.ItemInfo;
@@ -14,9 +15,10 @@ public class Item {
 	private Set<String> 			reqTools;
 	private Map<String, Integer> 	reqItems;
 	
-	private int						reqBaseVolume;
-	private Set<String>				reqBaseTools;
 	private Map<String, Integer>	reqBaseItems;
+	private Set<String>				reqBaseTools;
+	private int						reqBaseVolume;
+	private int						avgPrice;
 	
 	public Item(String name, int volume, Set<String> tools, Map<String, Integer> parts) {
 		this.name 		= name;
@@ -35,35 +37,16 @@ public class Item {
 		return volume;
 	}
 	
+	public boolean reqAssembly() {
+		return !reqItems.isEmpty();
+	}
+	
 	public Set<String> getReqTools() {
 		return new HashSet<>(reqTools);
 	}
 	
 	public Map<String, Integer> getReqItems() {
 		return new HashMap<>(reqItems);
-	}
-	
-	public void calculateBaseRequirements()
-	{
-		if (reqBaseItems != null) return;
-		
-		// If required items is empty, this item is a base item 
-		// and the required base items are itself
-		if (reqItems.isEmpty())
-		{
-			reqBaseItems 	= new HashMap<>();
-			reqBaseItems	.put(name, 1);
-			reqBaseTools	= reqTools;
-			reqBaseVolume 	= volume;
-		}
-		// If required items is not empty, the required base items
-		// are the required base items for each of the required items
-		else
-		{
-			reqBaseItems	= ItemInfo.get().getBaseItems(reqItems);
-			reqBaseTools	= ItemInfo.get().getBaseTools(this);
-			reqBaseVolume	= ItemInfo.get().getVolume(reqBaseItems);
-		}
 	}
 	
 	public Map<String, Integer> getReqBaseItems() 
@@ -75,6 +58,15 @@ public class Item {
 		return new HashMap<>(reqBaseItems);
 	}
 	
+	public Set<String> getReqBaseTools()
+	{
+		if (reqBaseItems == null)
+		{
+			calculateBaseRequirements();
+		}
+		return reqBaseTools;
+	}
+	
 	public int getReqBaseVolume() 
 	{
 		if (reqBaseItems == null)
@@ -84,12 +76,48 @@ public class Item {
 		return reqBaseVolume;
 	}
 	
-	public Set<String> getReqBaseTools()
+	public int getAvgPrice() 
 	{
 		if (reqBaseItems == null)
 		{
 			calculateBaseRequirements();
 		}
-		return reqBaseTools;
+		return avgPrice;
+	}
+	
+	public void calculateBaseRequirements()
+	{
+		if (reqBaseItems != null) return;
+		
+		// If required items is empty, this item is a base item 
+		// and the required base items are itself
+		if (!reqAssembly())
+		{
+			reqBaseItems 	= new HashMap<>();
+			reqBaseItems	.put(name, 1);
+			reqBaseTools	= reqTools;
+			reqBaseVolume 	= volume;
+			avgPrice		= (int) ItemInfo.get().getItemLocations(name).stream()
+								.mapToInt(s -> s.getPrice(name)).average().getAsDouble();
+		}
+		// If required items is not empty, the required base items
+		// are the required base items for each of the required items
+		else
+		{
+			reqBaseItems	= ItemInfo.get().getBaseItems(reqItems);
+			reqBaseTools	= ItemInfo.get().getBaseTools(this);
+			reqBaseVolume	= ItemInfo.get().getVolume(reqBaseItems);
+			avgPrice		= reqBaseItems.entrySet().stream()
+								.mapToInt(Item::getAvgPrice).sum();
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
+	
+	public static int getAvgPrice(Entry<String, Integer> e) {
+		return ItemInfo.get().getItem(e.getKey()).getAvgPrice() * e.getValue();
 	}
 }

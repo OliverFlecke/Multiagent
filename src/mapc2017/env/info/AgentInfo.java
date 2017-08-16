@@ -1,5 +1,6 @@
 package mapc2017.env.info;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,26 +11,30 @@ import massim.scenario.city.util.GraphHopperManager;
 
 public class AgentInfo {
 	
-	private static Map<String, AgentInfo> instances = new HashMap<>();
-	
-	public AgentInfo(String agent) {
-		instances.put(agent, this);
-	}
-	
-	public static AgentInfo get(String agent) {
-		return instances.get(agent);
-	}
+	private static Map<String, AgentInfo> instances = new HashMap<>();	
+	public  static AgentInfo get(String agent) { return instances.get(agent); }	
+	public  static Collection<AgentInfo> get() { return instances.values(); }
 	
 	private double					lat,
 									lon;
 	private int 					charge, 
 									load;
-	private String					facility,
+	private String					name,
+									facility,
 									lastAction,
 									lastActionResult;
 	private String[]				lastActionParams;
 	private Role					role;
 	private Map<String, Integer> 	inventory = new HashMap<>();
+	
+	public AgentInfo(String name) { 
+		instances.put(name, this); 
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
 
 	public Location getLocation() {
 		return new Location(lon, lat);
@@ -71,6 +76,10 @@ public class AgentInfo {
 
 	public Map<String, Integer> getInventory() {
 		return new HashMap<>(inventory);
+	}
+	
+	public int getCapacity() {
+		return role.getLoad() - load;
 	}
 	
 	public void setLat(double lat) {
@@ -116,4 +125,9 @@ public class AgentInfo {
 	public void addItem(Entry<String, Integer> item) {
 		this.inventory.put(item.getKey(), item.getValue());
 	}	
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

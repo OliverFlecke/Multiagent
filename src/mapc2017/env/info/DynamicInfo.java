@@ -2,21 +2,18 @@ package mapc2017.env.info;
 
 public class DynamicInfo {
 	
-	private static DynamicInfo instance;
-	
-	public DynamicInfo() {
-		instance = this;
-	}
-	
-	public static DynamicInfo get() {
-		return instance;
-	}
+	private static DynamicInfo instance;	
+	public  static DynamicInfo get() { return instance; }
 	
 	private long	money,
 					timestamp,
 					deadline;
 	private int		step,  
 					jobsCompleted;
+	
+	public DynamicInfo() {
+		instance = this;
+	}
 
 	public long getTimestamp() {
 		return timestamp;

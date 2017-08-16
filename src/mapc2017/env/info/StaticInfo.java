@@ -16,14 +16,7 @@ import massim.scenario.city.util.GraphHopperManager;
 public class StaticInfo {
 	
 	private static StaticInfo instance;
-	
-	public StaticInfo() {
-		instance = this;
-	}
-	
-	public static StaticInfo get() {
-		return instance;
-	}
+	public  static StaticInfo get() { return instance; }
 	
 	private String 				id, 
 								map, 
@@ -35,6 +28,10 @@ public class StaticInfo {
 	private Set<Entity>			entities 	= new HashSet<>();
 	private Map<String, Role>	roles 		= new HashMap<>();
 	private CityMap				cityMap;
+	
+	public StaticInfo() {
+		instance = this;
+	}
 	
 	public String getId() {
 		return id;

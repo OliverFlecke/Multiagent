@@ -7,9 +7,9 @@ import java.util.Map;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
-import mapc2017.data.Role;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.parse.IILParser;
 
 public class AgentPerceiver extends Artifact {
 	
@@ -47,7 +47,7 @@ public class AgentPerceiver extends Artifact {
 	{
 		instances.put(getId().getName(), this);
 		
-		aInfo = new AgentInfo(getId().getName());
+		aInfo = AgentInfo.get(getId().getName());
 
 		for (String property : PROPERTIES)
 		{
@@ -120,18 +120,15 @@ public class AgentPerceiver extends Artifact {
 		throw new UnsupportedOperationException("Unsupported property: " + property);
 	}
 	
-	public static void updateAgentRole(String agent, Role role) 
-	{
-		instances.get(agent).execInternalOp("updateAgentRole", role);
-//		instances.get(agent).updateAgentRole(role);
+	public static void updateRole(String agent) 
+	{		
+		instances.get(agent).execInternalOp("updateRole");
 	}
 	
 	@INTERNAL_OPERATION
-	private void updateAgentRole(Role role) 
-	{
-		aInfo.setRole(role);
-		
-		defineObsProperty("role", role.getData());
+	private void updateRole() 
+	{		
+		defineObsProperty("role", aInfo.getRole().getData());
 	}
 
 }

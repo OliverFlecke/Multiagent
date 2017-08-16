@@ -25,4 +25,9 @@ public class Facility {
 	public Location getLocation() {
 		return new Location(lon, lat);
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

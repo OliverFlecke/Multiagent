@@ -5,10 +5,10 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
-import jia.ASLParser;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.StaticInfo;
+import mapc2017.env.parse.ASLParser;
 
 public class getDurationToFacility extends DefaultInternalAction {
 
@@ -18,9 +18,9 @@ public class getDurationToFacility extends DefaultInternalAction {
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
 		int i = 0;
-		
-		String agent 	= ASLParser.parseString(args[i++]);
-		String facility = ASLParser.parseString(args[i++]);		
+
+		String agent	= ASLParser.parseFunctor(args[i++]);
+		String facility = ASLParser.parseString	(args[i++]);		
 		int    duration = StaticInfo.get().getRouteDuration(AgentInfo.get(agent), 
 				FacilityInfo.get().getFacility(facility).getLocation());
 		

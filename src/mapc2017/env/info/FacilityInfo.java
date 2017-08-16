@@ -14,22 +14,15 @@ import mapc2017.data.facility.Workshop;
 
 public class FacilityInfo {
 	
-	private static FacilityInfo instance;
+	public static final String CHARGING_STATION 	= "chargingStation";
+	public static final String DUMP 				= "dump";
+	public static final String SHOP 				= "shop";
+	public static final String STORAGE 				= "storage";
+	public static final String WORKSHOP 			= "workshop";
+	public static final String RESOURCE_NODE		= "resourceNode";	
 	
-	public FacilityInfo() {	
-		instance = this; 
-	}
-	
-	public static FacilityInfo get() { 
-		return instance; 
-	}
-	
-	private static final String CHARGING_STATION 	= "chargingStation";
-	private static final String DUMP 				= "dump";
-	private static final String SHOP 				= "shop";
-	private static final String STORAGE 			= "storage";
-	private static final String WORKSHOP 			= "workshop";
-	private static final String RESOURCE_NODE		= "resourceNode";	
+	private static FacilityInfo instance;	
+	public  static FacilityInfo get() { return instance; }
 	
 	private Map<String, ChargingStation> chargingStations 	= new HashMap<>();
 	private Map<String, Dump> 			 dumps 			 	= new HashMap<>();
@@ -37,6 +30,10 @@ public class FacilityInfo {
 	private Map<String, Storage> 		 storages 			= new HashMap<>();
 	private Map<String, Workshop> 		 workshops 			= new HashMap<>();
 	private Map<String, ResourceNode>	 resourceNodes		= new HashMap<>();
+	
+	public FacilityInfo() {	
+		instance = this; 
+	}
 
 	public void addFacility(Facility f) 
 	{

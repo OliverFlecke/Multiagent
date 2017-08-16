@@ -13,27 +13,24 @@ import mapc2017.data.facility.Shop;
 
 public class ItemInfo {
 	
-	private static ItemInfo instance;
-	
-	public ItemInfo() {
-		instance = this;
-	}
-	
-	public static ItemInfo get() {
-		return instance;
-	}
+	private static ItemInfo instance;	
+	public  static ItemInfo get() { return instance; }
 
 	private Map<String, Tool> 				tools 			= new HashMap<>();
 	private Map<String, Item>				items 			= new HashMap<>();
 	private Map<String, Map<String, Shop>> 	itemLocations 	= new HashMap<>();
+	
+	public ItemInfo() {
+		instance = this;
+	}
 
-	public void addItem(Item item)
+	public synchronized void addItem(Item item)
 	{
 		if (item instanceof Tool) 	tools.put(item.getName(), (Tool) item);
 		else 						items.put(item.getName(), 		 item);
 	}
 	
-	public void addItemLocation(String item, Shop shop)
+	public synchronized void addItemLocation(String item, Shop shop)
 	{
 		if (itemLocations.containsKey(item))
 		{
@@ -46,7 +43,7 @@ public class ItemInfo {
 		}
 	}
 	
-	public void clearItemLocations()
+	public synchronized void clearItemLocations()
 	{
 		itemLocations.clear();
 	}
@@ -65,8 +62,7 @@ public class ItemInfo {
 		return items.values();
 	}
 	
-	public Collection<Shop> getItemLocations(String item)
-	{
+	public Collection<Shop> getItemLocations(String item) {
 		return itemLocations.get(item).values();
 	}
 

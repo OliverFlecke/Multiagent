@@ -1,6 +1,5 @@
-{ include("connections.asl") }
 { include("rules.asl") }
-{ include("plans/plans.asl") }
+{ include("plans.asl") }
 { include("protocols.asl") }
 { include("requests.asl") }
 
@@ -8,28 +7,24 @@
 free.
 
 // Initial goals
-!focusArtifacts.
-
-+task(JobId, Items, Storage, Type, CNPId) : 
-	free & canSolve(Items) & Type \== "auction" <-
-	!doIntention(newTask(JobId, Items, Storage, Type, CNPId)).
-	
-+!newTask(JobId, Items, Storage, Type, CNPId) : getBid(Items, Bid) <-
-	bid(Bid)[artifact_id(CNPId)];
-	winner(Won)[artifact_id(CNPId)];	
-	if (Won) {
-		clear("task", 5, CNPId);
-		!deliverJob(JobId, Items, Storage);
-	}.
+!init.
 	
 +!doIntention(_) : not free <- .print("Illegal execution").
 +!doIntention(Intention) 	<- -free; !Intention; +free.
 
 +!doAction(Action) <- performAction(Action); .wait({+step(_)}).
 
-+step(X) : .my_name(agent1) & .print("Step: ", X) & false.
++job(Id, Items, Storage, ShoppingList, Workshop) <- 
+	!solveJob(Id, Items, Storage, ShoppingList, Workshop).
 
-//+step(0) <- !doIntention(acquireTools).
++job(AgentStr, ShoppingList, Workshop) : .term2string(Agent, AgentStr) <-
+	!helpJob(Agent, ShoppingList, Workshop).
+
+//+step(X) : .my_name(agent1) & .print("Step: ", X) & false.
+//+step(1) <- ?getClosestFacility("dump"		, A) !getToFacility(A);
+//			?getClosestFacility("shop"		, B) !getToFacility(B);
+//			?getClosestFacility("workshop"	, C) !getToFacility(C).
+
 +step(X) : lastActionResult(R) & lastAction(A) & lastActionParams(P)
 		 & not A = "goto" & not A = "noAction" & not A = "charge" 
 		 & not A = "assist_assemble" <- .print(R, " ", A, " ", P).

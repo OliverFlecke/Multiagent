@@ -49,5 +49,10 @@ public class Role {
 				tools.toArray()
 		};
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 
 }

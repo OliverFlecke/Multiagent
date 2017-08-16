@@ -17,13 +17,15 @@ public class Shop extends Facility {
 		this.amount		= amount;
 	}
 	
-	public int getAmount(String item)
-	{
+	public int getPrice(String item) {
+		return price.get(item).intValue();
+	}
+	
+	public int getAmount(String item) {
 		return amount.get(item).intValue();
 	}
 	
-	public Set<String> getItems()
-	{
+	public Set<String> getItems() {
 		return amount.keySet();
 	}
 

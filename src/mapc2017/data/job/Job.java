@@ -38,16 +38,21 @@ public class Job {
 		return reward;
 	}
 
-	public long getStart() {
+	public int getStart() {
 		return start;
 	}
 
-	public long getEnd() {
+	public int getEnd() {
 		return end;
 	}
 
 	public Map<String, Integer> getItems() {
 		return new HashMap<>(items);
+	}
+	
+	@Override
+	public String toString() {
+		return id;
 	}
 
 }

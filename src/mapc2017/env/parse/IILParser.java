@@ -1,4 +1,4 @@
-package mapc2017.env.perceive;
+package mapc2017.env.parse;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -18,23 +18,23 @@ public class IILParser {
 	// IILANG //
 	////////////
 	
-	static Identifier parseIdentifier(Parameter p) {
+	public static Identifier parseIdentifier(Parameter p) {
 		return (Identifier) p;
 	}
 	
-	static Numeral parseNumeral(Parameter p) {
+	public static Numeral parseNumeral(Parameter p) {
 		return (Numeral) p;
 	}
 	
-	static ParameterList parseParams(Parameter p) {
+	public static ParameterList parseParams(Parameter p) {
 		return (ParameterList) p;
 	}
 	
-	static Function parseFunc(Parameter p) {
+	public static Function parseFunc(Parameter p) {
 		return (Function) p;
 	}
 	
-	static ParameterList parseFuncParams(Parameter p) {
+	public static ParameterList parseFuncParams(Parameter p) {
 		return parseParams(parseFunc(p).getParameters().getFirst());
 	}
 	
@@ -58,7 +58,7 @@ public class IILParser {
 		return (double) parseNumeral(p).getValue();
 	}
 	
-	static Set<String> parseSet(Parameter p) {
+	public static Set<String> parseSet(Parameter p) {
 		Set<String> set = new HashSet<>();
 		for (Parameter pm : parseParams(p)) {
 			set.add(parseString(pm));
@@ -66,7 +66,7 @@ public class IILParser {
 		return set;
 	}
 	
-	static List<String> parseList(Parameter p) {
+	public static List<String> parseList(Parameter p) {
 		List<String> list = new ArrayList<>();
 		for (Parameter pm : parseParams(p)) {
 			list.add(parseString(pm));
@@ -74,7 +74,7 @@ public class IILParser {
 		return list;
 	}
 	
-	static String[] parseArray(Parameter p) {
+	public static String[] parseArray(Parameter p) {
 		List<String> list = new ArrayList<>();
 		for (Parameter pm : parseParams(p)) {
 			list.add(parseString(pm));
@@ -82,7 +82,7 @@ public class IILParser {
 		return list.toArray(new String[list.size()]);		
 	}
 	
-	static Set<String> parseSetFunc(Parameter p) {
+	public static Set<String> parseSetFunc(Parameter p) {
 		Set<String> set = new HashSet<>();
 		for (Parameter pm : parseFuncParams(p)) {
 			set.add(parseString(pm));
@@ -90,7 +90,7 @@ public class IILParser {
 		return set;
 	}
 	
-	static Map<String, Integer> parseMapFunc(Parameter p) {
+	public static Map<String, Integer> parseMapFunc(Parameter p) {
 		Map<String, Integer> map = new HashMap<>();
 		for (Parameter pm : parseFuncParams(p)) {
 			ParameterList 	entry 	= parseParams(pm);
@@ -101,7 +101,7 @@ public class IILParser {
 		return map;		
 	}
 	
-	static Map<String, Integer> parseMap1(Parameter p) {
+	public static Map<String, Integer> parseMap1(Parameter p) {
 		Map<String, Integer> map = new HashMap<>();
 		for (Parameter pm : parseParams(p)) {
 			List<Parameter> entry 	= parseFunc(pm).getParameters();
@@ -112,7 +112,7 @@ public class IILParser {
 		return map;
 	}
 	
-	static Map<String, Integer> parseMap2(Parameter p) {
+	public static Map<String, Integer> parseMap2(Parameter p) {
 		Map<String, Integer> map = new HashMap<>();
 		for (Parameter pm : parseParams(p)) {
 			List<Parameter> entry 	= parseFunc(pm).getParameters();
@@ -155,14 +155,14 @@ public class IILParser {
 	// OBJECTS //
 	/////////////
 	
-	static Entry<String, Integer> parseEntry(Percept p) {
+	public static Entry<String, Integer> parseEntry(Percept p) {
 		List<Parameter> params 	= p.getParameters();
 		String 			name 	= parseString(params.get(0));
 		int				amount 	= parseInt(params.get(1));
 		return new AbstractMap.SimpleEntry<String, Integer>(name, amount);
 	}
 	
-	static Role parseRole(Percept p) {
+	public static Role parseRole(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		String 					name 	= parseString	(params.get(0));
 		int						speed 	= parseInt		(params.get(1));
@@ -172,7 +172,7 @@ public class IILParser {
 		return new Role(name, speed, load, battery, tools);
 	}
 	
-	static Item parseItem(Percept p) {
+	public static Item parseItem(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		String 					name 	= parseString	(params.get(0));
 		int						volume 	= parseInt		(params.get(1));
@@ -182,7 +182,7 @@ public class IILParser {
 		return new Item(name, volume, tools, parts);
 	}
 	
-	static Entity parseEntity(Percept p) {
+	public static Entity parseEntity(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		String 					name 	= parseString	(params.get(0));
 		String 					team 	= parseString	(params.get(1));
@@ -204,17 +204,17 @@ public class IILParser {
 		return new Facility(name, lat, lon);
 	}
 	
-	static ChargingStation parseChargingStation(Percept p) {
+	public static ChargingStation parseChargingStation(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		int						rate	= parseInt		(params.get(3));
 		return new ChargingStation(parseFacility(p), rate);
 	}
 	
-	static Dump parseDump(Percept p) {
+	public static Dump parseDump(Percept p) {
 		return new Dump(parseFacility(p));
 	}
 	
-	static Shop parseShop(Percept p) {
+	public static Shop parseShop(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		int						restock	= parseInt		(params.get(3));
 		Map<String, Integer>	price	= parseMap1		(params.get(4));
@@ -222,7 +222,7 @@ public class IILParser {
 		return new Shop(parseFacility(p), restock, price, amount);
 	}
 	
-	static Storage parseStorage(Percept p) {
+	public static Storage parseStorage(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		int						cap		= parseInt		(params.get(3));
 		int						used	= parseInt		(params.get(4));
@@ -231,11 +231,11 @@ public class IILParser {
 		return new Storage(parseFacility(p), cap, used, stored, delivrd);
 	}
 	
-	static Workshop parseWorkshop(Percept p) {
+	public static Workshop parseWorkshop(Percept p) {
 		return new Workshop(parseFacility(p));
 	}
 	
-	static ResourceNode parseResourceNode(Percept p) {
+	public static ResourceNode parseResourceNode(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		String					resrce	= parseString	(params.get(3));
 		return new ResourceNode(parseFacility(p), resrce);
@@ -256,15 +256,15 @@ public class IILParser {
 		return new Job(id, storage, reward, start, end, items);
 	}
 	
-	static SimpleJob parseSimple(Percept p) {
+	public static SimpleJob parseSimple(Percept p) {
 		return new SimpleJob(parseJob(p));
 	}
 	
-	static PostedJob parsePosted(Percept p) {
+	public static PostedJob parsePosted(Percept p) {
 		return new PostedJob(parseJob(p));
 	}
 	
-	static AuctionJob parseAuction(Percept p) {
+	public static AuctionJob parseAuction(Percept p) {
 		List<Parameter> 		params 	= p.getParameters();
 		int						fine	= parseInt		(params.get(5));
 		int						bid		= parseInt		(params.get(6));
@@ -272,7 +272,7 @@ public class IILParser {
 		return new AuctionJob(parseJob(p), fine, bid, steps);
 	}
 	
-	static MissionJob parseMission(Percept p) {
+	public static MissionJob parseMission(Percept p) {
 		return new MissionJob(parseAuction(p));
 	}
 	

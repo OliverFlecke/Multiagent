@@ -1,14 +1,15 @@
-package jia.items;
+package jia.facility;
 
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
-import mapc2017.env.info.ItemInfo;
+import mapc2017.data.facility.Shop;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.parse.ASLParser;
 
-public class getVolume extends DefaultInternalAction {
+public class getAvailableAmount extends DefaultInternalAction {
 
 	private static final long serialVersionUID = 1L;
 
@@ -17,10 +18,11 @@ public class getVolume extends DefaultInternalAction {
 	{
 		int i = 0;
 		
+		String 	shop 	= ASLParser.parseString(args[i++]);
 		String 	item 	= ASLParser.parseString(args[i++]);
-		int		volume 	= ItemInfo.get().getItem(item).getVolume();
+		int		amount	= ((Shop) FacilityInfo.get().getFacility(shop)).getAmount(item);
 		
-		return un.unifies(args[i], ASSyntax.createNumber(volume));
+		return un.unifies(args[i], ASSyntax.createNumber(amount));
 	}
-	
+
 }
