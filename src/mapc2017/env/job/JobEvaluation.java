@@ -10,18 +10,20 @@ class JobEvaluation {
 	private int 			profit, 
 							steps, 
 							value, 
-							reqAgents;
+							reqAgents,
+							freeAgents;
 	private String 			workshop;
 	private ShoppingList 	shoppingList;
 	
 	public JobEvaluation(Job job, int profit, int steps, int reqAgents, 
 			String workshop, ShoppingList shoppingList) {
-		this.job	= job;
-		this.profit = profit;
-		this.steps	= steps;
-		this.value 	= profit / steps;
-		this.reqAgents = reqAgents;
-		this.workshop = workshop;
+		this.job		= job;
+		this.profit 	= profit;
+		this.steps		= steps;
+		this.value 		= profit / steps;
+		this.reqAgents 	= reqAgents;
+		this.freeAgents = 0;
+		this.workshop 	= workshop;
 		
 		if (job instanceof MissionJob) value += 1000;
 	}
@@ -46,8 +48,8 @@ class JobEvaluation {
 		return reqAgents;
 	}
 	
-	public void incReqAgents() {
-		this.reqAgents++;
+	public int getFreeAgents() {
+		return freeAgents;
 	}
 	
 	public String getWorkshop() {
@@ -56,5 +58,9 @@ class JobEvaluation {
 	
 	public ShoppingList getShoppingList() {
 		return shoppingList;
+	}
+	
+	public void setFreeAgents(int freeAgents) {
+		this.freeAgents = freeAgents;
 	}
 }

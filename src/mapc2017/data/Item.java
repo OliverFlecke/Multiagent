@@ -78,9 +78,9 @@ public class Item {
 	
 	public int getAvgPrice() 
 	{
-		if (reqBaseItems == null)
+		if (avgPrice == 0)
 		{
-			calculateBaseRequirements();
+			avgPrice = calculateAvgPrice();
 		}
 		return avgPrice;
 	}
@@ -97,8 +97,6 @@ public class Item {
 			reqBaseItems	.put(name, 1);
 			reqBaseTools	= reqTools;
 			reqBaseVolume 	= volume;
-			avgPrice		= (int) ItemInfo.get().getItemLocations(name).stream()
-								.mapToInt(s -> s.getPrice(name)).average().getAsDouble();
 		}
 		// If required items is not empty, the required base items
 		// are the required base items for each of the required items
@@ -107,8 +105,20 @@ public class Item {
 			reqBaseItems	= ItemInfo.get().getBaseItems(reqItems);
 			reqBaseTools	= ItemInfo.get().getBaseTools(this);
 			reqBaseVolume	= ItemInfo.get().getVolume(reqBaseItems);
-			avgPrice		= reqBaseItems.entrySet().stream()
-								.mapToInt(Item::getAvgPrice).sum();
+		}
+	}
+	
+	public int calculateAvgPrice() 
+	{
+		if (!reqAssembly())
+		{
+			return (int) ItemInfo.get().getItemLocations(name).stream()
+						.mapToInt(s -> s.getPrice(name)).average().getAsDouble();
+		}
+		else
+		{
+			return reqBaseItems.entrySet().stream()
+						.mapToInt(Item::getAvgPrice).sum();
 		}
 	}
 	

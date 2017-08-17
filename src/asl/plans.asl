@@ -1,29 +1,19 @@
 
-+!focusArtifact(Name) <- lookupArtifact(Name, Id); focus(Id).
-
-+!init : .my_name(Me) & .term2string(Me, AgentPerceiver) <-
-	!focusArtifact("SimStartPerceiver");
-	!focusArtifact("ReqActionPerceiver");
-	!focusArtifact(AgentPerceiver);
-	!focusArtifact("JobDelegator");
-	free.
--!init <- .wait(500); !init.
-
 +!solveJob(Id, Items, Storage, ShoppingList, Workshop) <-
 	!acquireItems(ShoppingList);
 	!getToFacility(Workshop);
 	!initiateAssembleProtocol(Items);
 	!getToFacility(Storage); 
-	!doAction(deliver_job(Id));
-	free.
+	!doAction(deliver_job(Id)).
 	
 +!helpJob(Agent, ShoppingList, Workshop) : .my_name(Me) <-
 	.send(Agent, tell, assistant(Me));
 	!acquireItems(ShoppingList);
 	!getToFacility(Workshop);
 	!acceptAssembleProtocol(Agent);
-	.send(Agent, untell, assistant(Me));
-	free.
+	.send(Agent, untell, assistant(Me)).
+	
++!bidJob(Id, Bid) <- !doAction(bid_for_job(Id, Bid)).
 
 +!acquireItems([]).
 +!acquireItems([map(Shop, Items)|ShoppingList]) <- 
@@ -64,12 +54,12 @@
 	!assembleItem(map(Name, Amount), ReqItems).
 +!assembleItem(map(Name, Amount), ReqItems) <- 
 	!assembleItems(ReqItems);
-//	!assembleItem(Item, ReqItems).
 	!doAction(assemble(Name));
 	!assembleItem(map(Name, Amount), ReqItems).
 
 // Post-condition: Empty inventory or -assemble.
-+!assistAssemble(_) : load(0) | not assemble.
+// TODO: Release agents with load(0), make sure assemble is removed
++!assistAssemble(Agent) : not assemble[source(Agent)].
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	.wait(1000); // To allow assembler to remove assemble
@@ -77,17 +67,17 @@
 
 // Post-condition: In facility F.
 +!getToFacility(F) : facility(F).
-+!getToFacility(F) : not enoughCharge(F) 
-				   & not isChargingStation(F)	
-				   <- !charge; !goToFacility(F).
-+!getToFacility(F) <- !goToFacility(F).
++!getToFacility(F) : isChargingStation(F) <- 		  !goToFacility(F).
++!getToFacility(F) : not enoughCharge(F)  <- !charge; !goToFacility(F).
++!getToFacility(F) 						  <- 		  !goToFacility(F).
 
 // Prevents checking enoughCharge multiple times.
 +!goToFacility(F) : facility(F).
+//+!goToFacility(F) : lastActionResult("failed_no_route") <- 
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation 						<- !doAction(charge); !charge.
-+!charge : getClosestFacility("chargingStation", F) <- !getToFacility(F); !charge.
++!charge : getClosestFacility("chargingStation", F) <- !goToFacility(F);  !charge.

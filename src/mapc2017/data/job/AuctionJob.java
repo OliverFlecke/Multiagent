@@ -1,5 +1,7 @@
 package mapc2017.data.job;
 
+import mapc2017.env.info.DynamicInfo;
+
 public class AuctionJob extends Job {
 	
 	private int fine, 
@@ -27,6 +29,10 @@ public class AuctionJob extends Job {
 
 	public int getSteps() {
 		return steps;
+	}
+	
+	public boolean hasWon() {
+		return this.getStart() + this.getSteps() > DynamicInfo.get().getStep();
 	}
 
 }

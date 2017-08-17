@@ -1,5 +1,6 @@
 package mapc2017.env.perceive;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
+import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.parse.IILParser;
@@ -57,7 +59,7 @@ public class AgentPerceiver extends Artifact {
 	
 	public static void perceive(String agent, Collection<Percept> percepts)
 	{
-		instances.get(agent).execInternalOp("process", percepts);
+		instances.get(agent).process(percepts);
 	}
 	
 	@INTERNAL_OPERATION
@@ -84,14 +86,15 @@ public class AgentPerceiver extends Artifact {
 			}			
 		}
 
-		postprocess();
+		execInternalOp("postprocess");
 	}
 	
 	private void preprocess()
 	{
 		aInfo.clearInventory();
 	}
-	
+
+	@INTERNAL_OPERATION
 	private void postprocess()
 	{
 		for (String property : PROPERTIES)
@@ -103,6 +106,14 @@ public class AgentPerceiver extends Artifact {
 			aInfo.getLastActionResult().equals("successful"))
 		{
 			DynamicInfo.get().incJobsCompleted();
+		}
+		
+		String lastAction 		= aInfo.getLastAction();
+		String lastActionResult = aInfo.getLastActionResult();
+		
+		if (!lastAction.isEmpty() && !lastActionResult.equals("successful"))
+		{
+			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
 		}
 	}
 	

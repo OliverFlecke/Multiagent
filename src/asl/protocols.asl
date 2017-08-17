@@ -44,12 +44,12 @@
 	
 +!initiateAssembleProtocol(Items) <-
 	.wait(.count(assistant(_), N) & .count(assistantReady(_), N));
-	for (assistant(A)) { .send(A, tell, assemble); }
+	for (assistant(A)) { .send(A,   tell, assemble); }
 	!assembleItems(Items);	
 	for (assistant(A)) { .send(A, untell, assemble); }.
 	
 +!acceptAssembleProtocol(Agent) : .my_name(Me) <-
 	.send(Agent, tell, assistantReady(Me));	
-	.wait(assemble);	
+	.wait(assemble[source(Agent)]);	
 	!assistAssemble(Agent);	
 	.send(Agent, untell, assistantReady(Me)).

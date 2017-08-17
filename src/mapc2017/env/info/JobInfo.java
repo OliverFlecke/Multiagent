@@ -28,7 +28,7 @@ public class JobInfo {
 
 	public void addJob(Job job) 
 	{
-		if (getJob(job.getId()) == null && !(job instanceof AuctionJob)) newJobs.add(job);
+		if (getJob(job.getId()) == null) newJobs.add(job);
 			
 			 if (job instanceof SimpleJob ) simpleJobs .put(job.getId(), (SimpleJob ) job);
 		else if (job instanceof MissionJob)	missionJobs.put(job.getId(), (MissionJob) job);
@@ -45,15 +45,20 @@ public class JobInfo {
 		else										return postedJobs .get(jobId);	
 	}
 	
-	public String getJobType(Job job)
+	public void clearJobs()
 	{
-			 if (job instanceof SimpleJob ) return "job";
-		else if (job instanceof MissionJob) return "mission";
-		else if (job instanceof AuctionJob) return "auction";
-		else 								return "posted";
+		auctionJobs	.clear();
+		simpleJobs	.clear();
+		missionJobs	.clear();
+		postedJobs	.clear();
 	}
 	
-	public Set<Job> getNewJobs() {
-		return newJobs;
+	public Set<Job> getNewJobs() 
+	{
+		Set<Job> jobs = new HashSet<>(newJobs);
+		
+		newJobs.clear();
+		
+		return jobs;
 	}
 }

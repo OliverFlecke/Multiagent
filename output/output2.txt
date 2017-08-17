@@ -1,0 +1,208 @@
+Configuring EIS: city2017@localhost:12300
+Scheduling enabled.
+Notifications enabled.
+Timeout set to 40000
+Entity agentA21: socket successfully created
+Entity agentA21: authentication acknowledged
+Entity agentA21: connection successfully authenticated
+Entity agentA21: listening for incoming messages
+Entity agentA20: socket successfully created
+Entity agentA20: authentication acknowledged
+Entity agentA20: connection successfully authenticated
+Entity agentA20: listening for incoming messages
+Entity agentA23: socket successfully created
+Entity agentA23: authentication acknowledged
+Entity agentA23: connection successfully authenticated
+Entity agentA23: listening for incoming messages
+Entity agentA22: socket successfully created
+Entity agentA22: authentication acknowledged
+Entity agentA22: connection successfully authenticated
+Entity agentA22: listening for incoming messages
+Entity agentA25: socket successfully created
+Entity agentA25: authentication acknowledged
+Entity agentA25: connection successfully authenticated
+Entity agentA25: listening for incoming messages
+Entity agentA24: socket successfully created
+Entity agentA24: authentication acknowledged
+Entity agentA24: connection successfully authenticated
+Entity agentA24: listening for incoming messages
+Entity agentA16: socket successfully created
+Entity agentA16: authentication acknowledged
+Entity agentA16: connection successfully authenticated
+Entity agentA16: listening for incoming messages
+Entity agentA15: socket successfully created
+Entity agentA15: authentication acknowledged
+Entity agentA15: connection successfully authenticated
+Entity agentA15: listening for incoming messages
+Entity agentA18: socket successfully created
+Entity agentA18: authentication acknowledged
+Entity agentA18: connection successfully authenticated
+Entity agentA18: listening for incoming messages
+Entity agentA17: socket successfully created
+Entity agentA17: authentication acknowledged
+Entity agentA17: connection successfully authenticated
+Entity agentA17: listening for incoming messages
+Entity agentA2: socket successfully created
+Entity agentA2: authentication acknowledged
+Entity agentA2: connection successfully authenticated
+Entity agentA2: listening for incoming messages
+Entity agentA3: socket successfully created
+Entity agentA3: authentication acknowledged
+Entity agentA3: connection successfully authenticated
+Entity agentA3: listening for incoming messages
+Entity agentA19: socket successfully created
+Entity agentA19: authentication acknowledged
+Entity agentA19: connection successfully authenticated
+Entity agentA19: listening for incoming messages
+Entity agentA1: socket successfully created
+Entity agentA1: authentication acknowledged
+Entity agentA1: connection successfully authenticated
+Entity agentA1: listening for incoming messages
+Entity agentA6: socket successfully created
+Entity agentA6: authentication acknowledged
+Entity agentA6: connection successfully authenticated
+Entity agentA6: listening for incoming messages
+Entity agentA7: socket successfully created
+Entity agentA7: authentication acknowledged
+Entity agentA7: connection successfully authenticated
+Entity agentA7: listening for incoming messages
+Entity agentA4: socket successfully created
+Entity agentA4: authentication acknowledged
+Entity agentA4: connection successfully authenticated
+Entity agentA4: listening for incoming messages
+Entity agentA5: socket successfully created
+Entity agentA5: authentication acknowledged
+Entity agentA5: connection successfully authenticated
+Entity agentA5: listening for incoming messages
+Entity agentA8: socket successfully created
+Entity agentA8: authentication acknowledged
+Entity agentA8: connection successfully authenticated
+Entity agentA8: listening for incoming messages
+Entity agentA9: socket successfully created
+Entity agentA9: authentication acknowledged
+Entity agentA9: connection successfully authenticated
+Entity agentA9: listening for incoming messages
+Entity agentA10: socket successfully created
+Entity agentA10: authentication acknowledged
+Entity agentA10: connection successfully authenticated
+Entity agentA10: listening for incoming messages
+Entity agentA12: socket successfully created
+Entity agentA12: authentication acknowledged
+Entity agentA12: connection successfully authenticated
+Entity agentA12: listening for incoming messages
+Entity agentA11: socket successfully created
+Entity agentA11: authentication acknowledged
+Entity agentA11: connection successfully authenticated
+Entity agentA11: listening for incoming messages
+Entity agentA14: socket successfully created
+Entity agentA14: authentication acknowledged
+Entity agentA14: connection successfully authenticated
+Entity agentA14: listening for incoming messages
+Entity agentA13: socket successfully created
+Entity agentA13: authentication acknowledged
+Entity agentA13: connection successfully authenticated
+Entity agentA13: listening for incoming messages
+Entity agentA27: socket successfully created
+Entity agentA27: authentication acknowledged
+Entity agentA27: connection successfully authenticated
+Entity agentA27: listening for incoming messages
+Entity agentA26: socket successfully created
+Entity agentA26: authentication acknowledged
+Entity agentA26: connection successfully authenticated
+Entity agentA26: listening for incoming messages
+Entity agentA28: socket successfully created
+Entity agentA28: authentication acknowledged
+Entity agentA28: connection successfully authenticated
+Entity agentA28: listening for incoming messages
+Base Items for item9: 2x item7,1x item8
+Base Items for item10: 2x item7
+Base Items for item11: 3x item8
+Base Items for item12: 1x item3,2x item7
+Base Items for item13: 1x item5,3x item1,2x item8
+Base Items for item14: 2x item7,2x item8
+Base Items for item15: 6x item7,6x item8
+Base Items for item16: 3x item2,2x item7
+Base Items for item17: 2x item3,2x item5,5x item7
+Base Items for item18: 2x item2,3x item5,9x item1,6x item8
+Base Items for item19: 2x item2,9x item8
+Base Items for item20: 2x item2,3x item5,1x item6,9x item1,9x item8
+Base Items for item21: 3x item5,12x item7,3x item6,9x item1,18x item8
+Base Items for item22: 8x item7,6x item8
+Base Items for item23: 2x item2,3x item7,9x item8
+Base Items for item24: 1x item3,6x item5,24x item7,6x item6,18x item1,39x item8
+Base Items for item25: 24x item7,18x item8
+Base Items for item26: 6x item5,24x item7,6x item6,19x item1,36x item8
+Step: 0 - Money: 50000
+[ MONITOR ] 1 viewer(s) connected
+Step: 25 - Money: 49606
+Step: 50 - Money: 43600
+Step: 75 - Money: 44700
+Step: 100 - Money: 47491
+Step: 125 - Money: 47024
+Step: 150 - Money: 64360
+Step: 175 - Money: 72937
+Step: 200 - Money: 73833
+Step: 225 - Money: 63247
+Step: 250 - Money: 56448
+Step: 275 - Money: 85823
+Step: 300 - Money: 83511
+Step: 325 - Money: 88727
+Step: 350 - Money: 98155
+Step: 375 - Money: 101645
+Step: 400 - Money: 103061
+Step: 425 - Money: 116280
+Step: 450 - Money: 118021
+Step: 475 - Money: 113026
+Step: 500 - Money: 111562
+Step: 525 - Money: 114168
+Step: 550 - Money: 122932
+Step: 575 - Money: 129921
+Step: 600 - Money: 128450
+Step: 625 - Money: 137112
+Step: 650 - Money: 135648
+Step: 675 - Money: 134734
+Step: 700 - Money: 135367
+Step: 725 - Money: 135367
+Step: 750 - Money: 147416
+Step: 775 - Money: 146229
+Step: 800 - Money: 155142
+Step: 825 - Money: 154898
+Step: 850 - Money: 154062
+Step: 875 - Money: 152653
+Step: 900 - Money: 155402
+Step: 925 - Money: 150655
+Step: 950 - Money: 148499
+Step: 975 - Money: 150581
+Base Items for item9: 2x item7,1x item8
+Base Items for item10: 2x item7
+Base Items for item11: 3x item8
+Base Items for item12: 1x item3,2x item7
+Base Items for item13: 3x item1,1x item5,2x item8
+Base Items for item14: 2x item7,2x item8
+Base Items for item15: 6x item7,6x item8
+Base Items for item16: 3x item2,2x item7
+Base Items for item17: 2x item3,5x item7,2x item5
+Base Items for item18: 2x item2,9x item1,3x item5,6x item8
+Base Items for item19: 2x item2,9x item8
+Base Items for item20: 2x item2,9x item1,3x item5,9x item8,1x item6
+Base Items for item21: 12x item7,9x item1,3x item5,18x item8,3x item6
+Base Items for item22: 8x item7,6x item8
+Base Items for item23: 2x item2,3x item7,9x item8
+Base Items for item24: 1x item3,24x item7,18x item1,6x item5,39x item8,6x item6
+Base Items for item25: 24x item7,18x item8
+Base Items for item26: 24x item7,19x item1,6x item5,36x item8,6x item6
+Step: 0 - Money: 50000
+Step: 25 - Money: 50000
+Step: 50 - Money: 44260
+Step: 75 - Money: 45509
+Step: 100 - Money: 55336
+Step: 125 - Money: 58172
+Step: 150 - Money: 60031
+Step: 175 - Money: 63586
+Step: 200 - Money: 71738
+Step: 225 - Money: 73935
+Step: 250 - Money: 72531
+Step: 275 - Money: 69762
+Step: 300 - Money: 75578
+Step: 325 - Money: 74424
+Step: 350 - Money: 74569

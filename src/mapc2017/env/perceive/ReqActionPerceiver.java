@@ -1,17 +1,18 @@
 package mapc2017.env.perceive;
 
 import java.util.Collection;
-import java.util.Set;
 
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
 import mapc2017.data.facility.Shop;
 import mapc2017.data.job.Job;
+import mapc2017.env.Logger;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.JobInfo;
+import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobDelegator;
 import mapc2017.env.job.JobEvaluator;
 import mapc2017.env.parse.IILParser;
@@ -44,6 +45,7 @@ public class ReqActionPerceiver extends Artifact {
 	private FacilityInfo 	fInfo;
 	private ItemInfo		iInfo;
 	private JobInfo			jInfo;
+	private StaticInfo		sInfo;
 	private JobEvaluator 	evaluator;
 	private JobDelegator	delegator;
 	
@@ -54,7 +56,8 @@ public class ReqActionPerceiver extends Artifact {
 		dInfo 		= DynamicInfo	.get();
 		fInfo 		= FacilityInfo	.get();
 		iInfo 		= ItemInfo		.get();
-		jInfo 		= JobInfo		.get();		
+		jInfo 		= JobInfo		.get();
+		sInfo		= StaticInfo	.get();
 		evaluator 	= JobEvaluator	.get();
 		delegator 	= JobDelegator	.get();
 		
@@ -63,7 +66,7 @@ public class ReqActionPerceiver extends Artifact {
 	
 	public static void perceive(Collection<Percept> percepts) 
 	{
-		instance.execInternalOp("process", percepts);
+		instance.process(percepts);
 	}
 
 	@INTERNAL_OPERATION
@@ -91,36 +94,34 @@ public class ReqActionPerceiver extends Artifact {
 			case POSTED 			: jInfo.addJob		(IILParser.parsePosted			(p)); break;
 			}
 		}
-		
-		postprocess();
+
+		execInternalOp("postprocess");
 	}
 	
 	private void preprocess()
 	{
 		iInfo.clearItemLocations();
 	}
-	
+
+	@INTERNAL_OPERATION
 	private void postprocess()
 	{
-		getObsProperty(STEP).updateValue(dInfo.getStep());
+		if (dInfo.getStep() % 25 == 0) 
+			Logger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+		
+		if (dInfo.getStep() == sInfo.getSteps() - 1)
+			Logger.get().println(dInfo.getJobsCompleted());
 		
 		for (Shop shop : fInfo.getShops())
-		{
 			for (String item : shop.getItems())
-			{
 				iInfo.addItemLocation(item, shop);
-			}
-		}
 		
-		Set<Job> jobs = jInfo.getNewJobs();
-		
-		for (Job job : jobs)
-		{
+		for (Job job : jInfo.getNewJobs())
 			evaluator.evaluate(job);
-		}
-		jobs.clear();
 		
 		delegator.select(evaluator.getEvaluations());
+		
+		getObsProperty(STEP).updateValue(dInfo.getStep());
 	}
 
 }

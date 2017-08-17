@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.INTERNAL_OPERATION;
+import cartago.LINK;
 import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
@@ -51,17 +52,15 @@ public class EISHandler extends Artifact implements AgentListener {
     {		
 		try 
 		{
-//			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream("output.txt")), true));
-
 			ei = new EnvironmentInterface(CONFIG);
-			
-			ei.start();
 			
 			registerAgents();
 			
 			instantiateInfo();
 						
 			execInternalOp("makeArtifacts");
+			
+			ei.start();
 		} 
 		catch (Throwable e) 
 		{
@@ -144,19 +143,19 @@ public class EISHandler extends Artifact implements AgentListener {
 		ReqActionPerceiver.perceive(allPercepts);
 	}
     
-    @OPERATION
+    @OPERATION @LINK
     void performAction(String action)
     {    	
     	String agent = getOpUserName();
     	
 		if (hasPerformedAction.contains(agent))
 		{
-			System.out.println(String.format("[%s] Has performed action: %s", agent, action));
+			logger.info(String.format("[%s] Has performed action: %s", agent, action));
 			return;
 		}		
 		else if (DynamicInfo.isDeadlinePassed())
 		{
-			System.out.println(String.format("[%s] Too slow: %s", agent, action));
+			logger.info(String.format("[%s] Too slow: %s", agent, action));
 			return;
 		}
 		

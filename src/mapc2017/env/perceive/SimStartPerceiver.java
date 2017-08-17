@@ -9,6 +9,7 @@ import mapc2017.data.Entity;
 import mapc2017.data.Item;
 import mapc2017.data.Role;
 import mapc2017.env.EISHandler;
+import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
@@ -50,7 +51,7 @@ public class SimStartPerceiver extends Artifact {
 	
 	public static void perceive(Collection<Percept> percepts) 
 	{
-		instance.execInternalOp("process", percepts);
+		instance.process(percepts);
 	}
 	
 	@INTERNAL_OPERATION
@@ -76,15 +77,16 @@ public class SimStartPerceiver extends Artifact {
 			case TEAM 			    : sInfo.setTeam			(IILParser.parseString	(p)); break;
 			}
 		}
-		
-		postprocess();
+
+		execInternalOp("postprocess");
 	}
 	
 	private void preprocess()
 	{
-		
+		Logger.init();
 	}
-	
+
+	@INTERNAL_OPERATION
 	private void postprocess()
 	{
 		for (Entity entity : sInfo.getTeamEntities())
@@ -97,19 +99,13 @@ public class SimStartPerceiver extends Artifact {
 		}
 		
 		for (Role role : sInfo.getRoles())
-		{
 			for (String tool : role.getTools())
-			{
 				iInfo.getTool(tool).addRole(role.getName());
-			}
-		}
 		
 		sInfo.initCityMap();
 		
 		for (Item item : iInfo.getItems())
-		{
 			item.calculateBaseRequirements();
-		}
 		
 		JobEvaluator.get().init();
 	}

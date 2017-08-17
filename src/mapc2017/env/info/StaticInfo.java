@@ -2,7 +2,6 @@ package mapc2017.env.info;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ public class StaticInfo {
 	private long				seedCapital;
 	private double				minLat, maxLat,
 								minLon, maxLon;
-	private Set<Entity>			entities 	= new HashSet<>();
+	private Map<String, Entity>	entities 	= new HashMap<>();
 	private Map<String, Role>	roles 		= new HashMap<>();
 	private CityMap				cityMap;
 	
@@ -54,7 +53,7 @@ public class StaticInfo {
 	}
 	
 	public Set<Entity> getTeamEntities() {
-		return entities.stream()
+		return entities.values().stream()
 				.filter(e -> e.getTeam().equals(team))
 				.collect(Collectors.toSet());
 	}
@@ -114,7 +113,7 @@ public class StaticInfo {
 	}
 	
 	public void addEntity(Entity entity) {
-		this.entities.add(entity);
+		this.entities.put(entity.getName(), entity);
 	}
 	
 	public void addRole(Role role) {

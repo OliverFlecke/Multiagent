@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.PriorityQueue;
 
 import cartago.AgentId;
@@ -14,9 +15,13 @@ import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import mapc2017.data.ItemList;
 import mapc2017.data.ShoppingList;
+import mapc2017.data.facility.Facility;
+import mapc2017.data.job.AuctionJob;
 import mapc2017.data.job.Job;
+import mapc2017.data.job.MissionJob;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
 
@@ -54,25 +59,30 @@ public class JobDelegator extends Artifact {
 		
 		while (it.hasNext())
 		{
-			JobEvaluation eval = it.next();	
+			JobEvaluation 	eval = it.next();	
+			Job				job	 = eval.getJob();
 			
 			int stepComplete = eval.getSteps() + currentStep;
 
-			if (stepComplete > maxSteps ||
-				stepComplete > eval.getJob().getEnd())
+			if (stepComplete < maxSteps && stepComplete < job.getEnd())
 			{
-				it.remove();
+				if (eval.getReqAgents() < freeAgents.size()) continue;
+				
+				 	 if (job instanceof MissionJob) if (!delegate(eval)) return;
+				else if (job instanceof AuctionJob) ;
+				else if (!delegate(eval)) continue;
 			}
-			else if (eval.getReqAgents() < agentIds.size())
-			{
-				if (delegate(eval)) it.remove();
-				else				eval.incReqAgents();
-			}
+			it.remove();
 		}
 	}
 	
 	private boolean delegate(JobEvaluation eval) 
 	{
+		// Avoid checking same job multiple times with same agents
+		if (eval.getFreeAgents() == freeAgents.size()) return false;
+		
+		eval.setFreeAgents(freeAgents.size());
+		
 		Job job = eval.getJob();
 		
 		Map<AgentInfo, ItemList> 		assemblers = new HashMap<>();
@@ -85,14 +95,8 @@ public class JobDelegator extends Artifact {
 		{
 			AgentInfo assembler = getAgent(iInfo.getBaseVolume(itemsToAssemble));
 			
-			if (assembler == null)
-			{
-				return false;
-			}
-			else
-			{
-				freeAgents.remove(assembler);
-			}
+			if (assembler == null) return false;
+			else freeAgents.remove(assembler);
 			
 			assemblers.put(assembler, ItemList.getItemsToCarry(itemsToAssemble, assembler.getCapacity()));
 			
@@ -107,16 +111,10 @@ public class JobDelegator extends Artifact {
 				
 				while (!itemsToRetrieve.isEmpty())
 				{
-					AgentInfo retriever = getAgent(iInfo.getVolume(itemsToRetrieve));
+					AgentInfo retriever = getAgent(iInfo.getVolume(itemsToRetrieve), shop);
 					
-					if (retriever == null)
-					{
-						return false;
-					}
-					else
-					{
-						freeAgents.remove(retriever);
-					}
+					if (retriever == null) return false;
+					else freeAgents.remove(retriever);
 					
 					retrievers.put(retriever, new ShoppingList(shop, 
 							ItemList.getItemsToCarry(itemsToRetrieve, retriever.getCapacity())));
@@ -125,7 +123,7 @@ public class JobDelegator extends Artifact {
 				}
 			}
 		}
-		execInternalOp("update", assemblers, retrievers, assistants, job, eval);
+		execInternalOp("assignAgents", assemblers, retrievers, assistants, job, eval);
 		
 		return true;
 	}
@@ -135,6 +133,14 @@ public class JobDelegator extends Artifact {
 			if (volume < agent.getCapacity())
 				return agent;
 		return freeAgents.isEmpty() ? null : freeAgents.getLast();
+	}
+	
+	private AgentInfo getAgent(int volume, String shop) {
+		Facility facility = FacilityInfo.get().getFacility(shop);
+		Optional<AgentInfo> agent = freeAgents.stream().filter(a -> volume < a.getCapacity())
+				.min(Comparator.comparingInt(a -> sInfo
+						.getRouteDuration(a, facility.getLocation())));
+		return agent.isPresent() ? agent.get() : null;
 	}
 	
 	@OPERATION
@@ -154,16 +160,12 @@ public class JobDelegator extends Artifact {
 	}
 	
 	@INTERNAL_OPERATION
-	void update(Map<AgentInfo, ItemList> assemblers, Map<AgentInfo, ShoppingList> retrievers, Map<AgentInfo, String> assistants, Job job, JobEvaluation eval)
+	void assignAgents(Map<AgentInfo, ItemList> assemblers, Map<AgentInfo, ShoppingList> retrievers, Map<AgentInfo, String> assistants, Job job, JobEvaluation eval)
 	{
 		for (AgentInfo agent : assemblers.keySet())
-		{
 			assign(agent, job.getId(), assemblers.get(agent), job.getStorage(), retrievers.get(agent), eval.getWorkshop());
-		}
 
 		for (AgentInfo agent : assistants.keySet())
-		{
 			assign(agent, assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
-		}
 	}
 }

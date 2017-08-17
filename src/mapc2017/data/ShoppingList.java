@@ -28,8 +28,15 @@ public class ShoppingList extends HashMap<String, ItemList> {
 	}
 	
 	public String getMaxVolumeShop(ItemInfo iInfo) {
-		return this.entrySet().stream().max(Comparator
-				.comparingInt(e -> iInfo.getVolume(e.getValue()))).get().getKey();
+		Optional<Entry<String, ItemList>> asdf = this.entrySet().stream().max(Comparator
+				.comparingInt(e -> iInfo.getVolume(e.getValue())));
+		if (!asdf.isPresent())
+		{
+			System.out.println("!!!!!!");
+		}
+		return asdf.get().getKey();
+//		return this.entrySet().stream().max(Comparator
+//				.comparingInt(e -> iInfo.getVolume(e.getValue()))).get().getKey();
 	}
 
 	/**
