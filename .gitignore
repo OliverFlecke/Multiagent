@@ -34,3 +34,5 @@ replays/
 cache/
 logs/
 results/
+output/
+logresults/

@@ -88,6 +88,7 @@
 +!charge : inChargingStation 						<- !doAction(charge); !charge.
 +!charge : getClosestFacility("chargingStation", F) <- !goToFacility(F);  !charge.
 
++!gather.
 +!gather : inResourceNode 						 <- !doAction(gather); 		 !gather.
 +!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F); 		 !gather.
 +!gather : getRandomLocation(Lat, Lon) 			 <- !goToLocation(Lat, Lon); !gather.

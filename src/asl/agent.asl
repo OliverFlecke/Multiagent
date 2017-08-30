@@ -26,7 +26,7 @@
 +!task(Task) <-	!stop; !Task; !free.
 	
 +!stop <- .drop_all_desires; .drop_all_intentions.
-+!free <- free; !charge; !skip.
++!free <- free; !charge; !gather; !skip.
 
 +step(X) : .my_name(agent1) & .print("Step: ", X) & false.
 +step(0) <- !stop; !free.
