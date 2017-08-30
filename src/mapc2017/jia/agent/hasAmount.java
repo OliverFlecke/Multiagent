@@ -1,27 +1,27 @@
-package jia.facility;
+package mapc2017.jia.agent;
 
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
-import mapc2017.data.facility.Shop;
-import mapc2017.env.info.FacilityInfo;
+import mapc2017.env.info.AgentInfo;
 import mapc2017.env.parse.ASLParser;
 
-public class getAvailableAmount extends DefaultInternalAction {
-
+public class hasAmount extends DefaultInternalAction {
+	
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
 		int i = 0;
-		
-		String 	shop 	= ASLParser.parseString(args[i++]);
-		String 	item 	= ASLParser.parseString(args[i++]);
-		int		amount	= ((Shop) FacilityInfo.get().getFacility(shop)).getAmount(item);
-		
+
+		String 	agent		= ASLParser.parseFunctor(args[i++]);
+		String 	item 		= ASLParser.parseString	(args[i++]);
+		Integer amountObj	= AgentInfo.get(agent).getInventory().get(item);
+		int		amount		= amountObj == null ? 0 : amountObj.intValue();
+
 		return un.unifies(args[i], ASSyntax.createNumber(amount));
 	}
 

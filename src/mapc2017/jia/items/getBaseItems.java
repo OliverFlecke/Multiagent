@@ -1,4 +1,4 @@
-package jia.items;
+package mapc2017.jia.items;
 
 import java.util.Map;
 

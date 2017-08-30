@@ -1,4 +1,4 @@
-package jia.agent;
+package mapc2017.jia.agent;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,9 +8,10 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Term;
 import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.ItemInfo;
 import mapc2017.env.parse.ASLParser;
 
-public class hasItems extends DefaultInternalAction {
+public class hasBaseItems extends DefaultInternalAction {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -18,7 +19,7 @@ public class hasItems extends DefaultInternalAction {
 	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
 	{
 		int i = 0;
-		
+
 		String 				 agent	= ASLParser.parseFunctor(args[i++]);
 		Map<String, Integer> items 	= ASLParser.parseMap	(args[i++]);
 		
@@ -28,17 +29,14 @@ public class hasItems extends DefaultInternalAction {
 		
 		if (inventory.isEmpty()) return false;
 		
-		for (Entry<String, Integer> item : items.entrySet())
+		Map<String, Integer> baseItems	= ItemInfo.get().getBaseItems(items);	
+		
+		for (Entry<String, Integer> item : baseItems.entrySet())
 		{
-			int needAmount = item.getValue().intValue();
-			
-			if (needAmount == 0) continue;
-			
 			Integer hasAmount = inventory.get(item.getKey());
 			
-			if (hasAmount == null) return false;
-			
-			if (hasAmount.intValue() < needAmount) return false;
+			if (hasAmount == null) return false;			
+			if (hasAmount < item.getValue()) return false;
 		}
 
 		return true;

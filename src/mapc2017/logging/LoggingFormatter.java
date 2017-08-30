@@ -1,4 +1,4 @@
-package logging;
+package mapc2017.logging;
 
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;

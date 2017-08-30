@@ -28,6 +28,7 @@ public class JobInfo {
 
 	public void addJob(Job job) 
 	{
+		if (job.getItems().isEmpty()) return;
 		if (getJob(job.getId()) == null) newJobs.add(job);
 			
 			 if (job instanceof SimpleJob ) simpleJobs .put(job.getId(), (SimpleJob ) job);

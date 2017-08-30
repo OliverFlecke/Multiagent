@@ -64,7 +64,6 @@
 +!assistAssemble(Agent) : not assemble[source(Agent)].
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
-	.wait(1000); // To allow assembler to remove assemble
 	!assistAssemble(Agent).
 
 // Post-condition: In facility F.

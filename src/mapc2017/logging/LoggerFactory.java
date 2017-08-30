@@ -1,4 +1,4 @@
-package logging;
+package mapc2017.logging;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

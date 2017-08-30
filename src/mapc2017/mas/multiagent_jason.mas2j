@@ -6,5 +6,5 @@ MAS multiagent_jason {
     	initializer agentArchClass c4jason.CAgentArch;
     	agent		agentArchClass c4jason.CAgentArch #28;
 
-	aslSourcePath: "src/asl";
+	aslSourcePath: "src/mapc2017/asl";
 }

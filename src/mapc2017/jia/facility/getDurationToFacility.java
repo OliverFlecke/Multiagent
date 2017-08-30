@@ -1,4 +1,4 @@
-package jia.facility;
+package mapc2017.jia.facility;
 
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
