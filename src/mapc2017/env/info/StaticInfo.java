@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import mapc2017.data.CityMap;
+import mapc2017.data.RouteFinder;
 import mapc2017.data.Entity;
 import mapc2017.data.Role;
 import massim.scenario.city.data.Location;
@@ -20,13 +20,13 @@ public class StaticInfo {
 	private String 				id, 
 								map, 
 								team;
-	private int					steps;
+	private int					steps, proximity;
 	private long				seedCapital;
-	private double				minLat, maxLat,
-								minLon, maxLon;
+	private double				minLat, maxLat, minLon, maxLon,
+								centerLat, centerLon, cellSize;
 	private Map<String, Entity>	entities 	= new HashMap<>();
 	private Map<String, Role>	roles 		= new HashMap<>();
-	private CityMap				cityMap;
+	private RouteFinder			cityMap;
 	
 	public StaticInfo() {
 		instance = this;
@@ -50,6 +50,10 @@ public class StaticInfo {
 	
 	public int getSteps() {
 		return steps;
+	}
+	
+	public Location getCenter() {
+		return new Location(centerLon, centerLat);
 	}
 	
 	public Set<Entity> getTeamEntities() {
@@ -100,6 +104,14 @@ public class StaticInfo {
 		this.maxLon = maxLon;
 	}
 
+	public void setCenterLat(double centerLat) {
+		this.centerLat = centerLat;
+	}
+
+	public void setCenterLon(double centerLon) {
+		this.centerLon = centerLon;
+	}
+
 	public void setTeam(String team) {
 		this.team = team;
 	}
@@ -107,9 +119,17 @@ public class StaticInfo {
 	public void setSeedCapital(long seedCapital) {
 		this.seedCapital = seedCapital;
 	}
+
+	public void setCellSize(double cellSize) {
+		this.cellSize = cellSize;
+	}
 	
 	public void setSteps(int steps) {
 		this.steps = steps;
+	}
+
+	public void setProximity(int proximity) {
+		this.proximity = proximity;
 	}
 	
 	public void addEntity(Entity entity) {
@@ -121,6 +141,8 @@ public class StaticInfo {
 	}
 	
 	public void initCityMap() {
-		this.cityMap = new CityMap(map, 200, minLat, maxLat, minLon, maxLon);
+		this.cityMap = new RouteFinder(map, proximity, cellSize, 
+				minLat, maxLat, minLon, maxLon, 
+				this.getCenter());
 	}
 }

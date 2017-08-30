@@ -1,6 +1,6 @@
 package mapc2017.env.job;
 
-import mapc2017.data.ShoppingList;
+import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.Job;
 import mapc2017.data.job.MissionJob;
 

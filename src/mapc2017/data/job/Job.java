@@ -1,16 +1,17 @@
 package mapc2017.data.job;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import mapc2017.data.item.ItemList;
 
 public class Job {
 	
-	private String 					id,
-									storage;
-	private int						reward,
-									start, 
-									end;
-	private Map<String, Integer> 	items;
+	private String 		id,
+						storage;
+	private int			reward,
+						start, 
+						end;
+	private ItemList	items;
 
 	public Job(String id, String storage, int reward, 
 			int start, int end, Map<String, Integer> items) {
@@ -19,7 +20,7 @@ public class Job {
 		this.reward		= reward;
 		this.start		= start;
 		this.end		= end;
-		this.items		= items;
+		this.items		= new ItemList(items);
 	}
 	
 	public Job(Job job) {
@@ -46,8 +47,8 @@ public class Job {
 		return end;
 	}
 
-	public Map<String, Integer> getItems() {
-		return new HashMap<>(items);
+	public ItemList getItems() {
+		return new ItemList(items);
 	}
 	
 	@Override

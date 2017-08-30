@@ -95,6 +95,7 @@ public class ReqActionPerceiver extends Artifact {
 			}
 		}
 
+		postprocess();
 		execInternalOp("postprocess");
 	}
 	
@@ -103,7 +104,6 @@ public class ReqActionPerceiver extends Artifact {
 		iInfo.clearItemLocations();
 	}
 
-	@INTERNAL_OPERATION
 	private void postprocess()
 	{
 		if (dInfo.getStep() % 25 == 0) 
@@ -121,6 +121,12 @@ public class ReqActionPerceiver extends Artifact {
 		
 		delegator.select(evaluator.getEvaluations());
 		
+		execInternalOp("update");
+	}
+	
+	@INTERNAL_OPERATION
+	private void update()
+	{
 		getObsProperty(STEP).updateValue(dInfo.getStep());
 	}
 

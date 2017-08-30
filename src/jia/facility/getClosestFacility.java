@@ -1,11 +1,13 @@
 package jia.facility;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.*;
+import mapc2017.data.facility.Facility;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.StaticInfo;
@@ -22,23 +24,26 @@ public class getClosestFacility extends DefaultInternalAction {
 		
 		String from 	= ASLParser.parseFunctor(args[i++]);
 		String type 	= ASLParser.parseString	(args[i++]);
-		String closest;
+		
+		Optional<? extends Facility> opt;
 		
 		if (from.startsWith("agent"))
 		{
-			closest = FacilityInfo.get().getFacilities(type).stream()
+			opt = FacilityInfo.get().getFacilities(type).stream()
 					.min(Comparator.comparingInt(f -> StaticInfo.get().getRouteDuration(
-							AgentInfo.get(from), f.getLocation()))).get().getName();			
+							AgentInfo.get(from), f.getLocation())));
 		}
 		else
 		{
-			closest = FacilityInfo.get().getFacilities(type).stream()
+			opt = FacilityInfo.get().getFacilities(type).stream()
 					.min(Comparator.comparingInt(f -> StaticInfo.get().getRouteLength(
 							FacilityInfo.get().getFacility(from).getLocation(), 
-							f.getLocation()))).get().getName();			
+							f.getLocation())));
 		}
 		
-		return un.unifies(args[i], ASSyntax.createString(closest));
+		if (!opt.isPresent()) return false;
+		
+		return un.unifies(args[i], ASSyntax.createString(opt.get().getName()));
 	}
 
 }

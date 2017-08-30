@@ -2,10 +2,15 @@ package mapc2017.env.info;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import mapc2017.data.Role;
+import mapc2017.data.item.Item;
+import mapc2017.data.item.ItemList;
+import mapc2017.data.item.Tool;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.util.GraphHopperManager;
 
@@ -80,6 +85,63 @@ public class AgentInfo {
 	
 	public int getCapacity() {
 		return role.getLoad() - load;
+	}
+	
+	public Set<String> getUsableTools(Collection<String> tools) {
+		Set<String> useableTools = new HashSet<>(tools);
+		useableTools.retainAll(role.getTools());
+		return useableTools;
+	}
+
+	public ItemList getMissingItems(Map<String, Integer> items) {
+		ItemList missing = new ItemList(items);		
+		missing.subtract(inventory);		
+		return missing;
+	}
+	
+	public Set<String> getMissingTools(Collection<String> tools) 
+	{
+		Set<String> missing = new HashSet<>(tools);
+		
+		missing.removeAll(inventory.keySet());
+		
+		return missing;
+	}
+
+	public ItemList getItemsToCarry(Map<String, Integer> items)
+	{		
+		ItemList missing = new ItemList(items);
+		missing.subtract(this.getInventory());
+		
+		ItemList itemsToCarry = new ItemList(items);
+		itemsToCarry.subtract(missing);
+		
+		int capacity = this.getCapacity();
+
+		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(missing).entrySet())
+		{
+			Item 	item 	= entry.getKey();
+			int 	amount 	= entry.getValue();
+			int		volume	= item.getReqBaseVolume();
+
+			int amountToCarry = Math.min(amount, capacity / volume);			
+			
+			if (amountToCarry > 0) 
+			{
+				if (item instanceof Tool)
+				{
+					if (!((Tool) item).getRoles().contains(role.getName()))
+					{
+						continue;
+					}
+				}
+				
+				capacity -= volume * amountToCarry;
+				
+				itemsToCarry.add(item.getName(), amountToCarry);
+			}
+		}
+		return itemsToCarry;
 	}
 	
 	public void setLat(double lat) {

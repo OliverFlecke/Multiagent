@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import eis.iilang.*;
 import mapc2017.data.*;
 import mapc2017.data.facility.*;
+import mapc2017.data.item.Item;
+import mapc2017.data.item.Tool;
 import mapc2017.data.job.*;
 
 public class IILParser {

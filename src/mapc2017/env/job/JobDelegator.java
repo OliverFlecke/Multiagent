@@ -5,17 +5,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.PriorityQueue;
 
 import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import mapc2017.data.ItemList;
-import mapc2017.data.ShoppingList;
 import mapc2017.data.facility.Facility;
+import mapc2017.data.item.ItemList;
+import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.AuctionJob;
 import mapc2017.data.job.Job;
 import mapc2017.data.job.MissionJob;
@@ -33,15 +33,17 @@ public class JobDelegator extends Artifact {
 	private Map<AgentInfo, AgentId> agentIds 	= new HashMap<>();
 	private LinkedList<AgentInfo> 	freeAgents 	= new LinkedList<>();
 	
-	private DynamicInfo dInfo;
-	private ItemInfo	iInfo;
-	private StaticInfo 	sInfo;
+	private DynamicInfo 	dInfo;
+	private FacilityInfo 	fInfo;
+	private ItemInfo		iInfo;
+	private StaticInfo 		sInfo;
 	
 	void init() 
 	{
 		instance = this;
 		
 		dInfo = DynamicInfo	.get();
+		fInfo = FacilityInfo.get();
 		iInfo = ItemInfo	.get();
 		sInfo = StaticInfo	.get();
 	}
@@ -51,7 +53,7 @@ public class JobDelegator extends Artifact {
 		if (evals.isEmpty()) return;
 		
 		Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));
-
+		
 		int maxSteps 	= sInfo.getSteps();
 		int currentStep = dInfo.getStep();
 		
@@ -66,9 +68,9 @@ public class JobDelegator extends Artifact {
 
 			if (stepComplete < maxSteps && stepComplete < job.getEnd())
 			{
-				if (eval.getReqAgents() < freeAgents.size()) continue;
+				if (eval.getReqAgents() > freeAgents.size()) continue;
 				
-				 	 if (job instanceof MissionJob) if (!delegate(eval)) return;
+				 	 if (job instanceof MissionJob) { if (!delegate(eval)) return; }
 				else if (job instanceof AuctionJob) ;
 				else if (!delegate(eval)) continue;
 			}
@@ -77,47 +79,66 @@ public class JobDelegator extends Artifact {
 	}
 	
 	private boolean delegate(JobEvaluation eval) 
-	{
-		// Avoid checking same job multiple times with same agents
-		if (eval.getFreeAgents() == freeAgents.size()) return false;
-		
-		eval.setFreeAgents(freeAgents.size());
-		
+	{		
 		Job job = eval.getJob();
 		
-		Map<AgentInfo, ItemList> 		assemblers = new HashMap<>();
-		Map<AgentInfo, ShoppingList> 	retrievers = new HashMap<>();
-		Map<AgentInfo, String>			assistants = new HashMap<>();
+		// Make a copy of freeAgents to prevent removing agents before assigning them
+		LinkedList<AgentInfo> 			agents 		= new LinkedList<>(freeAgents);		
+		Map<AgentInfo, ItemList> 		assemblers 	= new HashMap<>();
+		Map<AgentInfo, ShoppingList> 	retrievers 	= new HashMap<>();
+		// Maps retrievers to the name of the assembler
+		Map<AgentInfo, String>			assistants 	= new HashMap<>();
 		
-		Map<String, Integer> itemsToAssemble = job.getItems();		
+		ItemList itemsToAssemble = job.getItems();		
 		
 		while (!itemsToAssemble.isEmpty())
 		{
-			AgentInfo assembler = getAgent(iInfo.getBaseVolume(itemsToAssemble));
+			if (agents.isEmpty()) return false;
 			
-			if (assembler == null) return false;
-			else freeAgents.remove(assembler);
+			// Find best suited agent to assemble items based on their volume
+			AgentInfo assembler = getAssembler(agents, iInfo.getBaseVolume(itemsToAssemble));
 			
-			assemblers.put(assembler, ItemList.getItemsToCarry(itemsToAssemble, assembler.getCapacity()));
+			agents.remove(assembler);
 			
-			ShoppingList 	shoppingList = ShoppingList.getShoppingList(assemblers.get(assembler));			
-			String 			maxShop 	 = shoppingList.getMaxVolumeShop(iInfo);
+			// Find actual items to deliver
+			ItemList toAssemble = assembler.getItemsToCarry(itemsToAssemble);
 			
-			retrievers.put(assembler, new ShoppingList(maxShop, shoppingList.remove(maxShop)));
+			if (toAssemble.isEmpty()) return false;
+			
+			itemsToAssemble.subtract(toAssemble);
+			
+			assemblers.put(assembler, toAssemble);
+			
+			// Create shopping list for the given items
+			ShoppingList 	shoppingList  = ShoppingList.getShoppingList(toAssemble);
+			String 			assemblerShop = getShop(assembler, shoppingList);
+			
+			ItemList assemblerRetrieve = assembler.getItemsToCarry(shoppingList.get(assemblerShop));
+			
+			shoppingList.get(assemblerShop).subtract(assemblerRetrieve);
+			
+			retrievers.put(assembler, new ShoppingList(assemblerShop, assemblerRetrieve));
 
 			for (String shop : shoppingList.keySet())
 			{
-				Map<String, Integer> itemsToRetrieve = shoppingList.get(shop);
+				ItemList itemsToRetrieve = shoppingList.get(shop);
 				
 				while (!itemsToRetrieve.isEmpty())
 				{
-					AgentInfo retriever = getAgent(iInfo.getVolume(itemsToRetrieve), shop);
+					if (agents.isEmpty()) return false;
+
+					// Find best suited agent to retrieve items
+					AgentInfo retriever = getRetriever(agents, shop, itemsToRetrieve);
 					
-					if (retriever == null) return false;
-					else freeAgents.remove(retriever);
+					agents.remove(retriever);
 					
-					retrievers.put(retriever, new ShoppingList(shop, 
-							ItemList.getItemsToCarry(itemsToRetrieve, retriever.getCapacity())));
+					ItemList toRetrieve = retriever.getItemsToCarry(itemsToRetrieve);
+					
+					if (toRetrieve.isEmpty()) return false;
+					
+					itemsToRetrieve.subtract(toRetrieve);
+					
+					retrievers.put(retriever, new ShoppingList(shop, toRetrieve));
 					
 					assistants.put(retriever, assembler.getName());
 				}
@@ -128,19 +149,34 @@ public class JobDelegator extends Artifact {
 		return true;
 	}
 	
-	private AgentInfo getAgent(int volume) {
-		for (AgentInfo agent : freeAgents)
+	private AgentInfo getAssembler(LinkedList<AgentInfo> agents, int volume) {
+		for (AgentInfo agent : agents)
 			if (volume < agent.getCapacity())
 				return agent;
-		return freeAgents.isEmpty() ? null : freeAgents.getLast();
+		return agents.getLast();
 	}
 	
-	private AgentInfo getAgent(int volume, String shop) {
-		Facility facility = FacilityInfo.get().getFacility(shop);
-		Optional<AgentInfo> agent = freeAgents.stream().filter(a -> volume < a.getCapacity())
-				.min(Comparator.comparingInt(a -> sInfo
-						.getRouteDuration(a, facility.getLocation())));
-		return agent.isPresent() ? agent.get() : null;
+//	private AgentInfo getAssembler(List<AgentInfo> agents, int volume) {
+//		return agents.stream().max(Comparator.comparingDouble(a -> {
+//			return Math.min(volume, a.getCapacity()) - volume;
+//		})).get();
+//	}
+	
+	private AgentInfo getRetriever(List<AgentInfo> agents, String shop, Map<String, Integer> items) {
+		Facility facility = fInfo.getFacility(shop);
+		return agents.stream().min(Comparator.comparingInt(a -> {
+			int steps = sInfo.getRouteDuration(a, facility.getLocation());
+			int volume = iInfo.getVolume(a.getItemsToCarry(items));
+			return steps - volume;
+		})).get();
+	}
+	
+	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
+		return shoppingList.entrySet().stream().min(Comparator.comparingInt(e -> {
+			int steps = sInfo.getRouteDuration(agent, fInfo.getFacility(e.getKey()).getLocation());
+			int volume = iInfo.getVolume(agent.getItemsToCarry(e.getValue()));
+			return steps - volume;
+		})).get().getKey();
 	}
 	
 	@OPERATION
@@ -156,7 +192,9 @@ public class JobDelegator extends Artifact {
 	@INTERNAL_OPERATION
 	void assign(AgentInfo agent, Object... args)
 	{
-		signal(agentIds.get(agent), "job", args);
+		freeAgents.remove(agent);
+		
+		signal(agentIds.get(agent), "task", args);
 	}
 	
 	@INTERNAL_OPERATION

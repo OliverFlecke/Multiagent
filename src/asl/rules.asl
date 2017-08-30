@@ -7,11 +7,13 @@ capacity(C) 	:- maxLoad(M) & load(L) & C = M - L.
 // Is facility type
 isChargingStation(F)	:- .substring("chargingStation", 	F).
 isWorkshop(F)			:- .substring("workshop", 			F).
+isResourceNode(F)		:- .substring("resourceNode", 		F).
 isStorage(F)			:- .substring("storage",  			F).
 isShop(F)				:- .substring("shop",     			F).
 // In facility
 inChargingStation 	:- facility(F) & isChargingStation(F).
 inWorkshop 			:- facility(F) & isWorkshop(F).
+inResourceNode 		:- facility(F) & isResourceNode(F).
 inStorage 			:- facility(F) & isStorage(F).
 inShop	    		:- facility(F) & isShop(F).
 // Charge utility
@@ -33,6 +35,7 @@ getClosestFacility(F, T, C)		:- .term2string(Term, F) & jia.facility.getClosestF
 getClosestFacility(T, C)		:- .my_name(Me) & jia.facility.getClosestFacility(Me, T, C).
 getClosestShopSelling(I, S)		:- .my_name(Me) & jia.facility.getClosestShopSelling(Me, I, S).
 getDurationToFacility(F, D)		:- .my_name(Me) & jia.facility.getDurationToFacility(Me, F, D).
+getFacilityLocation(F, Lat, Lon):- 				  jia.facility.getFacilityLocation(F, Lat, Lon).
 // Items
 getBaseItems	(L, B)			:- .list(L)   & jia.items.getBaseItems	(L, B).
 getLoadReq		(L, R)			:- .list(L)   & jia.items.getLoadReq	(L, R).

@@ -6,8 +6,8 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
 import mapc2017.data.Entity;
-import mapc2017.data.Item;
 import mapc2017.data.Role;
+import mapc2017.data.item.Item;
 import mapc2017.env.EISHandler;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
@@ -25,10 +25,14 @@ public class SimStartPerceiver extends Artifact {
 	// STATIC
 	private static final String ID 					= "id";
 	private static final String MAP 				= "map";
-	private static final String MIN_LAT 			= "minLat";
+	private static final String CELL_SIZE 			= "cellSize";
+	private static final String CENTER_LAT 			= "centerLat";
+	private static final String CENTER_LON 			= "centerLon";
 	private static final String MAX_LAT 			= "maxLat";
-	private static final String MIN_LON 			= "minLon";
 	private static final String MAX_LON 			= "maxLon";	
+	private static final String MIN_LAT 			= "minLat";
+	private static final String MIN_LON 			= "minLon";
+	private static final String PROXIMITY 			= "proximity";
 	private static final String ROLE	 			= "role";
 	private static final String SEED_CAPITAL 		= "seedCapital";
 	private static final String STEPS 				= "steps";
@@ -65,12 +69,16 @@ public class SimStartPerceiver extends Artifact {
 			{			
 			case ENTITY 			: sInfo.addEntity		(IILParser.parseEntity	(p)); break;
 			case ITEM 			    : iInfo.addItem			(IILParser.parseItem	(p)); break;
+			case CELL_SIZE			: sInfo.setCellSize		(IILParser.parseDouble	(p)); break;
+			case CENTER_LAT			: sInfo.setCenterLat	(IILParser.parseDouble	(p)); break;
+			case CENTER_LON			: sInfo.setCenterLon	(IILParser.parseDouble	(p)); break;
 			case ID 				: sInfo.setId			(IILParser.parseString	(p)); break;
 			case MAP 			    : sInfo.setMap			(IILParser.parseString	(p)); break;
 			case MIN_LAT            : sInfo.setMinLat       (IILParser.parseDouble  (p)); break;
 			case MAX_LAT            : sInfo.setMaxLat       (IILParser.parseDouble  (p)); break;
 			case MIN_LON            : sInfo.setMinLon       (IILParser.parseDouble  (p)); break;
 			case MAX_LON            : sInfo.setMaxLon       (IILParser.parseDouble  (p)); break;
+			case PROXIMITY			: sInfo.setProximity	(IILParser.parseInt		(p)); break;
 			case ROLE	 		    : sInfo.addRole			(IILParser.parseRole	(p)); break;
 			case SEED_CAPITAL 	    : sInfo.setSeedCapital	(IILParser.parseLong	(p)); break;
 			case STEPS 			    : sInfo.setSteps		(IILParser.parseInt		(p)); break;
@@ -78,7 +86,7 @@ public class SimStartPerceiver extends Artifact {
 			}
 		}
 
-		execInternalOp("postprocess");
+		postprocess();
 	}
 	
 	private void preprocess()
@@ -86,7 +94,6 @@ public class SimStartPerceiver extends Artifact {
 		Logger.init();
 	}
 
-	@INTERNAL_OPERATION
 	private void postprocess()
 	{
 		for (Entity entity : sInfo.getTeamEntities())

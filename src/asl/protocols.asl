@@ -14,7 +14,7 @@
 	.send(Agent, tell, give(Items, MyStep));
 	.wait(readyToGive(ReadyStep));
 	.print("Waiting for step ", ReadyStep, " to retrieve ", Items);
-	.wait(step(ReadyStep));
+	!wait(step(ReadyStep));
 	!receiveItems(Items).
 	
 +!acceptReceiveProtocol(Agent, Items, InitStep) : not hasItems(Items) <-
@@ -24,14 +24,14 @@
 	ReadyStep = MaxStep + 1; 
 	.send(Agent, tell, readyToGive(ReadyStep));
 	.print("Waiting for step ", ReadyStep, " to give ", Items);
-	.wait(step(ReadyStep));
+	!wait(step(ReadyStep));
 	!giveItems(Agent, Items).
 	
 +!initiateGiveProtocol(Agent, Items) : step(MyStep) <-
 	.send(Agent, tell, receive(Items, MyStep));
 	.wait(readyToReceive(ReadyStep));
 	.print("Waiting for step ", ReadyStep, " to give ", Items);
-	.wait(step(ReadyStep));
+	!wait(step(ReadyStep));
 	!giveItems(Agent, Items).
 	
 +!acceptGiveProtocol(Agent, Items, InitStep) : step(MyStep) <-
@@ -39,17 +39,19 @@
 	ReadyStep = MaxStep + 1; 
 	.send(Agent, tell, readyToReceive(ReadyStep));
 	.print("Waiting for step ", ReadyStep);
-	.wait(step(ReadyStep));
+	!wait(step(ReadyStep));
 	!receiveItems(Items).	
 	
 +!initiateAssembleProtocol(Items) <-
-	.wait(.count(assistant(_), N) & .count(assistantReady(_), N));
+	!wait(.count(assistant(_), N) & .count(assistantReady(_), N));
 	for (assistant(A)) { .send(A,   tell, assemble); }
 	!assembleItems(Items);	
 	for (assistant(A)) { .send(A, untell, assemble); }.
 	
 +!acceptAssembleProtocol(Agent) : .my_name(Me) <-
 	.send(Agent, tell, assistantReady(Me));	
-	.wait(assemble[source(Agent)]);	
+	!wait(assemble[source(Agent)]);	
 	!assistAssemble(Agent);	
 	.send(Agent, untell, assistantReady(Me)).
+	
++!wait(Literal) <- while (not Literal) { !doAction(skip) }.

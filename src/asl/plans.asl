@@ -1,19 +1,21 @@
-
-+!solveJob(Id, Items, Storage, ShoppingList, Workshop) <-
+// Solve job
++!doTask(Id, Items, Storage, ShoppingList, Workshop) <-
 	!acquireItems(ShoppingList);
 	!getToFacility(Workshop);
 	!initiateAssembleProtocol(Items);
 	!getToFacility(Storage); 
 	!doAction(deliver_job(Id)).
 	
-+!helpJob(Agent, ShoppingList, Workshop) : .my_name(Me) <-
+// Assist job
++!doTask(Agent, ShoppingList, Workshop) : .my_name(Me) <-
 	.send(Agent, tell, assistant(Me));
 	!acquireItems(ShoppingList);
 	!getToFacility(Workshop);
 	!acceptAssembleProtocol(Agent);
 	.send(Agent, untell, assistant(Me)).
 	
-+!bidJob(Id, Bid) <- !doAction(bid_for_job(Id, Bid)).
+// Bid job
++!doTask(Id, Bid) <- !doAction(bid_for_job(Id, Bid)).
 
 +!acquireItems([]).
 +!acquireItems([map(Shop, Items)|ShoppingList]) <- 
@@ -77,7 +79,17 @@
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).
 
+// Base case?
++!goToLocation(F) : getFacilityLocation(L, Lat, Lon) <- !goToLoaction(Lat, Lon).
++!goToLocation(Lat, Lon)							 <- !doAction(goto(Lat, Lon)).
+
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation 						<- !doAction(charge); !charge.
 +!charge : getClosestFacility("chargingStation", F) <- !goToFacility(F);  !charge.
+
++!gather : inResourceNode 						 <- !doAction(gather); 		 !gather.
++!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F); 		 !gather.
++!gather : getRandomLocation(Lat, Lon) 			 <- !goToLocation(Lat, Lon); !gather.
+
++!skip <- !doAction(skip); !skip.

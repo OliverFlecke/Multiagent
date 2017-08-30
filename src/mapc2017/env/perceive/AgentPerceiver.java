@@ -86,7 +86,7 @@ public class AgentPerceiver extends Artifact {
 			}			
 		}
 
-		execInternalOp("postprocess");
+		postprocess();
 	}
 	
 	private void preprocess()
@@ -94,14 +94,8 @@ public class AgentPerceiver extends Artifact {
 		aInfo.clearInventory();
 	}
 
-	@INTERNAL_OPERATION
 	private void postprocess()
-	{
-		for (String property : PROPERTIES)
-		{
-			getObsProperty(property).updateValue(getValue(property));
-		}
-		
+	{		
 		if (aInfo.getLastAction().equals("deliver_job") &&
 			aInfo.getLastActionResult().equals("successful"))
 		{
@@ -115,6 +109,23 @@ public class AgentPerceiver extends Artifact {
 		{
 			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
 		}
+		
+		execInternalOp("update");
+	}
+	
+	@INTERNAL_OPERATION
+	private void update()
+	{
+		for (String property : PROPERTIES)
+		{
+			getObsProperty(property).updateValue(this.getValue(property));
+		}
+	}
+	
+	@INTERNAL_OPERATION
+	private void updateRole() 
+	{		
+		defineObsProperty("role", aInfo.getRole().getData());
 	}
 	
 	private Object getValue(String property)
@@ -134,12 +145,6 @@ public class AgentPerceiver extends Artifact {
 	public static void updateRole(String agent) 
 	{		
 		instances.get(agent).execInternalOp("updateRole");
-	}
-	
-	@INTERNAL_OPERATION
-	private void updateRole() 
-	{		
-		defineObsProperty("role", aInfo.getRole().getData());
 	}
 
 }

@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import cartago.Artifact;
 import cartago.ArtifactConfig;
 import cartago.INTERNAL_OPERATION;
-import cartago.LINK;
 import cartago.OPERATION;
 import eis.AgentListener;
 import eis.EnvironmentInterfaceStandard;
@@ -40,8 +39,8 @@ public class EISHandler extends Artifact implements AgentListener {
 
     private static final Logger logger = Logger.getLogger(EISHandler.class.getName());
 	    
-    private static final String CONFIG = "conf/eismassimconfig.json";
-//    private static final String CONFIG = "conf/eismassimconfig_mapc2017.json";
+    private static final String CONFIG = "conf/client/eismassimconfig.json";
+//    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017.json";
     
     private Map<String, String> agentsToEntities 	= new HashMap<>();    
     private Set<String> 		hasPerformedAction	= new HashSet<>();
@@ -143,7 +142,7 @@ public class EISHandler extends Artifact implements AgentListener {
 		ReqActionPerceiver.perceive(allPercepts);
 	}
     
-    @OPERATION @LINK
+    @OPERATION
     void performAction(String action)
     {    	
     	String agent = getOpUserName();

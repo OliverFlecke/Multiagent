@@ -7,9 +7,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import mapc2017.data.Item;
-import mapc2017.data.Tool;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.item.Item;
+import mapc2017.data.item.Tool;
 
 public class ItemInfo {
 	
@@ -48,30 +48,26 @@ public class ItemInfo {
 		itemLocations.clear();
 	}
 	
-	public Item getItem(String name)
+	public synchronized Item getItem(String name)
 	{
 		if (name.startsWith("tool")) return tools.get(name);
 		else						 return items.get(name);
 	}
 	
-	public Tool getTool(String name) {
+	public synchronized Tool getTool(String name) {
 		return tools.get(name);
 	}
 	
-	public Collection<Item> getItems() {
+	public synchronized Collection<Item> getItems() {
 		return items.values();
 	}
 	
-	public Collection<Shop> getItemLocations(String item) {
+	public synchronized Map<String, Map<String, Shop>> getAllItemLocations() {
+		return itemLocations;
+	}
+	
+	public synchronized Collection<Shop> getItemLocations(String item) {
 		return itemLocations.get(item).values();
-	}
-
-	private Item getItem(Entry<String, ?> entry) {
-		return items.get(entry.getKey());
-	}
-
-	public Map<Item, Integer> stringToItemMap(Map<String, Integer> items) {
-		return items.entrySet().stream().collect(Collectors.toMap(this::getItem, Entry::getValue));
 	}
 	
 	public Map<String, Integer> getBaseItems(Map<String, Integer> items)
@@ -83,15 +79,20 @@ public class ItemInfo {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
 	}
 	
-	public Set<String> getBaseTools(Item item)
+	public Set<String> getBaseTools(Map<String, Integer> items)
 	{
-		Set<String> baseTools = stringToItemMap(item.getReqItems())
-				.keySet().stream().map(Item::getReqBaseTools)
-				.flatMap(Collection::stream).collect(Collectors.toSet());
-		
-		baseTools.addAll(item.getReqTools());
-		
-		return baseTools;
+		return stringToItemMap(items).keySet().stream()
+				.map(Item::getReqBaseTools)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toSet());
+	}
+	
+	public int getVolume(Collection<String> tools)
+	{
+		return tools.stream()
+				.map(this::getTool)
+				.mapToInt(Tool::getVolume)
+				.sum();
 	}
 	
 	public int getVolume(Map<String, Integer> items)
@@ -103,5 +104,13 @@ public class ItemInfo {
 	public int getBaseVolume(Map<String, Integer> items)
 	{
 		return getVolume(getBaseItems(items));
+	}
+
+	private Item getItem(Entry<String, ?> entry) {
+		return this.getItem(entry.getKey());
+	}
+
+	public Map<Item, Integer> stringToItemMap(Map<String, Integer> items) {
+		return items.entrySet().stream().collect(Collectors.toMap(this::getItem, Entry::getValue));
 	}
 }

@@ -7,7 +7,7 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.Term;
-import mapc2017.data.Item;
+import mapc2017.data.item.Item;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.parse.ASLParser;
 

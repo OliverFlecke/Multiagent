@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
-import mapc2017.data.Item;
 import mapc2017.data.Role;
-import mapc2017.data.ShoppingList;
 import mapc2017.data.facility.Facility;
+import mapc2017.data.item.Item;
+import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.FacilityInfo;
@@ -31,7 +31,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 	private ItemInfo				iInfo;
 	private StaticInfo 				sInfo;
 	
-	private Location 	avgLocation;
+	private Location 	center;
 	private int			avgSpeed;
 	
 	public JobEvaluator() 
@@ -50,12 +50,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 				.sorted(Comparator.comparingInt(Role::getLoad))
 				.collect(Collectors.toCollection(LinkedList::new));
 		
-		double avgLat = aInfos.stream().map(AgentInfo::getLocation)
-						.mapToDouble(Location::getLat).average().getAsDouble();
-		double avgLon = aInfos.stream().map(AgentInfo::getLocation)
-						.mapToDouble(Location::getLon).average().getAsDouble();
-		
-		avgLocation = new Location(avgLon, avgLat);
+		center = sInfo.getCenter();
 		
 		avgSpeed 	= (int) aInfos.stream()
 							.map(AgentInfo::getRole)
@@ -85,7 +80,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 									f.getLocation()))).get();
 		
 		int maxDistance 	= shoppingList.keySet().stream().map(fInfo::getFacility)
-								.mapToInt(shop -> sInfo.getRouteLength(avgLocation, shop.getLocation())
+								.mapToInt(shop -> sInfo.getRouteLength(center, shop.getLocation())
 												+ sInfo.getRouteLength(shop.getLocation(), workshop.getLocation()))
 								.max().getAsInt();
 		
