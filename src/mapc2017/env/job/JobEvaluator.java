@@ -67,8 +67,6 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 				
 		int 					baseVolume 		= iInfo.getBaseVolume(job.getItems());		
 		ShoppingList 			shoppingList 	= ShoppingList.getShoppingList(job.getItems());
-		if (shoppingList.isEmpty()) 
-			System.out.println("Empty shopping list!");
 		
 		int reqAssemblers	= getReqAgents(baseVolume);
 		int reqAgents		= shoppingList.values().stream()

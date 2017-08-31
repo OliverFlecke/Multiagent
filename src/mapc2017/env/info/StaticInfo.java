@@ -1,6 +1,7 @@
 package mapc2017.env.info;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +79,10 @@ public class StaticInfo {
 	public int getRouteDuration(AgentInfo agent, Location to) {
 		return cityMap.findRoute(agent.getLocation(), to, agent.getPermission())
 				.getRouteDuration(agent.getRole().getSpeed());
+	}
+	
+	public Location getRandomLocation() {
+		return cityMap.getRandomLocation(Collections.emptySet(), 10);
 	}
 	
 	public void setId(String id) {

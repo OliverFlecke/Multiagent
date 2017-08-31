@@ -42,3 +42,6 @@ getLoadReq		(L, R)			:- .list(L)   & mapc2017.jia.items.getLoadReq	(L, R).
 getBaseVolume	(L, V)			:- .list(L)   & mapc2017.jia.items.getBaseVolume(L, V).
 getReqItems		(I, R)			:- .string(I) & mapc2017.jia.items.getReqItems	(I, R).
 getVolume		(I, V)			:- .string(I) & mapc2017.jia.items.getVolume	(I, V).
+// Util
+atLocation(Lat, Lon)			:- .my_name(Me) & mapc2017.jia.agent.atLocation(Me, Lat, Lon).
+getRandomLocation(Lat, Lon)		:- 				  mapc2017.jia.util.getRandomLocation(Lat, Lon).
