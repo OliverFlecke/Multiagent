@@ -27,7 +27,7 @@ public class StaticInfo {
 								centerLat, centerLon, cellSize;
 	private Map<String, Entity>	entities 	= new HashMap<>();
 	private Map<String, Role>	roles 		= new HashMap<>();
-	private RouteFinder			cityMap;
+	private RouteFinder			routeFinder;
 	
 	public StaticInfo() {
 		instance = this;
@@ -72,17 +72,17 @@ public class StaticInfo {
 	}
 	
 	public int getRouteLength(Location from, Location to) {
-		return cityMap.findRoute(from, to, GraphHopperManager.PERMISSION_ROAD)
+		return routeFinder.findRoute(from, to, GraphHopperManager.PERMISSION_ROAD)
 				.getRouteLength();
 	}
 	
 	public int getRouteDuration(AgentInfo agent, Location to) {
-		return cityMap.findRoute(agent.getLocation(), to, agent.getPermission())
+		return routeFinder.findRoute(agent.getLocation(), to, agent.getPermission())
 				.getRouteDuration(agent.getRole().getSpeed());
 	}
 	
 	public Location getRandomLocation() {
-		return cityMap.getRandomLocation(Collections.emptySet(), 10);
+		return routeFinder.getRandomLocation(Collections.emptySet(), 10);
 	}
 	
 	public void setId(String id) {
@@ -146,8 +146,8 @@ public class StaticInfo {
 	}
 	
 	public void initCityMap() {
-		this.cityMap = new RouteFinder(map, proximity, cellSize, 
+		this.routeFinder = new RouteFinder(map, cellSize, 
 				minLat, maxLat, minLon, maxLon, 
-				this.getCenter());
+				this.getCenter(), proximity);
 	}
 }

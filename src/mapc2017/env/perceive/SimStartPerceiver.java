@@ -11,6 +11,7 @@ import mapc2017.data.item.Item;
 import mapc2017.env.EISHandler;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobEvaluator;
@@ -42,6 +43,7 @@ public class SimStartPerceiver extends Artifact {
 	private static SimStartPerceiver instance;
 	
 	// Holds sim-start related info
+	private FacilityInfo	fInfo;
 	private ItemInfo		iInfo;
 	private StaticInfo		sInfo;
 	
@@ -49,8 +51,9 @@ public class SimStartPerceiver extends Artifact {
 	{
 		instance = this;
 		
-		iInfo = ItemInfo.get();
-		sInfo = StaticInfo.get();
+		fInfo = FacilityInfo.get();
+		iInfo = ItemInfo	.get();
+		sInfo = StaticInfo	.get();
 	}
 	
 	public static void perceive(Collection<Percept> percepts) 
@@ -92,6 +95,8 @@ public class SimStartPerceiver extends Artifact {
 	private void preprocess()
 	{
 		Logger.init();
+		fInfo.clearFacilities();
+		iInfo.clearItems();
 	}
 
 	private void postprocess()

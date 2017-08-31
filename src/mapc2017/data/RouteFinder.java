@@ -11,11 +11,11 @@ public class RouteFinder extends CityMap {
 	
 	private static final long serialVersionUID = 1L;
 
-	public RouteFinder(String mapName, int proximity, double cellSize, 
+	public RouteFinder(String mapName, double cellSize, 
 			double minLat, double maxLat, double minLon, double maxLon,
-			Location center) {
+			Location center, int proximity) {
 		super(mapName, cellSize, minLat, maxLat, minLon, maxLon, center);
-		Location.setProximity(5);
+		Location.setProximity(proximity);
 	}
 	
 	public Route findRoute(Location from, Location to, String permission) {

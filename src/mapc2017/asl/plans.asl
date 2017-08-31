@@ -79,18 +79,22 @@
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).
 
+// Does not check charge, use with care.
 +!goToLocation(F) : getFacilityLocation(F, Lat, Lon) <- !goToLocation(Lat, Lon).
 +!goToLocation(Lat, Lon) : atLocation(Lat, Lon).
 +!goToLocation(Lat, Lon)							 <- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
+
+// Post-condition: At random location.
++!random : getRandomLocation(Lat, Lon) <- !goToLocation(Lat, Lon).
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
 +!charge : inChargingStation 						<- !doAction(charge); !charge.
 +!charge : getClosestFacility("chargingStation", F) <- !goToFacility(F);  !charge.
 
-+!gather : capacity(C) & load(L) & C <= 0.5 * L.
-+!gather : inResourceNode 						 <- !doAction(gather); 		 !gather.
-+!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F); 		 !gather.
-+!gather : getRandomLocation(Lat, Lon) 			 <- !goToLocation(Lat, Lon); !charge; !gather.
++!gather : capacity(C) & load(L) & (C <= 150 | C <= 0.5 * L).
++!gather : inResourceNode 						 <- !doAction(gather); !gather.
++!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  !gather.
++!gather  			 							 <- !random; !charge;  !gather.
 
 +!skip <- !doAction(skip); !skip.

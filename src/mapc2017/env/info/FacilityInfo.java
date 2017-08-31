@@ -68,6 +68,16 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown type: " + type);
 	}
 	
+	public void clearFacilities() 
+	{
+		chargingStations.clear();
+		dumps 			.clear();
+		shops 			.clear();
+		storages 		.clear();
+		workshops 		.clear();
+		resourceNodes	.clear();
+	}
+	
 	public Collection<Shop> getShops()
 	{
 		return shops.values();

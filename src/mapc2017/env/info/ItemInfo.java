@@ -43,6 +43,12 @@ public class ItemInfo {
 		}
 	}
 	
+	public synchronized void clearItems()
+	{
+		items.clear();
+		tools.clear();
+	}
+	
 	public synchronized void clearItemLocations()
 	{
 		itemLocations.clear();

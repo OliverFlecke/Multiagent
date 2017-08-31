@@ -22,6 +22,7 @@ chargeThreshold(X) 	:- maxCharge(C) & X = 0.35 * C.
 enoughCharge(F) 	:- charge(C) & chargeThreshold(T)
 					 & getDurationToFacility(F, D) & D <= (C - T) / 10.					 
 // Agent
+atLocation	(Lat, Lon)			:- .my_name(Me) & mapc2017.jia.agent.atLocation(Me, Lat, Lon).
 getInventory(Inventory)			:- .my_name(Me) & mapc2017.jia.agent.getInventory(Me, Inventory).
 hasBaseItems(Items) 			:- .my_name(Me) & mapc2017.jia.agent.hasBaseItems(Me, Items).
 hasItems	(Items) 			:- .my_name(Me) & mapc2017.jia.agent.hasItems(Me, Items).
@@ -43,5 +44,4 @@ getBaseVolume	(L, V)			:- .list(L)   & mapc2017.jia.items.getBaseVolume(L, V).
 getReqItems		(I, R)			:- .string(I) & mapc2017.jia.items.getReqItems	(I, R).
 getVolume		(I, V)			:- .string(I) & mapc2017.jia.items.getVolume	(I, V).
 // Util
-atLocation(Lat, Lon)			:- .my_name(Me) & mapc2017.jia.agent.atLocation(Me, Lat, Lon).
 getRandomLocation(Lat, Lon)		:- 				  mapc2017.jia.util.getRandomLocation(Lat, Lon).
