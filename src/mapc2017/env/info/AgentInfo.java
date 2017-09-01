@@ -92,6 +92,10 @@ public class AgentInfo {
 		useableTools.retainAll(role.getTools());
 		return useableTools;
 	}
+	
+	public boolean canUseTool(String tool) {
+		return role.getTools().contains(tool);
+	}
 
 	public ItemList getMissingItems(Map<String, Integer> items) {
 		ItemList missing = new ItemList(items);		
@@ -107,6 +111,39 @@ public class AgentInfo {
 		
 		return missing;
 	}
+	
+	public int getVolumeToCarry(Map<String, Integer> items)
+	{		
+		int toCarry	 = 0;
+		int capacity = this.getCapacity();
+
+		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(items).entrySet())
+		{
+			Item 	item 		= entry.getKey();
+			
+			if (item instanceof Tool && !canUseTool(item.getName())) continue;
+			
+			int 	needAmount 	= entry.getValue();
+			int		itemVolume	= item.getReqBaseVolume();
+			
+			if (inventory.containsKey(item.getName()))
+			{
+				int hasAmount 	= inventory.get(item.getName());
+				toCarry 	   += itemVolume * hasAmount;
+				needAmount 	   -= hasAmount;		
+			}				
+				
+			int amountToCarry = Math.min(needAmount, capacity / itemVolume);			
+			
+			if (amountToCarry > 0) 
+			{				
+				int vol   = itemVolume * amountToCarry;
+				capacity -= vol;
+				toCarry  += vol;
+			}
+		}
+		return toCarry;
+	}
 
 	public ItemList getItemsToCarry(Map<String, Integer> items)
 	{		
@@ -121,21 +158,16 @@ public class AgentInfo {
 		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(missing).entrySet())
 		{
 			Item 	item 	= entry.getKey();
+			
+			if (item instanceof Tool && !canUseTool(item.getName())) continue;
+			
 			int 	amount 	= entry.getValue();
 			int		volume	= item.getReqBaseVolume();
 
 			int amountToCarry = Math.min(amount, capacity / volume);			
 			
 			if (amountToCarry > 0) 
-			{
-				if (item instanceof Tool)
-				{
-					if (!((Tool) item).getRoles().contains(role.getName()))
-					{
-						continue;
-					}
-				}
-				
+			{				
 				capacity -= volume * amountToCarry;
 				
 				itemsToCarry.add(item.getName(), amountToCarry);

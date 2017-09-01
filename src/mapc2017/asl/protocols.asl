@@ -50,8 +50,9 @@
 	
 +!acceptAssembleProtocol(Agent) : .my_name(Me) <-
 	.send(Agent, tell, assistantReady(Me));	
-	!wait(assemble[source(Agent)]);	
+	!waitDelayed(assemble[source(Agent)]);	
 	!assistAssemble(Agent);	
 	.send(Agent, untell, assistantReady(Me)).
 	
-+!wait(Literal) <- while (not Literal) { !doAction(skip) }.
++!wait(Literal) 		<- while (not Literal) { !doAction(skip) }.
++!waitDelayed(Literal)  <- while (not Literal) { !doAction(skip); .wait(1000) }.

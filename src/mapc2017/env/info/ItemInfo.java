@@ -101,10 +101,8 @@ public class ItemInfo {
 				.sum();
 	}
 	
-	public int getVolume(Map<String, Integer> items)
-	{
-		return stringToItemMap(items).entrySet().stream().mapToInt(item -> 
-			item.getKey().getVolume() * item.getValue()).sum();
+	public int getVolume(Map<String, Integer> items) {
+		return getItemVolume(stringToItemMap(items));
 	}
 	
 	public int getBaseVolume(Map<String, Integer> items)
@@ -118,5 +116,10 @@ public class ItemInfo {
 
 	public Map<Item, Integer> stringToItemMap(Map<String, Integer> items) {
 		return items.entrySet().stream().collect(Collectors.toMap(this::getItem, Entry::getValue));
+	}
+	
+	public static int getItemVolume(Map<Item, Integer> items) {
+		return items.entrySet().stream().mapToInt(item -> 
+			item.getKey().getVolume() * item.getValue()).sum();
 	}
 }

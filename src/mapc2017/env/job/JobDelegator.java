@@ -164,9 +164,9 @@ public class JobDelegator extends Artifact {
 	
 	private AgentInfo getRetriever(List<AgentInfo> agents, String shop, Map<String, Integer> items) {
 		Facility facility = fInfo.getFacility(shop);
-		return agents.stream().min(Comparator.comparingInt(a -> {
-			int steps = sInfo.getRouteDuration(a, facility.getLocation());
-			int volume = iInfo.getVolume(a.getItemsToCarry(items));
+		return agents.stream().min(Comparator.comparingInt(agent -> {
+			int steps = sInfo.getRouteDuration(agent, facility.getLocation());
+			int volume = agent.getVolumeToCarry(items);
 			return steps - volume;
 		})).get();
 	}
@@ -174,7 +174,7 @@ public class JobDelegator extends Artifact {
 	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
 		return shoppingList.entrySet().stream().min(Comparator.comparingInt(e -> {
 			int steps = sInfo.getRouteDuration(agent, fInfo.getFacility(e.getKey()).getLocation());
-			int volume = iInfo.getVolume(agent.getItemsToCarry(e.getValue()));
+			int volume = agent.getVolumeToCarry(e.getValue());
 			return steps - volume;
 		})).get().getKey();
 	}

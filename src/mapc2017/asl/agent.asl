@@ -24,7 +24,8 @@
 	
 +!task(Task) : .print(Task) & false.
 +!task(Task) <-	!stop; !Task; !free.
-	
+
+// TODO: Remove assemble beliefs
 +!stop <- .drop_all_desires; .drop_all_intentions.
 +!free <- free; !charge; !gather; !random; !skip.
 
