@@ -34,20 +34,12 @@ public class FacilityInfo {
 	public FacilityInfo() {	
 		instance = this; 
 	}
+	
+	/////////////
+	// GETTERS //
+	/////////////
 
-	public void addFacility(Facility f) 
-	{
-			 if (f instanceof ChargingStation) chargingStations.put(f.getName(), (ChargingStation) f);
-		else if (f instanceof Dump           ) dumps           .put(f.getName(), (Dump           ) f);
-		else if (f instanceof Shop           ) shops           .put(f.getName(), (Shop           ) f);
-		else if (f instanceof Storage        ) storages        .put(f.getName(), (Storage        ) f);
-		else if (f instanceof Workshop       ) workshops       .put(f.getName(), (Workshop       ) f);
-		else if (f instanceof ResourceNode   ) resourceNodes   .put(f.getName(), (ResourceNode   ) f);
-		else throw new UnsupportedOperationException("Unsupported facility: " + f.getName());
-	}
-
-	public Facility getFacility(String name) 
-	{		
+	public synchronized Facility getFacility(String name) {		
 			 if (name.startsWith(CHARGING_STATION)) return chargingStations.get(name);
 		else if (name.startsWith(DUMP            )) return dumps           .get(name);
 		else if (name.startsWith(SHOP            )) return shops           .get(name);
@@ -57,8 +49,7 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown facility: " + name);
 	}
 	
-	public Collection<? extends Facility> getFacilities(String type)
-	{
+	public synchronized Collection<? extends Facility> getFacilities(String type) {
 			 if (type.equals(CHARGING_STATION)) return chargingStations.values();	
 		else if (type.equals(DUMP			 ))	return dumps	       .values();        
 		else if (type.equals(SHOP			 ))	return shops	       .values();           
@@ -68,18 +59,30 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown type: " + type);
 	}
 	
-	public void clearFacilities() 
-	{
+	public synchronized Collection<Shop> getShops() {
+		return shops.values();
+	}
+	
+	/////////////
+	// SETTERS //
+	/////////////
+
+	public synchronized void addFacility(Facility f) {
+			 if (f instanceof ChargingStation) chargingStations.put(f.getName(), (ChargingStation) f);
+		else if (f instanceof Dump           ) dumps           .put(f.getName(), (Dump           ) f);
+		else if (f instanceof Shop           ) shops           .put(f.getName(), (Shop           ) f);
+		else if (f instanceof Storage        ) storages        .put(f.getName(), (Storage        ) f);
+		else if (f instanceof Workshop       ) workshops       .put(f.getName(), (Workshop       ) f);
+		else if (f instanceof ResourceNode   ) resourceNodes   .put(f.getName(), (ResourceNode   ) f);
+		else throw new UnsupportedOperationException("Unsupported facility: " + f.getName());
+	}
+	
+	public synchronized void clearFacilities() {
 		chargingStations.clear();
 		dumps 			.clear();
 		shops 			.clear();
 		storages 		.clear();
 		workshops 		.clear();
 		resourceNodes	.clear();
-	}
-	
-	public Collection<Shop> getShops()
-	{
-		return shops.values();
 	}
 }

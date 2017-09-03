@@ -25,9 +25,29 @@ public class JobInfo {
 	public JobInfo() {
 		instance = this;
 	}
+	
+	/////////////
+	// GETTERS //
+	/////////////
+	
+	public synchronized Job getJob(String jobId) {
+			 if (simpleJobs .containsKey(jobId))	return simpleJobs .get(jobId);
+		else if (missionJobs.containsKey(jobId))	return missionJobs.get(jobId);
+		else if (auctionJobs.containsKey(jobId))	return auctionJobs.get(jobId);
+		else										return postedJobs .get(jobId);	
+	}
+	
+	public synchronized Set<Job> getNewJobs() {
+		Set<Job> jobs = new HashSet<>(newJobs);		
+		newJobs.clear();		
+		return jobs;
+	}
+	
+	/////////////
+	// SETTERS //
+	/////////////
 
-	public void addJob(Job job) 
-	{
+	public synchronized void addJob(Job job) {
 		if (job.getItems().isEmpty()) return;
 		if (getJob(job.getId()) == null) newJobs.add(job);
 			
@@ -38,28 +58,10 @@ public class JobInfo {
 		else throw new UnsupportedOperationException("Unsupported job: " + job.getId());
 	}
 	
-	public Job getJob(String jobId)
-	{
-			 if (simpleJobs .containsKey(jobId))	return simpleJobs .get(jobId);
-		else if (missionJobs.containsKey(jobId))	return missionJobs.get(jobId);
-		else if (auctionJobs.containsKey(jobId))	return auctionJobs.get(jobId);
-		else										return postedJobs .get(jobId);	
-	}
-	
-	public void clearJobs()
-	{
+	public synchronized void clearJobs() {
 		auctionJobs	.clear();
 		simpleJobs	.clear();
 		missionJobs	.clear();
 		postedJobs	.clear();
-	}
-	
-	public Set<Job> getNewJobs() 
-	{
-		Set<Job> jobs = new HashSet<>(newJobs);
-		
-		newJobs.clear();
-		
-		return jobs;
 	}
 }

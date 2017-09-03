@@ -14,46 +14,58 @@ public class DynamicInfo {
 	public DynamicInfo() {
 		instance = this;
 	}
+	
+	/////////////
+	// GETTERS //
+	/////////////
 
-	public long getTimestamp() {
+	public synchronized long getTimestamp() {
 		return timestamp;
 	}
 
-	public long getDeadline() {
+	public synchronized long getDeadline() {
 		return deadline;
 	}
 
-	public int getStep() {
+	public synchronized int getStep() {
 		return step;
 	}
 
-	public long getMoney() {
+	public synchronized long getMoney() {
 		return money;
 	}
 
-	public int getJobsCompleted() {
+	public synchronized int getJobsCompleted() {
 		return jobsCompleted;
 	}
+	
+	/////////////
+	// SETTERS //
+	/////////////
 
-	public void setTimestamp(long timestamp) {
+	public synchronized void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
-	public void setDeadline(long deadline) {
+	public synchronized void setDeadline(long deadline) {
 		this.deadline = deadline;
 	}
 
-	public void setStep(int step) {
+	public synchronized void setStep(int step) {
 		this.step = step;
 	}
 
-	public void setMoney(long money) {
+	public synchronized void setMoney(long money) {
 		this.money = money;
 	}
 
-	public void incJobsCompleted() {
+	public synchronized void incJobsCompleted() {
 		this.jobsCompleted++;
 	}
+	
+	/////////////
+	// METHODS //
+	/////////////
 	
 	public static boolean isDeadlinePassed() {
 		return System.currentTimeMillis() > instance.getDeadline();

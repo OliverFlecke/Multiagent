@@ -144,7 +144,10 @@ public class JobDelegator extends Artifact {
 				}
 			}
 		}
-		execInternalOp("assignAgents", assemblers, retrievers, assistants, job, eval);
+		
+		retrievers.keySet().stream().forEach(freeAgents::remove);
+		
+		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
 		return true;
 	}
@@ -190,20 +193,12 @@ public class JobDelegator extends Artifact {
 	}
 	
 	@INTERNAL_OPERATION
-	void assign(AgentInfo agent, Object... args)
-	{
-		freeAgents.remove(agent);
-		
-		signal(agentIds.get(agent), "task", args);
-	}
-	
-	@INTERNAL_OPERATION
-	void assignAgents(Map<AgentInfo, ItemList> assemblers, Map<AgentInfo, ShoppingList> retrievers, Map<AgentInfo, String> assistants, Job job, JobEvaluation eval)
+	void assign(Map<AgentInfo, ItemList> assemblers, Map<AgentInfo, ShoppingList> retrievers, Map<AgentInfo, String> assistants, Job job, JobEvaluation eval)
 	{
 		for (AgentInfo agent : assemblers.keySet())
-			assign(agent, job.getId(), assemblers.get(agent), job.getStorage(), retrievers.get(agent), eval.getWorkshop());
+			signal(agentIds.get(agent), "task", job.getId(), assemblers.get(agent), job.getStorage(), retrievers.get(agent), eval.getWorkshop());
 
 		for (AgentInfo agent : assistants.keySet())
-			assign(agent, assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
+			signal(agentIds.get(agent), "task", assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
 	}
 }

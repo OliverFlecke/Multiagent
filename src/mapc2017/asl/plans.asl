@@ -7,12 +7,12 @@
 	!doAction(deliver_job(Id)).
 	
 // Assist job
-+!doTask(Agent, ShoppingList, Workshop) : .my_name(Me) <-
-	.send(Agent, tell, assistant(Me));
++!doTask(Agent, ShoppingList, Workshop) <-
+	.send(Agent, tell, assistant);
 	!acquireItems(ShoppingList);
 	!getToFacility(Workshop);
 	!acceptAssembleProtocol(Agent);
-	.send(Agent, untell, assistant(Me)).
+	.send(Agent, untell, assistant).
 	
 // Bid job
 +!doTask(Id, Bid) <- !doAction(bid_for_job(Id, Bid)).
@@ -60,8 +60,8 @@
 	!assembleItem(map(Name, Amount), ReqItems).
 
 // Post-condition: Empty inventory or -assemble.
-// TODO: Release agents with load(0), make sure assemble is removed.
-+!assistAssemble(Agent) : not assemble[source(Agent)].
++!assistAssemble(Agent) :         not assemble[source(Agent)].
+//+!assistAssemble(Agent) : load(0) <- -assemble[source(Agent)].
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	.wait(1000); // Allow assembler to remove assemble in time.

@@ -23,39 +23,12 @@ public class ItemInfo {
 	public ItemInfo() {
 		instance = this;
 	}
-
-	public synchronized void addItem(Item item)
-	{
-		if (item instanceof Tool) 	tools.put(item.getName(), (Tool) item);
-		else 						items.put(item.getName(), 		 item);
-	}
 	
-	public synchronized void addItemLocation(String item, Shop shop)
-	{
-		if (itemLocations.containsKey(item))
-		{
-			itemLocations.get(item).put(shop.getName(), shop);
-		}
-		else
-		{			
-			itemLocations.put(item, new HashMap<>());
-			itemLocations.get(item).put(shop.getName(), shop);
-		}
-	}
+	/////////////
+	// GETTERS //
+	/////////////
 	
-	public synchronized void clearItems()
-	{
-		items.clear();
-		tools.clear();
-	}
-	
-	public synchronized void clearItemLocations()
-	{
-		itemLocations.clear();
-	}
-	
-	public synchronized Item getItem(String name)
-	{
+	public synchronized Item getItem(String name) {
 		if (name.startsWith("tool")) return tools.get(name);
 		else						 return items.get(name);
 	}
@@ -76,8 +49,38 @@ public class ItemInfo {
 		return itemLocations.get(item).values();
 	}
 	
-	public Map<String, Integer> getBaseItems(Map<String, Integer> items)
-	{
+	/////////////
+	// SETTERS //
+	/////////////
+
+	public synchronized void addItem(Item item) {
+		if (item instanceof Tool) 	tools.put(item.getName(), (Tool) item);
+		else 						items.put(item.getName(), 		 item);
+	}
+	
+	public synchronized void addItemLocation(String item, Shop shop) {
+		if (itemLocations.containsKey(item)) {
+			itemLocations.get(item).put(shop.getName(), shop);
+		} else {			
+			itemLocations.put(item, new HashMap<>());
+			itemLocations.get(item).put(shop.getName(), shop);
+		}
+	}
+	
+	public synchronized void clearItems() {
+		items.clear();
+		tools.clear();
+	}
+	
+	public synchronized void clearItemLocations() {
+		itemLocations.clear();
+	}
+	
+	/////////////
+	// METHODS //
+	/////////////
+	
+	public Map<String, Integer> getBaseItems(Map<String, Integer> items) {
 		return stringToItemMap(items).entrySet().stream()
 				.map(item -> item.getKey().getReqBaseItems().entrySet().stream()
 						.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue() * item.getValue())).entrySet())
@@ -85,16 +88,14 @@ public class ItemInfo {
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
 	}
 	
-	public Set<String> getBaseTools(Map<String, Integer> items)
-	{
+	public Set<String> getBaseTools(Map<String, Integer> items) {
 		return stringToItemMap(items).keySet().stream()
 				.map(Item::getReqBaseTools)
 				.flatMap(Collection::stream)
 				.collect(Collectors.toSet());
 	}
 	
-	public int getVolume(Collection<String> tools)
-	{
+	public int getVolume(Collection<String> tools) {
 		return tools.stream()
 				.map(this::getTool)
 				.mapToInt(Tool::getVolume)
@@ -105,8 +106,7 @@ public class ItemInfo {
 		return getItemVolume(stringToItemMap(items));
 	}
 	
-	public int getBaseVolume(Map<String, Integer> items)
-	{
+	public int getBaseVolume(Map<String, Integer> items) {
 		return getVolume(getBaseItems(items));
 	}
 
