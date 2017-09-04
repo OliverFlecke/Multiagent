@@ -15,6 +15,8 @@
 
 +!doAction(Action) <- performAction(Action); .wait({+step(_)}).
 
++start <- !reset; !free.
+
 +task(Id, Items, Storage, ShoppingList, Workshop) <- 
 	!task(doTask(Id, Items, Storage, ShoppingList, Workshop)).
 +task(AgentStr, ShoppingList, Workshop) : .term2string(Agent, AgentStr) <-
@@ -36,7 +38,6 @@
 //+step(1) : .my_name(agent1) <- .count(hello[source(_)], N); .print(N).
 
 +step(X) : .my_name(agent1) & .print("Step: ", X) & false.
-+step(0) <- !reset; !free.
 +step(X) : lastAction("gather").// & lastActionResult("successful_partial").
 +step(X) : lastActionResult(R) & lastAction(A) & lastActionParams(P)
 		 & not A = "goto" & not A = "noAction" & not A = "charge" & not A = "skip"

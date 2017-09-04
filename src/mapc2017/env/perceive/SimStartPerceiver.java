@@ -120,5 +120,13 @@ public class SimStartPerceiver extends Artifact {
 			item.calculateBaseRequirements();
 		
 		JobEvaluator.get().init();
+		
+		execInternalOp("update");
+	}
+	
+	@INTERNAL_OPERATION
+	private void update() 
+	{
+		signal("start");
 	}
 }

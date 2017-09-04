@@ -39,8 +39,8 @@ public class EISHandler extends Artifact implements AgentListener {
 
     private static final Logger logger = Logger.getLogger(EISHandler.class.getName());
 	    
-    private static final String CONFIG = "conf/client/eismassimconfig.json";
-//    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017.json";
+//    private static final String CONFIG = "conf/client/eismassimconfig.json";
+    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017.json";
     
     private Map<String, String> agentsToEntities 	= new HashMap<>();    
     private Set<String> 		hasPerformedAction	= new HashSet<>();
@@ -137,7 +137,10 @@ public class EISHandler extends Artifact implements AgentListener {
 		
 		hasPerformedAction.clear();
 		
-		if (initial) SimStartPerceiver.perceive(allPercepts);
+		if (allPercepts.stream().filter(p -> p.getName().equals("simStart")).findAny().isPresent())
+			SimStartPerceiver.perceive(allPercepts);
+		
+//		if (initial) SimStartPerceiver.perceive(allPercepts);
 		
 		ReqActionPerceiver.perceive(allPercepts);
 	}
