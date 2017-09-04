@@ -34,6 +34,7 @@
 +!buyItems(Items) 		 : hasItems(Items).
 +!buyItems([Item|Items]) : hasItems([Item]) <- 
 	!buyItems(Items).
+//+!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) & getAlternativeShop(Shop) <-
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, BuyAmount) <- 
 	!doAction(buy(Item, BuyAmount));
 	!buyItems(Items);
@@ -85,7 +86,7 @@
 +!goToLocation(Lat, Lon)							 <- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
 
 // Post-condition: At random location.
-+!random : getRandomLocation(Lat, Lon) <- !goToLocation(Lat, Lon).
++!goToRandom : getRandomLocation(Lat, Lon) <- !goToLocation(Lat, Lon).
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
@@ -93,8 +94,10 @@
 +!charge : getClosestFacility("chargingStation", F) 						 <- !goToFacility(F);  !charge.
 
 +!gather : capacity(C) & load(L) & (C <= 150 | C <= 0.5 * L).
-+!gather : inResourceNode 						 <- !doAction(gather); !gather.
-+!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  !gather.
-+!gather  			 							 <- !random; !charge;  !gather.
++!gather : inResourceNode 						 <- !doAction(gather);    !gather.
++!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
++!gather  			 							 <- !goToRandom; !charge; !gather.
 
-+!skip <- !doAction(skip); !skip.
++!skip 					<- while (true)		   { !doAction(recharge) }.
++!skip(Literal) 		<- while (not Literal) { !doAction(recharge) }.
++!skip(Literal, Time)  	<- while (not Literal) { !doAction(recharge); .wait(Time) }.

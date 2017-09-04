@@ -42,6 +42,8 @@ public class SimStartPerceiver extends Artifact {
 	// Adopts the singleton pattern
 	private static SimStartPerceiver instance;
 	
+	private boolean hasPerceived = false;
+	
 	// Holds sim-start related info
 	private FacilityInfo	fInfo;
 	private ItemInfo		iInfo;
@@ -94,7 +96,7 @@ public class SimStartPerceiver extends Artifact {
 	
 	private void preprocess()
 	{
-		Logger.init();
+		Logger.reset();
 		fInfo.clearFacilities();
 		iInfo.clearItems();
 	}
@@ -121,6 +123,8 @@ public class SimStartPerceiver extends Artifact {
 		
 		JobEvaluator.get().init();
 		
+		hasPerceived = true;
+		
 		execInternalOp("update");
 	}
 	
@@ -128,5 +132,9 @@ public class SimStartPerceiver extends Artifact {
 	private void update() 
 	{
 		signal("start");
+	}
+	
+	public static boolean hasPerceived() {
+		return instance.hasPerceived;
 	}
 }

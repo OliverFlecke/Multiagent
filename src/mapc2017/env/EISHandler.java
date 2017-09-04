@@ -58,8 +58,6 @@ public class EISHandler extends Artifact implements AgentListener {
 			instantiateInfo();
 						
 			execInternalOp("makeArtifacts");
-			
-			ei.start();
 		} 
 		catch (Throwable e) 
 		{
@@ -81,7 +79,6 @@ public class EISHandler extends Artifact implements AgentListener {
         		
         		agentsToEntities.put(agent, entity);
     		}
-    		ei.attachAgentListener("agent1", this);
     	}
 		catch (Throwable e) 
 		{
@@ -114,6 +111,10 @@ public class EISHandler extends Artifact implements AgentListener {
 
     		for (String agent : agentsToEntities.keySet())
 				makeArtifact(agent, 			"mapc2017.env.perceive.AgentPerceiver", 	ArtifactConfig.DEFAULT_CONFIG);
+			
+    		ei.attachAgentListener("agent1", this);
+			
+			ei.start();
     	}
 		catch (Throwable e) 
 		{
@@ -137,7 +138,7 @@ public class EISHandler extends Artifact implements AgentListener {
 		
 		hasPerformedAction.clear();
 		
-		if (allPercepts.stream().filter(p -> p.getName().equals("simStart")).findAny().isPresent())
+		if (SimStartPerceiver.hasPerceived() == false)
 			SimStartPerceiver.perceive(allPercepts);
 		
 //		if (initial) SimStartPerceiver.perceive(allPercepts);

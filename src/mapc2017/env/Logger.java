@@ -15,7 +15,7 @@ public class Logger extends PrintStream {
 		super(new BufferedOutputStream(new FileOutputStream(OUTPUT)), true);
 	}
 	
-	public static void init() {
+	public static void reset() {
 		try {
 			instance = new Logger();
 		} catch (FileNotFoundException e) {
@@ -24,6 +24,7 @@ public class Logger extends PrintStream {
 	}
 	
 	public static Logger get() {
+		if (instance == null) reset();
 		return instance;
 	}
 	

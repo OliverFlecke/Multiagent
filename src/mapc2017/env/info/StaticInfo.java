@@ -1,15 +1,14 @@
 package mapc2017.env.info;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import mapc2017.data.RouteFinder;
 import mapc2017.data.Entity;
 import mapc2017.data.Role;
+import mapc2017.data.RouteFinder;
 import massim.scenario.city.data.Location;
 import massim.scenario.city.util.GraphHopperManager;
 
@@ -86,7 +85,7 @@ public class StaticInfo {
 	}
 	
 	public synchronized Location getRandomLocation() {
-		return routeFinder.getRandomLocation(Collections.emptySet(), 10);
+		return routeFinder.getRandomCenterLocation();
 	}
 	
 	/////////////
