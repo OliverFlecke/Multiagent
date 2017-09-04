@@ -119,6 +119,8 @@ public class ReqActionPerceiver extends Artifact {
 		for (Job job : jInfo.getNewJobs())
 			evaluator.evaluate(job);
 		
+		fInfo.stepBlackouts();
+		
 		delegator.select(evaluator.getEvaluations());
 		
 		execInternalOp("update");

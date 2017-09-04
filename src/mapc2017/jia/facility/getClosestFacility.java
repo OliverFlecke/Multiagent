@@ -1,5 +1,6 @@
 package mapc2017.jia.facility;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -25,20 +26,28 @@ public class getClosestFacility extends DefaultInternalAction {
 		String from 	= ASLParser.parseFunctor(args[i++]);
 		String type 	= ASLParser.parseString	(args[i++]);
 		
+		Collection<? extends Facility> facilities;
+		
+		if (type.equals("chargingStation"))
+		{
+			facilities = FacilityInfo.get().getActiveChargingStations();
+		}
+		else
+		{
+			facilities = FacilityInfo.get().getFacilities(type);
+		}
+		
 		Optional<? extends Facility> opt;
 		
 		if (from.startsWith("agent"))
 		{
-			opt = FacilityInfo.get().getFacilities(type).stream()
-					.min(Comparator.comparingInt(f -> StaticInfo.get().getRouteDuration(
-							AgentInfo.get(from), f.getLocation())));
+			opt = facilities.stream().min(Comparator.comparingInt(f -> StaticInfo.get()
+					.getRouteDuration(AgentInfo.get(from), f.getLocation())));
 		}
 		else
 		{
-			opt = FacilityInfo.get().getFacilities(type).stream()
-					.min(Comparator.comparingInt(f -> StaticInfo.get().getRouteLength(
-							FacilityInfo.get().getFacility(from).getLocation(), 
-							f.getLocation())));
+			opt = facilities.stream().min(Comparator.comparingInt(f -> StaticInfo.get()
+					.getRouteLength(FacilityInfo.get().getFacility(from).getLocation(), f.getLocation())));
 		}
 		
 		if (!opt.isPresent()) return false;

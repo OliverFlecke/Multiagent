@@ -37,7 +37,7 @@
 
 +step(X) : .my_name(agent1) & .print("Step: ", X) & false.
 +step(0) <- !reset; !free.
-+step(X) : lastAction("gather") & lastActionResult("successful_partial").
++step(X) : lastAction("gather").// & lastActionResult("successful_partial").
 +step(X) : lastActionResult(R) & lastAction(A) & lastActionParams(P)
 		 & not A = "goto" & not A = "noAction" & not A = "charge" & not A = "skip"
 		 & not A = "assist_assemble" <- .print(R, " ", A, " ", P).

@@ -89,8 +89,8 @@
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
-+!charge : inChargingStation 						<- !doAction(charge); !charge.
-+!charge : getClosestFacility("chargingStation", F) <- !goToFacility(F);  !charge.
++!charge : inChargingStation & not lastActionResult("failed_facility_state") <- !doAction(charge); !charge.
++!charge : getClosestFacility("chargingStation", F) 						 <- !goToFacility(F);  !charge.
 
 +!gather : capacity(C) & load(L) & (C <= 150 | C <= 0.5 * L).
 +!gather : inResourceNode 						 <- !doAction(gather); !gather.

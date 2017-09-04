@@ -3,6 +3,8 @@ package mapc2017.env.info;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.facility.Dump;
@@ -30,6 +32,7 @@ public class FacilityInfo {
 	private Map<String, Storage> 		 storages 			= new HashMap<>();
 	private Map<String, Workshop> 		 workshops 			= new HashMap<>();
 	private Map<String, ResourceNode>	 resourceNodes		= new HashMap<>();
+	private Map<String, Integer>		 blackouts			= new HashMap<>();
 	
 	public FacilityInfo() {	
 		instance = this; 
@@ -63,6 +66,13 @@ public class FacilityInfo {
 		return shops.values();
 	}
 	
+	public synchronized Collection<ChargingStation> getActiveChargingStations() {
+		return chargingStations.entrySet().stream()
+				.filter(e -> !blackouts.containsKey(e.getKey()))
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue))
+				.values();
+	}
+	
 	/////////////
 	// SETTERS //
 	/////////////
@@ -77,6 +87,20 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unsupported facility: " + f.getName());
 	}
 	
+	public synchronized void addBlackout(String chargingStation) {
+		blackouts.put(chargingStation, 6);
+	}
+	
+	public synchronized void stepBlackouts() {
+		Map<String, Integer> tmp = new HashMap<>(blackouts);
+		for (Entry<String, Integer> entry : tmp.entrySet()) {
+			String 	chargingStation = entry.getKey();
+			int 	duration 		= entry.getValue() - 1;
+			if (duration <= 0) blackouts.remove(chargingStation);
+			else		       blackouts.put(chargingStation, duration);
+		}
+	}
+	
 	public synchronized void clearFacilities() {
 		chargingStations.clear();
 		dumps 			.clear();
@@ -84,5 +108,6 @@ public class FacilityInfo {
 		storages 		.clear();
 		workshops 		.clear();
 		resourceNodes	.clear();
+		blackouts		.clear();
 	}
 }

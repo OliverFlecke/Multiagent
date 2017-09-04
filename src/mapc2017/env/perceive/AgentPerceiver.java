@@ -11,6 +11,7 @@ import eis.iilang.Percept;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.parse.IILParser;
 
 public class AgentPerceiver extends Artifact {
@@ -95,15 +96,21 @@ public class AgentPerceiver extends Artifact {
 	}
 
 	private void postprocess()
-	{		
-		if (aInfo.getLastAction().equals("deliver_job") &&
-			aInfo.getLastActionResult().equals("successful"))
+	{				
+		String lastAction 		= aInfo.getLastAction();
+		String lastActionResult = aInfo.getLastActionResult();
+		
+		if (lastAction		.equals("deliver_job") &&
+			lastActionResult.equals("successful")) 
 		{
 			DynamicInfo.get().incJobsCompleted();
 		}
-		
-		String lastAction 		= aInfo.getLastAction();
-		String lastActionResult = aInfo.getLastActionResult();
+
+		if (lastAction		.equals("charge") &&
+			lastActionResult.equals("failed_facility_state")) 
+		{
+			FacilityInfo.get().addBlackout(aInfo.getFacility());
+		}
 		
 		if (!lastAction.isEmpty() && !lastActionResult.equals("successful"))
 		{
