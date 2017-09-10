@@ -32,13 +32,15 @@
 // Pre-condition: In shop and shop selling the items.
 // Post-condition: Items in inventory.
 +!buyItems(Items) 		 : hasItems(Items).
-+!buyItems([Item|Items]) : hasItems([Item]) <- 
-	!buyItems(Items).
-//+!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) & getAlternativeShop(Shop) <-
++!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
++!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) 
+	& getAlternativeShop(Item, Amount, Shop) <- 
+	!retrieveItems(Shop, [map(Item, Amount)|Items]).
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, BuyAmount) <- 
 	!doAction(buy(Item, BuyAmount));
 	!buyItems(Items);
 	!buyItems([map(Item, Amount)]).
+
 
 // Pre-condition: In workshop and all base items available.
 // Post-condition: Items in inventory.

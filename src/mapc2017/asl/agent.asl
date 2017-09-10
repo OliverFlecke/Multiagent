@@ -23,6 +23,8 @@
 	!task(doTask(Agent, ShoppingList, Workshop)).
 +task(Id, Bid) <-
 	!task(doTask(Id, Bid)).
++task("release") <-
+	!stop; !free.
 	
 +!task(Task) : .print(Task) & false.
 +!task(Task) <-	!stop; !Task; !free.

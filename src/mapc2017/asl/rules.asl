@@ -28,9 +28,10 @@ hasBaseItems(Items) 			:- .my_name(Me) & mapc2017.jia.agent.hasBaseItems(Me, Ite
 hasItems	(Items) 			:- .my_name(Me) & mapc2017.jia.agent.hasItems(Me, Items).
 hasTools	(Tools)				:- .my_name(Me) & mapc2017.jia.agent.hasTools(Me, Tools).
 hasAmount	(Item, Amount)		:- .my_name(Me) & mapc2017.jia.agent.hasAmount(Me, Item, Amount).
-buyAmount	(Item, Need, Buy)	:- facility(S) & getAvailableAmount(S, Item, Available) 
+buyAmount	(Item, Need, Buy)	:- facility(S)  & getAvailableAmount(S, Item, Available) 
 								 & hasAmount(Item, Has) & .min([Need - Has, Available], Buy).
 // Facility
+getAlternativeShop(I, A, S)		:- facility(F)  & mapc2017.jia.facility.getAlternativeShop		(F, I, A, S).
 getAvailableAmount(S, I, A)		:- 				  mapc2017.jia.facility.getAvailableAmount		(S, I, A).
 getClosestFacility(F, T, C)		:- .term2string(Term, F) & mapc2017.jia.facility.getClosestFacility	(Term, T, C).
 getClosestFacility(T, C)		:- .my_name(Me) & mapc2017.jia.facility.getClosestFacility		(Me, T, C).
