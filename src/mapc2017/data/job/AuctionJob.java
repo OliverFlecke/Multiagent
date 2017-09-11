@@ -7,6 +7,7 @@ public class AuctionJob extends Job {
 	private int fine, 
 				bid, 
 				steps;
+	private boolean isHighestBidder;
 
 	public AuctionJob(Job job, int fine, int bid, int steps) {
 		super(job);
@@ -26,6 +27,11 @@ public class AuctionJob extends Job {
 	public int getBid() {
 		return bid;
 	}
+	
+	public void setBid(int bid)
+	{
+		this.bid = bid;
+	}
 
 	public int getSteps() {
 		return steps;
@@ -35,4 +41,22 @@ public class AuctionJob extends Job {
 		return this.getStart() + this.getSteps() > DynamicInfo.get().getStep();
 	}
 
+	public void setIsHighestBidder(boolean state) 
+	{
+		isHighestBidder = state;
+	}
+	
+	public boolean isHighestBidder()
+	{
+		return this.isHighestBidder;
+	}
+	
+	public void update(AuctionJob other)
+	{
+		if (other.getBid() < this.getBid())
+		{
+			this.bid = other.getBid();
+			this.isHighestBidder = false;
+		}
+	}
 }

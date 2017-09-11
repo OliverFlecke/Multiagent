@@ -9,10 +9,12 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
 import mapc2017.data.facility.ChargingStation;
+import mapc2017.data.job.AuctionJob;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
+import mapc2017.env.info.JobInfo;
 import mapc2017.env.parse.IILParser;
 
 public class AgentPerceiver extends Artifact {
@@ -98,8 +100,9 @@ public class AgentPerceiver extends Artifact {
 
 	private void postprocess()
 	{				
-		String lastAction 		= aInfo.getLastAction();
-		String lastActionResult = aInfo.getLastActionResult();
+		String lastAction 			= aInfo.getLastAction();
+		String lastActionResult 	= aInfo.getLastActionResult();
+		String[] lastActionParams 	= aInfo.getLastActionParams();
 		
 		if (lastAction		.equals("deliver_job") &&
 			lastActionResult.equals("successful")) 
@@ -116,6 +119,19 @@ public class AgentPerceiver extends Artifact {
 		if (!lastAction.isEmpty() && !lastActionResult.equals("successful") && !lastAction.equals("gather"))
 		{
 			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
+		}
+		
+		if (lastAction		.equals("bid_for_job") &&
+			lastActionResult.equals("successful"))
+		{
+			String id 	= lastActionParams[0]; 
+			int bid 	= Integer.parseInt(lastActionParams[1]);
+			
+			AuctionJob auction = (AuctionJob) JobInfo.get().getJob(id);
+			auction.setIsHighestBidder(true);
+			auction.setBid(bid);
+			
+			System.out.println("We have the highest bid on " + lastActionParams[0]);
 		}
 		
 		execInternalOp("update");

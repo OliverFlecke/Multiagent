@@ -15,7 +15,7 @@
 	.send(Agent, untell, assistant).
 	
 // Bid job
-+!doTask(Id, Bid) <- !doAction(bid_for_job(Id, Bid)).
++!doTask(Id, Bid) : .my_name(Me) & .print(Me, " bidding for ", Id) <- !doAction(bid_for_job(Id, Bid)).
 
 +!acquireItems([]).
 +!acquireItems([map(Shop, Items)|ShoppingList]) <- 
@@ -36,6 +36,9 @@
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) 
 	& getAlternativeShop(Item, Amount, Shop) <- 
 	!retrieveItems(Shop, [map(Item, Amount)|Items]).
++!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) <- 
+	!doAction(recharge); 
+	!buyItems([map(Item, Amount)|Items]).
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, BuyAmount) <- 
 	!doAction(buy(Item, BuyAmount));
 	!buyItems(Items);

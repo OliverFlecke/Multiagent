@@ -72,13 +72,23 @@ public class JobDelegator extends Artifact {
 
 			if (stepComplete < maxSteps && stepComplete < job.getEnd())
 			{
-				if (eval.getReqAgents() > freeAgents.size()) continue;
-				
-				 	 if (job instanceof MissionJob) { if (!delegate(eval)) return; }
-				else if (job instanceof AuctionJob) ;
-				else if (!delegate(eval)) continue;
+				 	 if (job instanceof MissionJob) { if (!delegate(eval)) continue; }
+				else if (job instanceof AuctionJob) 
+				{
+					AuctionJob auction = (AuctionJob) job;
+					
+					if (auction.hasWon())
+					{
+						if (!delegate(eval)) return;
+					}
+					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
+					{
+						execInternalOp("bidForAuction", auction);
+					}
+				}
+				else if (!delegate(eval) && eval.getReqAgents() > freeAgents.size()) continue;
 			}
-			it.remove();
+			it.remove();				
 		}
 	}
 	
@@ -209,6 +219,15 @@ public class JobDelegator extends Artifact {
 
 		for (AgentInfo agent : assistants.keySet())
 			signal(agentIds.get(agent), "task", assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
+	}
+	
+	@INTERNAL_OPERATION
+	private void bidForAuction(AuctionJob auction) 
+	{
+		int bid = auction.getReward() - 1;
+		
+		AgentInfo agent = freeAgents.getFirst();
+		signal(agentIds.get(agent), "task", auction.getId(), bid);
 	}
 	
 	@INTERNAL_OPERATION

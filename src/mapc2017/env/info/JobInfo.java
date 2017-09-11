@@ -58,10 +58,10 @@ public class JobInfo {
 			newJobs.add(job);
 			this.putJob(job);
 		}
-//		else if (job instanceof AuctionJob) 
-//		{
-//			((AuctionJob) existing).update((AuctionJob) job);
-//		}
+		else if (job instanceof AuctionJob) 
+		{
+			((AuctionJob) existing).update((AuctionJob) job);
+		}
 		else removedJobs.remove(existing);
 	}
 	
