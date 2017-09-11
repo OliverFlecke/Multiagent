@@ -5,6 +5,7 @@ import java.util.Collection;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
+import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.facility.Shop;
 import mapc2017.data.job.Job;
 import mapc2017.env.Logger;
@@ -64,12 +65,31 @@ public class ReqActionPerceiver extends Artifact {
 		defineObsProperty(STEP, "");
 	}
 	
+	public static void perceiveInitial(Collection<Percept> percepts)
+	{
+		instance.processInitial(percepts);
+	}
+	
+	private void processInitial(Collection<Percept> percepts)
+	{
+		for (Percept p : percepts)
+		{
+			switch (p.getName())
+			{
+			case CHARGING_STATION	: fInfo.putFacility	(IILParser.parseChargingStation	(p)); break;
+			case DUMP 			    : fInfo.putFacility	(IILParser.parseDump			(p)); break;
+			case SHOP 			    : fInfo.putFacility	(IILParser.parseShop            (p)); break;
+			case STORAGE 		    : fInfo.putFacility	(IILParser.parseStorage         (p)); break;
+			case WORKSHOP 		    : fInfo.putFacility	(IILParser.parseWorkshop        (p)); break;
+			}
+		}
+	}
+	
 	public static void perceive(Collection<Percept> percepts) 
 	{
 		instance.process(percepts);
 	}
 
-	@INTERNAL_OPERATION
 	private void process(Collection<Percept> percepts) 
 	{
 		preprocess();
@@ -82,12 +102,8 @@ public class ReqActionPerceiver extends Artifact {
 			case MONEY 			    : dInfo.setMoney	(IILParser.parseLong			(p)); break;
 			case STEP 			    : dInfo.setStep		(IILParser.parseInt				(p)); break;
 			case TIMESTAMP 		    : dInfo.setTimestamp(IILParser.parseLong			(p)); break;
-			case CHARGING_STATION	: fInfo.addFacility	(IILParser.parseChargingStation	(p)); break;
-			case DUMP 			    : fInfo.addFacility	(IILParser.parseDump			(p)); break;
-			case RESOURCE_NODE	    : fInfo.addFacility	(IILParser.parseResourceNode    (p)); break;
-			case SHOP 			    : fInfo.addFacility	(IILParser.parseShop            (p)); break;
-			case STORAGE 		    : fInfo.addFacility	(IILParser.parseStorage         (p)); break;
-			case WORKSHOP 		    : fInfo.addFacility	(IILParser.parseWorkshop        (p)); break;
+			case RESOURCE_NODE	    : fInfo.putFacility	(IILParser.parseResourceNode    (p)); break;
+			case SHOP 			    : fInfo.setShop		(IILParser.parseShop            (p)); break;
 			case AUCTION 		    : jInfo.addJob		(IILParser.parseAuction			(p)); break;
 			case JOB 			    : jInfo.addJob		(IILParser.parseSimple			(p)); break;
 			case MISSION 		    : jInfo.addJob		(IILParser.parseMission			(p)); break;
@@ -96,12 +112,12 @@ public class ReqActionPerceiver extends Artifact {
 		}
 
 		postprocess();
-		execInternalOp("postprocess");
 	}
 	
 	private void preprocess()
 	{
 		iInfo.clearItemLocations();
+		jInfo.setRemovedJobs();
 	}
 
 	private void postprocess()
@@ -116,10 +132,17 @@ public class ReqActionPerceiver extends Artifact {
 			for (String item : shop.getItems())
 				iInfo.addItemLocation(item, shop);
 		
+		for (ChargingStation chargingStation : fInfo.getChargingStations())
+			chargingStation.step();
+		
 		for (Job job : jInfo.getNewJobs())
 			evaluator.evaluate(job);
 		
-		fInfo.stepBlackouts();
+		for (Job job : jInfo.getRemovedJobs()) {
+			jInfo.removeJob(job);
+			evaluator.removeEvaluation(job);
+			delegator.releaseAgents(job);
+		}
 		
 		delegator.select(evaluator.getEvaluations());
 		

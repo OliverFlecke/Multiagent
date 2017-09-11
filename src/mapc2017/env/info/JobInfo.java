@@ -20,7 +20,8 @@ public class JobInfo {
 	private Map<String, SimpleJob> 	simpleJobs 		= new HashMap<>();
 	private Map<String, MissionJob> missionJobs 	= new HashMap<>();
 	private Map<String, PostedJob> 	postedJobs 		= new HashMap<>();	
-	private Set<Job> 				newJobs 		= new HashSet<>();
+	private Set<Job> 				removedJobs 	= new HashSet<>(),
+									newJobs			= new HashSet<>();
 	
 	public JobInfo() {
 		instance = this;
@@ -30,14 +31,14 @@ public class JobInfo {
 	// GETTERS //
 	/////////////
 	
-	public synchronized Job getJob(String jobId) {
+	public Job getJob(String jobId) {
 			 if (simpleJobs .containsKey(jobId))	return simpleJobs .get(jobId);
 		else if (missionJobs.containsKey(jobId))	return missionJobs.get(jobId);
 		else if (auctionJobs.containsKey(jobId))	return auctionJobs.get(jobId);
 		else										return postedJobs .get(jobId);	
 	}
 	
-	public synchronized Set<Job> getNewJobs() {
+	public Set<Job> getNewJobs() {
 		Set<Job> jobs = new HashSet<>(newJobs);		
 		newJobs.clear();		
 		return jobs;
@@ -47,18 +48,52 @@ public class JobInfo {
 	// SETTERS //
 	/////////////
 
-	public synchronized void addJob(Job job) {
-		if (job.getItems().isEmpty()) return;
-		if (getJob(job.getId()) == null) newJobs.add(job);
-			
+	public void addJob(Job job) {
+		if (job.getItems().isEmpty()) return;	
+		
+		Job existing = getJob(job.getId());		
+		
+		if (existing == null) 
+		{
+			newJobs.add(job);
+			this.putJob(job);
+		}
+//		else if (job instanceof AuctionJob) 
+//		{
+//			((AuctionJob) existing).update((AuctionJob) job);
+//		}
+		else removedJobs.remove(existing);
+	}
+	
+	public void putJob(Job job) {
 			 if (job instanceof SimpleJob ) simpleJobs .put(job.getId(), (SimpleJob ) job);
 		else if (job instanceof MissionJob)	missionJobs.put(job.getId(), (MissionJob) job);
 		else if (job instanceof AuctionJob)	auctionJobs.put(job.getId(), (AuctionJob) job);
 		else if (job instanceof PostedJob ) postedJobs .put(job.getId(), (PostedJob ) job);
-		else throw new UnsupportedOperationException("Unsupported job: " + job.getId());
+		else throw new UnsupportedOperationException("Unsupported job: " + job.getId());		
+	}
+
+	public void removeJob(Job job) {
+			 if (job instanceof SimpleJob ) simpleJobs .remove(job.getId());
+		else if (job instanceof MissionJob)	missionJobs.remove(job.getId());
+		else if (job instanceof AuctionJob)	auctionJobs.remove(job.getId());
+		else if (job instanceof PostedJob ) postedJobs .remove(job.getId());
+		else throw new UnsupportedOperationException("Unsupported job: " + job.getId());		
 	}
 	
-	public synchronized void clearJobs() {
+	public void setRemovedJobs() {
+		removedJobs.clear();
+		removedJobs.addAll(simpleJobs .values());
+		removedJobs.addAll(missionJobs.values());
+		removedJobs.addAll(auctionJobs.values());
+		removedJobs.addAll(postedJobs .values());
+	}
+	
+	public Set<Job> getRemovedJobs() {
+		return removedJobs;
+	}
+	
+	public void clearJobs() {
 		auctionJobs	.clear();
 		simpleJobs	.clear();
 		missionJobs	.clear();

@@ -24,13 +24,13 @@
 +task(Id, Bid) <-
 	!task(doTask(Id, Bid)).
 +task("release") <-
-	!stop; !free.
+	!reset; !free.
 	
 +!task(Task) : .print(Task) & false.
 +!task(Task) <-	!stop; !Task; !free.
 
 +!stop  <- .drop_all_desires; .drop_all_intentions.
-+!free  <- free; !charge; !gather; !goToRandom; !skip.
++!free  <- !stop; free; !charge; !gather; !goToRandom; !skip.
 +!reset <- !stop; .drop_all_events;
 	for (assemble	   [source(A)]) { -assemble      [source(A)] };
 	for (assistant     [source(A)]) { -assistant     [source(A)] };

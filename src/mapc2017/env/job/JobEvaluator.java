@@ -2,6 +2,7 @@ package mapc2017.env.job;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -65,8 +66,8 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 		
 		int profit = job.getReward() - price;
 				
-		int 					baseVolume 		= iInfo.getBaseVolume(job.getItems());		
-		ShoppingList 			shoppingList 	= ShoppingList.getShoppingList(job.getItems());
+		int 			baseVolume 		= iInfo.getBaseVolume(job.getItems());		
+		ShoppingList 	shoppingList 	= ShoppingList.getShoppingList(job.getItems());
 		
 		int reqAssemblers	= getReqAgents(baseVolume);
 		int reqAgents		= shoppingList.values().stream()
@@ -114,6 +115,22 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 	
 	public PriorityQueue<JobEvaluation> getEvaluations() {
 		return evals;
+	}
+	
+	public void removeEvaluation(Job job) 
+	{
+		Iterator<JobEvaluation> it = evals.iterator();
+		
+		while (it.hasNext())
+		{
+			JobEvaluation eval = it.next();
+			
+			if (eval.getJob().getId().equals(job.getId()))
+			{
+				it.remove();
+				return;
+			}
+		}
 	}
 
 	@Override

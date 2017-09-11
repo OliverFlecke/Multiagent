@@ -13,7 +13,6 @@ import java.util.Set;
 import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
-import cartago.LINK;
 import cartago.OPERATION;
 import mapc2017.data.facility.Facility;
 import mapc2017.data.item.ItemList;
@@ -35,7 +34,8 @@ public class JobDelegator extends Artifact {
 	private Map<AgentInfo, AgentId> agentIds 	= new HashMap<>();
 	private LinkedList<AgentInfo> 	freeAgents 	= new LinkedList<>();
 	
-	private Map<String, Set<AgentInfo>>	agentTasks	= new HashMap<>();
+	private Map<String, Set<AgentInfo>>	taskToAgents	= new HashMap<>();
+	private Map<AgentInfo, String> 		agentToTask 	= new HashMap<>();
 
 	private DynamicInfo 	dInfo;
 	private FacilityInfo 	fInfo;
@@ -150,8 +150,9 @@ public class JobDelegator extends Artifact {
 		}
 		
 		retrievers.keySet().stream().forEach(freeAgents::remove);
+		retrievers.keySet().stream().forEach(agent -> agentToTask.put(agent, job.getId()));
 		
-		agentTasks.put(job.getId(), retrievers.keySet());
+		taskToAgents.put(job.getId(), retrievers.keySet());
 		
 		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
@@ -195,6 +196,8 @@ public class JobDelegator extends Artifact {
 		
 		freeAgents.add(agent);
 		
+		agentToTask.put(agent, "");
+		
 		agentIds.put(agent, getOpUserId());
 	}
 	
@@ -208,16 +211,21 @@ public class JobDelegator extends Artifact {
 			signal(agentIds.get(agent), "task", assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
 	}
 	
-	@LINK
+	@INTERNAL_OPERATION
 	void release(String job)
 	{
-		for (AgentInfo agent : agentTasks.get(job))
+		if (taskToAgents.get(job) == null) return;
+		
+		for (AgentInfo agent : taskToAgents.get(job))
 		{
-			if (!freeAgents.contains(agent)) 
+			if (agentToTask.get(agent).equals(job)) 
 			{
-				System.out.println("Releasing " + agent.getName());
 				signal(agentIds.get(agent), "task", "release");
 			}
 		}
+	}
+	
+	public void releaseAgents(Job job) {
+		execInternalOp("release", job.getId());
 	}
 }

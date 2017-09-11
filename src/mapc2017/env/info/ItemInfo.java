@@ -28,24 +28,24 @@ public class ItemInfo {
 	// GETTERS //
 	/////////////
 	
-	public synchronized Item getItem(String name) {
+	public Item getItem(String name) {
 		if (name.startsWith("tool")) return tools.get(name);
 		else						 return items.get(name);
 	}
 	
-	public synchronized Tool getTool(String name) {
+	public Tool getTool(String name) {
 		return tools.get(name);
 	}
 	
-	public synchronized Collection<Item> getItems() {
+	public Collection<Item> getItems() {
 		return items.values();
 	}
 	
-	public synchronized Map<String, Map<String, Shop>> getAllItemLocations() {
+	public Map<String, Map<String, Shop>> getAllItemLocations() {
 		return itemLocations;
 	}
 	
-	public synchronized Collection<Shop> getItemLocations(String item) {
+	public Collection<Shop> getItemLocations(String item) {
 		return itemLocations.get(item).values();
 	}
 	
@@ -53,12 +53,12 @@ public class ItemInfo {
 	// SETTERS //
 	/////////////
 
-	public synchronized void addItem(Item item) {
+	public void addItem(Item item) {
 		if (item instanceof Tool) 	tools.put(item.getName(), (Tool) item);
 		else 						items.put(item.getName(), 		 item);
 	}
 	
-	public synchronized void addItemLocation(String item, Shop shop) {
+	public void addItemLocation(String item, Shop shop) {
 		if (itemLocations.containsKey(item)) {
 			itemLocations.get(item).put(shop.getName(), shop);
 		} else {			
@@ -67,12 +67,12 @@ public class ItemInfo {
 		}
 	}
 	
-	public synchronized void clearItems() {
+	public void clearItems() {
 		items.clear();
 		tools.clear();
 	}
 	
-	public synchronized void clearItemLocations() {
+	public void clearItemLocations() {
 		itemLocations.clear();
 	}
 	

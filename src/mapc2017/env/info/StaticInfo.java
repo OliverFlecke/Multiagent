@@ -36,55 +36,55 @@ public class StaticInfo {
 	// GETTERS //
 	/////////////
 	
-	public synchronized String getId() {
+	public String getId() {
 		return id;
 	}
 	
-	public synchronized String getMap() {
+	public String getMap() {
 		return map;
 	}
 	
-	public synchronized String getTeam() {
+	public String getTeam() {
 		return team;
 	}
 	
-	public synchronized long getSeedCapital() {
+	public long getSeedCapital() {
 		return seedCapital;
 	}
 	
-	public synchronized int getSteps() {
+	public int getSteps() {
 		return steps;
 	}
 	
-	public synchronized Location getCenter() {
+	public Location getCenter() {
 		return new Location(centerLon, centerLat);
 	}
 	
-	public synchronized Set<Entity> getTeamEntities() {
+	public Set<Entity> getTeamEntities() {
 		return entities.values().stream()
 				.filter(e -> e.getTeam().equals(team))
 				.collect(Collectors.toSet());
 	}
 	
-	public synchronized Role getRole(String role) {
+	public Role getRole(String role) {
 		return roles.get(role);
 	}
 	
-	public synchronized Collection<Role> getRoles() {
+	public Collection<Role> getRoles() {
 		return roles.values();
 	}
 	
-	public synchronized int getRouteLength(Location from, Location to) {
+	public int getRouteLength(Location from, Location to) {
 		return routeFinder.findRoute(from, to, GraphHopperManager.PERMISSION_ROAD)
 				.getRouteLength();
 	}
 	
-	public synchronized int getRouteDuration(AgentInfo agent, Location to) {
+	public int getRouteDuration(AgentInfo agent, Location to) {
 		return routeFinder.findRoute(agent.getLocation(), to, agent.getPermission())
 				.getRouteDuration(agent.getRole().getSpeed());
 	}
 	
-	public synchronized Location getRandomLocation() {
+	public Location getRandomLocation() {
 		return routeFinder.getRandomCenterLocation();
 	}
 	
@@ -92,67 +92,67 @@ public class StaticInfo {
 	// SETTERS //
 	/////////////
 	
-	public synchronized void setId(String id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public synchronized void setMap(String map) {
+	public void setMap(String map) {
 		this.map = map;
 	}
 	
-	public synchronized void setMinLat(double minLat) {
+	public void setMinLat(double minLat) {
 		this.minLat = minLat;
 	}
 
-	public synchronized void setMaxLat(double maxLat) {
+	public void setMaxLat(double maxLat) {
 		this.maxLat = maxLat;
 	}
 
-	public synchronized void setMinLon(double minLon) {
+	public void setMinLon(double minLon) {
 		this.minLon = minLon;
 	}
 
-	public synchronized void setMaxLon(double maxLon) {
+	public void setMaxLon(double maxLon) {
 		this.maxLon = maxLon;
 	}
 
-	public synchronized void setCenterLat(double centerLat) {
+	public void setCenterLat(double centerLat) {
 		this.centerLat = centerLat;
 	}
 
-	public synchronized void setCenterLon(double centerLon) {
+	public void setCenterLon(double centerLon) {
 		this.centerLon = centerLon;
 	}
 
-	public synchronized void setTeam(String team) {
+	public void setTeam(String team) {
 		this.team = team;
 	}
 	
-	public synchronized void setSeedCapital(long seedCapital) {
+	public void setSeedCapital(long seedCapital) {
 		this.seedCapital = seedCapital;
 	}
 
-	public synchronized void setCellSize(double cellSize) {
+	public void setCellSize(double cellSize) {
 		this.cellSize = cellSize;
 	}
 	
-	public synchronized void setSteps(int steps) {
+	public void setSteps(int steps) {
 		this.steps = steps;
 	}
 
-	public synchronized void setProximity(int proximity) {
+	public void setProximity(int proximity) {
 		this.proximity = proximity;
 	}
 	
-	public synchronized void addEntity(Entity entity) {
+	public void addEntity(Entity entity) {
 		this.entities.put(entity.getName(), entity);
 	}
 	
-	public synchronized void addRole(Role role) {
+	public void addRole(Role role) {
 		this.roles.put(role.getName(), role);
 	}
 	
-	public synchronized void initCityMap() {
+	public void initCityMap() {
 		this.routeFinder = new RouteFinder(map, cellSize, 
 				minLat, maxLat, minLon, maxLon, 
 				this.getCenter(), proximity);

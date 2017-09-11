@@ -19,23 +19,23 @@ public class DynamicInfo {
 	// GETTERS //
 	/////////////
 
-	public synchronized long getTimestamp() {
+	public long getTimestamp() {
 		return timestamp;
 	}
 
-	public synchronized long getDeadline() {
+	public long getDeadline() {
 		return deadline;
 	}
 
-	public synchronized int getStep() {
+	public int getStep() {
 		return step;
 	}
 
-	public synchronized long getMoney() {
+	public long getMoney() {
 		return money;
 	}
 
-	public synchronized int getJobsCompleted() {
+	public int getJobsCompleted() {
 		return jobsCompleted;
 	}
 	
@@ -43,23 +43,23 @@ public class DynamicInfo {
 	// SETTERS //
 	/////////////
 
-	public synchronized void setTimestamp(long timestamp) {
+	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
-	public synchronized void setDeadline(long deadline) {
+	public void setDeadline(long deadline) {
 		this.deadline = deadline;
 	}
 
-	public synchronized void setStep(int step) {
+	public void setStep(int step) {
 		this.step = step;
 	}
 
-	public synchronized void setMoney(long money) {
+	public void setMoney(long money) {
 		this.money = money;
 	}
 
-	public synchronized void incJobsCompleted() {
+	public void incJobsCompleted() {
 		this.jobsCompleted++;
 	}
 	

@@ -5,9 +5,9 @@ import java.util.Set;
 
 public class Shop extends Facility {
 	
-	int 					restock;
-	Map<String, Integer> 	price;
-	Map<String, Integer> 	amount;
+	private int 					restock;
+	private Map<String, Integer> 	price;
+	private Map<String, Integer> 	amount;
 
 	public Shop(Facility facility, int restock, 
 			Map<String, Integer> price, Map<String, Integer> amount) {
@@ -15,6 +15,10 @@ public class Shop extends Facility {
 		this.restock	= restock;
 		this.price		= price;
 		this.amount		= amount;
+	}
+	
+	public int getRestock() {
+		return restock;
 	}
 	
 	public int getPrice(String item) {
@@ -27,6 +31,22 @@ public class Shop extends Facility {
 	
 	public Set<String> getItems() {
 		return amount.keySet();
+	}
+	
+	public Map<String, Integer> getPrice() {
+		return price;
+	}
+	
+	public Map<String, Integer> getAmount() {
+		return amount;
+	}
+	
+	public void setPrice(Map<String, Integer> price) {
+		this.price = price;
+	}
+	
+	public void setAmount(Map<String, Integer> amount) {
+		this.amount = amount;
 	}
 
 }

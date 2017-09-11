@@ -3,7 +3,6 @@ package mapc2017.env.info;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import mapc2017.data.facility.ChargingStation;
@@ -32,7 +31,6 @@ public class FacilityInfo {
 	private Map<String, Storage> 		 storages 			= new HashMap<>();
 	private Map<String, Workshop> 		 workshops 			= new HashMap<>();
 	private Map<String, ResourceNode>	 resourceNodes		= new HashMap<>();
-	private Map<String, Integer>		 blackouts			= new HashMap<>();
 	
 	public FacilityInfo() {	
 		instance = this; 
@@ -42,7 +40,7 @@ public class FacilityInfo {
 	// GETTERS //
 	/////////////
 
-	public synchronized Facility getFacility(String name) {		
+	public Facility getFacility(String name) {		
 			 if (name.startsWith(CHARGING_STATION)) return chargingStations.get(name);
 		else if (name.startsWith(DUMP            )) return dumps           .get(name);
 		else if (name.startsWith(SHOP            )) return shops           .get(name);
@@ -52,7 +50,7 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown facility: " + name);
 	}
 	
-	public synchronized Collection<? extends Facility> getFacilities(String type) {
+	public Collection<? extends Facility> getFacilities(String type) {
 			 if (type.equals(CHARGING_STATION)) return chargingStations.values();	
 		else if (type.equals(DUMP			 ))	return dumps	       .values();        
 		else if (type.equals(SHOP			 ))	return shops	       .values();           
@@ -62,22 +60,25 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown type: " + type);
 	}
 	
-	public synchronized Collection<Shop> getShops() {
+	public Collection<Shop> getShops() {
 		return shops.values();
 	}
 	
-	public synchronized Collection<ChargingStation> getActiveChargingStations() {
-		return chargingStations.entrySet().stream()
-				.filter(e -> !blackouts.containsKey(e.getKey()))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue))
-				.values();
+	public Collection<ChargingStation> getChargingStations() {
+		return chargingStations.values();
+	}
+	
+	public Collection<ChargingStation> getActiveChargingStations() {
+		return getChargingStations().stream()
+				.filter(ChargingStation::isActive)
+				.collect(Collectors.toSet());
 	}
 	
 	/////////////
 	// SETTERS //
 	/////////////
 
-	public synchronized void addFacility(Facility f) {
+	public void putFacility(Facility f) {
 			 if (f instanceof ChargingStation) chargingStations.put(f.getName(), (ChargingStation) f);
 		else if (f instanceof Dump           ) dumps           .put(f.getName(), (Dump           ) f);
 		else if (f instanceof Shop           ) shops           .put(f.getName(), (Shop           ) f);
@@ -87,27 +88,18 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unsupported facility: " + f.getName());
 	}
 	
-	public synchronized void addBlackout(String chargingStation) {
-		blackouts.put(chargingStation, 6);
+	public void setShop(Shop f) {
+		Shop shop = shops.get	(f.getName	());
+		shop.setAmount			(f.getAmount());
+		shop.setPrice			(f.getPrice	());
 	}
 	
-	public synchronized void stepBlackouts() {
-		Map<String, Integer> tmp = new HashMap<>(blackouts);
-		for (Entry<String, Integer> entry : tmp.entrySet()) {
-			String 	chargingStation = entry.getKey();
-			int 	duration 		= entry.getValue() - 1;
-			if (duration <= 0) blackouts.remove(chargingStation);
-			else		       blackouts.put(chargingStation, duration);
-		}
-	}
-	
-	public synchronized void clearFacilities() {
+	public void clearFacilities() {
 		chargingStations.clear();
 		dumps 			.clear();
 		shops 			.clear();
 		storages 		.clear();
 		workshops 		.clear();
 		resourceNodes	.clear();
-		blackouts		.clear();
 	}
 }

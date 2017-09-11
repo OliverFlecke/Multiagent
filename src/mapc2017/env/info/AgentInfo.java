@@ -42,31 +42,31 @@ public class AgentInfo {
 	// GETTERS //
 	/////////////
 	
-	public synchronized String getName() {
+	public String getName() {
 		return name;
 	}
 
-	public synchronized Location getLocation() {
+	public Location getLocation() {
 		return new Location(lon, lat);
 	}
 	
-	public synchronized int getCharge() {
+	public int getCharge() {
 		return charge;
 	}
 	
-	public synchronized int getLoad() {
+	public int getLoad() {
 		return load;
 	}
 	
-	public synchronized String getFacility() {
+	public String getFacility() {
 		return facility;
 	}
 	
-	public synchronized String getLastAction() {
+	public String getLastAction() {
 		return lastAction;
 	}
 
-	public synchronized String getLastActionResult() {
+	public String getLastActionResult() {
 		return lastActionResult;
 	}
 
@@ -74,7 +74,7 @@ public class AgentInfo {
 		return lastActionParams;
 	}
 	
-	public synchronized Role getRole() {
+	public Role getRole() {
 		return role;
 	}
 	
@@ -82,7 +82,7 @@ public class AgentInfo {
 		return role.getTools();
 	}
 	
-	public synchronized String getPermission() {
+	public String getPermission() {
 		return permission;
 	}
 
@@ -98,7 +98,7 @@ public class AgentInfo {
 		return inventory.get(item).intValue();
 	}
 	
-	public synchronized int getCapacity() {
+	public int getCapacity() {
 		return role.getLoad() - load;
 	}
 	
@@ -106,39 +106,39 @@ public class AgentInfo {
 	// SETTERS //
 	/////////////
 	
-	public synchronized void setLat(double lat) {
+	public void setLat(double lat) {
 		this.lat = lat;
 	}
 	
-	public synchronized void setLon(double lon) {
+	public void setLon(double lon) {
 		this.lon = lon;
 	}
 	
-	public synchronized void setCharge(int charge) {
+	public void setCharge(int charge) {
 		this.charge = charge;
 	}
 	
-	public synchronized void setLoad(int load) {
+	public void setLoad(int load) {
 		this.load = load;
 	}
 	
-	public synchronized void setFacility(String facility) {
+	public void setFacility(String facility) {
 		this.facility = facility;
 	}
 	
-	public synchronized void setLastAction(String lastAction) {
+	public void setLastAction(String lastAction) {
 		this.lastAction = lastAction;
 	}
 
-	public synchronized void setLastActionResult(String lastActionResult) {
+	public void setLastActionResult(String lastActionResult) {
 		this.lastActionResult = lastActionResult;
 	}
 
-	public synchronized void setLastActionParams(String[] lastActionParams) {
+	public void setLastActionParams(String[] lastActionParams) {
 		this.lastActionParams = lastActionParams;
 	}
 	
-	public synchronized void setRole(Role role) {
+	public void setRole(Role role) {
 		this.role = role;
 		this.permission = role.getName().equals("drone") ? 
 				GraphHopperManager.PERMISSION_AIR : 
@@ -197,7 +197,7 @@ public class AgentInfo {
 			if (this.hasItem(item.getName()))
 			{
 				int hasAmount 	= this.getAmount(item.getName());
-				toCarry 	   += itemVolume * hasAmount;
+				toCarry 	   += itemVolume * hasAmount + 20 * hasAmount;
 				needAmount 	   -= hasAmount;		
 			}				
 				

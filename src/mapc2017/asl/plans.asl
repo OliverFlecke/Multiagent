@@ -95,7 +95,7 @@
 +!charge : inChargingStation & not lastActionResult("failed_facility_state") <- !doAction(charge); !charge.
 +!charge : getClosestFacility("chargingStation", F) 						 <- !goToFacility(F);  !charge.
 
-+!gather : capacity(C) & load(L) & (C <= 150 | C <= 0.5 * L).
++!gather : capacity(C) & maxLoad(L) & C <= 0.8 * L.
 +!gather : inResourceNode 						 <- !doAction(gather);    !gather.
 +!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
 +!gather  			 							 <- !goToRandom; !charge; !gather.

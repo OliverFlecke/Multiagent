@@ -137,4 +137,8 @@ public class SimStartPerceiver extends Artifact {
 	public static boolean hasPerceived() {
 		return instance.hasPerceived;
 	}
+	
+	public static void setPerceived(boolean hasPerceived) {
+		instance.hasPerceived = hasPerceived;
+	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
+import mapc2017.data.facility.ChargingStation;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
@@ -109,10 +110,10 @@ public class AgentPerceiver extends Artifact {
 		if (lastAction		.equals("charge") &&
 			lastActionResult.equals("failed_facility_state")) 
 		{
-			FacilityInfo.get().addBlackout(aInfo.getFacility());
+			((ChargingStation) FacilityInfo.get().getFacility(aInfo.getFacility())).blackout();
 		}
 		
-		if (!lastAction.isEmpty() && !lastActionResult.equals("successful"))
+		if (!lastAction.isEmpty() && !lastActionResult.equals("successful") && !lastAction.equals("gather"))
 		{
 			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
 		}
