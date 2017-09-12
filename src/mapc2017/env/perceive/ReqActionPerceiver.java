@@ -140,7 +140,8 @@ public class ReqActionPerceiver extends Artifact {
 			evaluator.evaluate(job);
 		}
 		
-		for (Job job : jInfo.getRemovedJobs()) {
+		for (Job job : jInfo.getRemovedJobs()) 
+		{
 			jInfo.removeJob(job);
 			evaluator.removeEvaluation(job);
 			delegator.releaseAgents(job);

@@ -84,6 +84,11 @@ public class JobDelegator extends Artifact {
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
 					{
 						execInternalOp("bidForAuction", auction);
+						continue;
+					}
+					else 
+					{
+						continue;						
 					}
 				}
 				else if (!delegate(eval) && eval.getReqAgents() > freeAgents.size()) continue;

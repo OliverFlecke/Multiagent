@@ -57,12 +57,14 @@ public class JobInfo {
 		{
 			newJobs.add(job);
 			this.putJob(job);
+			return;
 		}
 		else if (job instanceof AuctionJob) 
 		{
 			((AuctionJob) existing).update((AuctionJob) job);
 		}
-		else removedJobs.remove(existing);
+		
+		removedJobs.remove(existing);
 	}
 	
 	public void putJob(Job job) {
