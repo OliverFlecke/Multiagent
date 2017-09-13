@@ -72,21 +72,23 @@ public class JobDelegator extends Artifact {
 
 			if (stepComplete < maxSteps && stepComplete < job.getEnd())
 			{
+				if (eval.getReqAgents() > freeAgents.size()) continue;
+				
 				 	 if (job instanceof MissionJob) { if (!delegate(eval)) continue; }
 				else if (job instanceof AuctionJob) 
 				{
-					AuctionJob auction = (AuctionJob) job;
-					
-					if (auction.hasWon())
-					{
-						if (!delegate(eval)) return;
-					}
-					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
-					{
-						execInternalOp("bidForAuction", auction);
-					}
+//					AuctionJob auction = (AuctionJob) job;
+//					
+//					if (auction.hasWon())
+//					{
+//						if (!delegate(eval)) return;
+//					}
+//					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
+//					{
+//						execInternalOp("bidForAuction", auction);
+//					}
 				}
-				else if (!delegate(eval) && eval.getReqAgents() > freeAgents.size()) continue;
+				else if (!delegate(eval)) continue;
 			}
 			it.remove();				
 		}

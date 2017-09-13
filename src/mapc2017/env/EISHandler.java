@@ -45,7 +45,8 @@ public class EISHandler extends Artifact implements AgentListener {
 //    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017.json";
     
     private Map<String, String> agentsToEntities 	= new HashMap<>();    
-    private Set<String> 		hasPerformedAction	= new HashSet<>();
+    private Set<String> 		hasPerformedAction	= new HashSet<>(),
+    							hasQueuedAction		= new HashSet<>();
 
     private EnvironmentInterfaceStandard ei;
 
@@ -139,14 +140,14 @@ public class EISHandler extends Artifact implements AgentListener {
 		}
 		
 		hasPerformedAction.clear();
+		hasPerformedAction.addAll(hasQueuedAction);
+		hasQueuedAction	  .clear();
 		
 		if (SimStartPerceiver.hasPerceived() == false)
 		{
-			SimStartPerceiver.perceive		  (allPercepts);
+			SimStartPerceiver .perceive		  (allPercepts);
 			ReqActionPerceiver.perceiveInitial(allPercepts);
 		}
-		
-//		if (initial) SimStartPerceiver.perceive(allPercepts);
 		
 		ReqActionPerceiver.perceive(allPercepts);
 	}
@@ -156,26 +157,33 @@ public class EISHandler extends Artifact implements AgentListener {
     {    	
     	String agent = getOpUserName();
     	
-		if (hasPerformedAction.contains(agent))
+		if (hasQueuedAction.contains(agent))
 		{
-			logger.info(String.format("[%s] Has performed action: %s", agent, action));
+			System.out.println(String.format("[%s] Has queued action: %s", agent, action));
 			return;
 		}		
 		else if (DynamicInfo.isDeadlinePassed())
 		{
-			logger.info(String.format("[%s] Too slow: %s", agent, action));
+			System.out.println(String.format("[%s] Queued action: %s", agent, action));
+			hasQueuedAction.add(agent);
+		}
+		else if (hasPerformedAction.contains(agent))
+		{
+			System.out.println(String.format("[%s] Has performed action: %s", agent, action));
 			return;
+		}		
+		else
+		{			
+			hasPerformedAction.add(agent);
 		}
 		
 		try 
 		{	    	
 			ei.performAction(agent, getAction(action));
-			
-			hasPerformedAction.add(agent);
 		}
 		catch (Throwable e) 
 		{
-			logger.log(Level.SEVERE, "Failure in action: " + e.getMessage(), e);
+			logger.log(Level.SEVERE, "Failure in performAction: " + e.getMessage(), e);
 		}
     }
 	

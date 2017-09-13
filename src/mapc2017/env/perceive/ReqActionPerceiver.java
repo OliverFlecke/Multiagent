@@ -62,7 +62,7 @@ public class ReqActionPerceiver extends Artifact {
 		evaluator 	= JobEvaluator	.get();
 		delegator 	= JobDelegator	.get();
 		
-		defineObsProperty(STEP, "");
+//		defineObsProperty(STEP, "");
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
@@ -154,7 +154,8 @@ public class ReqActionPerceiver extends Artifact {
 	@INTERNAL_OPERATION
 	private void update()
 	{
-		getObsProperty(STEP).updateValue(dInfo.getStep());
+		signal("step", dInfo.getStep());
+//		getObsProperty(STEP).updateValue(dInfo.getStep());
 	}
 
 }

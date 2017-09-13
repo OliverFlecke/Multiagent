@@ -63,4 +63,9 @@ class JobEvaluation {
 	public void setFreeAgents(int freeAgents) {
 		this.freeAgents = freeAgents;
 	}
+	
+	@Override
+	public String toString() {
+		return job.getId();
+	}
 }
