@@ -22,6 +22,7 @@ class JobEvaluation {
 		this.profit 	= profit;
 		this.steps		= steps;
 		this.value 		= profit / steps;
+//		this.value 		= profit;
 		this.reqAgents 	= reqAgents;
 		this.freeAgents = 0;
 		this.workshop 	= workshop;

@@ -7,16 +7,16 @@ import java.io.PrintStream;
 
 public class Logger extends PrintStream {
 	
-	private static String OUTPUT = "output/output_" + System.currentTimeMillis() + ".txt";
-	
 	private static Logger instance;
 
 	public Logger() throws FileNotFoundException {
-		super(new BufferedOutputStream(new FileOutputStream(OUTPUT)), true);
+		super(new BufferedOutputStream(new FileOutputStream(getFileName())), true);
 	}
 	
 	public static void reset() {
 		try {
+			if (instance != null) 
+				instance.close();
 			instance = new Logger();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -26,6 +26,10 @@ public class Logger extends PrintStream {
 	public static Logger get() {
 		if (instance == null) reset();
 		return instance;
+	}
+	
+	private static String getFileName() {
+		return String.format("output/output_%d.txt", System.currentTimeMillis());
 	}
 	
 

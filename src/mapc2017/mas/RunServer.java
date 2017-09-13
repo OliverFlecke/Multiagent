@@ -6,6 +6,6 @@ public class RunServer {
 
 	public static void main(String[] args)
 	{
-		Server.main(new String[] { "-conf", "conf/SampleConfig3Teams.json", "--monitor" });
+		Server.main(new String[] { "-conf", "conf/SampleConfig2Teams.json", "--monitor" });
 	}
 }

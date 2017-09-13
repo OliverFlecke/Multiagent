@@ -70,7 +70,7 @@
 //+!assistAssemble(Agent) : load(0) <- -assemble[source(Agent)].
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
-	.wait(1000); // Allow assembler to remove assemble in time.
+	.wait(100); // Allow assembler to remove assemble in time.
 	!assistAssemble(Agent).
 
 // Post-condition: In facility F.
@@ -81,6 +81,7 @@
 
 // Prevents checking enoughCharge multiple times.
 +!goToFacility(F) : facility(F).
++!goToFacility(F) : lastActionResult("failed_no_route") <- !goToRandom; !getToFacility(F).
 //+!goToFacility(F) : lastActionResult("failed_no_route") <- 
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).

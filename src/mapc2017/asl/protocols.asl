@@ -8,6 +8,6 @@
 	
 +!acceptAssembleProtocol(Agent) <-
 	.send(Agent, tell, assistantReady);	
-	!skip(assemble[source(Agent)], 1000);
+	!skip(assemble[source(Agent)], 100);
 	!assistAssemble(Agent);	
 	.send(Agent, untell, assistantReady).

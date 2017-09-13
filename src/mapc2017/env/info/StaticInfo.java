@@ -10,6 +10,7 @@ import mapc2017.data.Entity;
 import mapc2017.data.Role;
 import mapc2017.data.RouteFinder;
 import massim.scenario.city.data.Location;
+import massim.scenario.city.data.Route;
 import massim.scenario.city.util.GraphHopperManager;
 
 public class StaticInfo {
@@ -75,13 +76,13 @@ public class StaticInfo {
 	}
 	
 	public int getRouteLength(Location from, Location to) {
-		return routeFinder.findRoute(from, to, GraphHopperManager.PERMISSION_ROAD)
-				.getRouteLength();
+		Route r = routeFinder.findRoute(from, to, GraphHopperManager.PERMISSION_ROAD);
+		return r != null ? r.getRouteLength() : 10000;
 	}
 	
 	public int getRouteDuration(AgentInfo agent, Location to) {
-		return routeFinder.findRoute(agent.getLocation(), to, agent.getPermission())
-				.getRouteDuration(agent.getRole().getSpeed());
+		Route r = routeFinder.findRoute(agent.getLocation(), to, agent.getPermission());
+		return r != null ? r.getRouteDuration(agent.getRole().getSpeed()) : 10000;
 	}
 	
 	public Location getRandomLocation() {

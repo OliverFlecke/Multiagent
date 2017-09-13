@@ -86,8 +86,9 @@ public class JobDelegator extends Artifact {
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
 					{
 						execInternalOp("bidForAuction", auction);
+						continue;
 					}
-					continue;
+					else continue;
 				}
 				else if (!delegate(eval)) continue;
 			}
@@ -229,7 +230,8 @@ public class JobDelegator extends Artifact {
 	{
 		int bid = auction.getReward() - 1;
 		
-		AgentInfo agent = freeAgents.getFirst();
+		AgentInfo agent = freeAgents.removeFirst();
+		
 		signal(agentIds.get(agent), "task", auction.getId(), bid);
 	}
 	
