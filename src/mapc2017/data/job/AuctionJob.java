@@ -38,7 +38,7 @@ public class AuctionJob extends Job {
 	}
 	
 	public boolean hasWon() {
-		return this.getStart() + this.getSteps() > DynamicInfo.get().getStep();
+		return this.getStart() + this.getSteps() < DynamicInfo.get().getStep();
 	}
 
 	public void setIsHighestBidder(boolean state) 
@@ -57,6 +57,10 @@ public class AuctionJob extends Job {
 		{
 			this.bid = other.getBid();
 			this.isHighestBidder = false;
+		}
+		else if (this.getBid() != 0)
+		{
+			this.isHighestBidder = true;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package mapc2017.env.job;
 
 import mapc2017.data.item.ShoppingList;
+import mapc2017.data.job.AuctionJob;
 import mapc2017.data.job.Job;
 import mapc2017.data.job.MissionJob;
 
@@ -26,6 +27,7 @@ class JobEvaluation {
 		this.workshop 	= workshop;
 		
 		if (job instanceof MissionJob) value += 1000;
+		if (job instanceof AuctionJob && ((AuctionJob) job).hasWon()) value += 800;
 	}
 	
 	public Job getJob() {

@@ -15,7 +15,7 @@
 	.send(Agent, untell, assistant).
 	
 // Bid job
-+!doTask(Id, Bid) : .my_name(Me) & .print(Me, " bidding for ", Id) <- !doAction(bid_for_job(Id, Bid)).
++!doTask(Id, Bid) <- !bidForJob(Id, Bid).
 
 +!acquireItems([]).
 +!acquireItems([map(Shop, Items)|ShoppingList]) <- 
@@ -102,6 +102,11 @@
 +!gather : inResourceNode 						 <- !doAction(gather);    !gather.
 +!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
 +!gather  			 							 <- !goToRandom; !charge; !gather.
+
++!bidForJob(_, _) 		: lastAction("bid_for_job").
++!bidForJob(Id, Bid) 	<- 
+	!doAction(bid_for_job(Id, Bid)); 
+	!bidForJob(Id, Bid).
 
 +!skip 					<- while (true)		   { !doAction(recharge) }.
 +!skip(Literal) 		<- while (not Literal) { !doAction(recharge) }.
