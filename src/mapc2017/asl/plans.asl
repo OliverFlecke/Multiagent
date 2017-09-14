@@ -70,7 +70,7 @@
 //+!assistAssemble(Agent) : load(0) <- -assemble[source(Agent)].
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
-	.wait(100); // Allow assembler to remove assemble in time.
+	.wait(200); // Allow assembler to remove assemble in time.
 	!assistAssemble(Agent).
 
 // Post-condition: In facility F.
