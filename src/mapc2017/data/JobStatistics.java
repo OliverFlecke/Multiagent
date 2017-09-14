@@ -1,8 +1,13 @@
 package mapc2017.data;
 
-import java.util.*;
-import mapc2017.data.job.*;
-import mapc2017.env.info.DynamicInfo;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import mapc2017.data.job.AuctionJob;
+import mapc2017.data.job.Job;
+import mapc2017.data.job.MissionJob;
 
 public class JobStatistics 
 {
