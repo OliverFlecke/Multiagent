@@ -25,8 +25,9 @@ public class AgentInfo {
 	private int 		charge, 
 						load;
 	private String		name,
-						facility,
 						permission,
+						facility,
+						lastFacility,
 						lastAction,
 						lastActionResult;
 	private String[]	lastActionParams;
@@ -60,6 +61,10 @@ public class AgentInfo {
 	
 	public String getFacility() {
 		return facility;
+	}
+	
+	public String getLastFacility() {
+		return lastFacility;
 	}
 	
 	public String getLastAction() {
@@ -124,6 +129,10 @@ public class AgentInfo {
 	
 	public void setFacility(String facility) {
 		this.facility = facility;
+	}
+	
+	public void setLastFacility() {
+		this.lastFacility = this.facility;
 	}
 	
 	public void setLastAction(String lastAction) {

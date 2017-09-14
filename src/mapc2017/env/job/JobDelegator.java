@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import mapc2017.data.facility.Facility;
+import mapc2017.data.facility.Shop;
 import mapc2017.data.item.ItemList;
 import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.AuctionJob;
@@ -54,7 +56,7 @@ public class JobDelegator extends Artifact {
 	
 	public void select(PriorityQueue<JobEvaluation> evals)
 	{
-		if (evals.isEmpty()) return;
+		if (evals.isEmpty() || freeAgents.isEmpty()) return;
 		
 		Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));
 		removeDuplicatesFromSortedList(freeAgents);
@@ -168,6 +170,11 @@ public class JobDelegator extends Artifact {
 		
 		retrievers.keySet().stream().forEach(freeAgents::remove);
 		retrievers.keySet().stream().forEach(agent -> agentToTask.put(agent, job.getId()));
+		retrievers.values().stream().forEach(shoppingList -> shoppingList.entrySet().forEach(entry -> {
+			Shop shop = (Shop) fInfo.getFacility(entry.getKey());			
+			for (Entry<String, Integer> item : entry.getValue().entrySet())
+				shop.addReserved(item.getKey(), item.getValue());
+		}));
 		
 		taskToAgents.put(job.getId(), retrievers.keySet());
 		
@@ -228,6 +235,8 @@ public class JobDelegator extends Artifact {
 		int bid = auction.getReward() - 1;
 		
 		AgentInfo agent = freeAgents.removeFirst();
+		
+		agentToTask.put(agent, "bid");
 		
 		signal(agentIds.get(agent), "task", auction.getId(), bid);
 	}

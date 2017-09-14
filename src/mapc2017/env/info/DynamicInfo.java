@@ -63,6 +63,10 @@ public class DynamicInfo {
 		this.jobsCompleted++;
 	}
 	
+	public void resetJobsCompleted() {
+		this.jobsCompleted = 0;
+	}
+	
 	/////////////
 	// METHODS //
 	/////////////

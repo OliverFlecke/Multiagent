@@ -9,6 +9,7 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
 import mapc2017.data.facility.ChargingStation;
+import mapc2017.data.facility.Shop;
 import mapc2017.data.job.AuctionJob;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
@@ -47,14 +48,18 @@ public class AgentPerceiver extends Artifact {
 	private static Map<String, AgentPerceiver> instances = new HashMap<>();
 	
 	// Holds agent related info
-	private AgentInfo aInfo;
+	private AgentInfo 		aInfo;
+	private FacilityInfo 	fInfo;
+	private JobInfo			jInfo;
 
 	public void init()
 	{
 		instances.put(getId().getName(), this);
 		
-		aInfo = AgentInfo.get(getId().getName());
-
+		aInfo = AgentInfo	.get(getId().getName());
+		fInfo = FacilityInfo.get();
+		jInfo = JobInfo		.get();
+		
 		for (String property : PROPERTIES)
 		{
 			defineObsProperty(property, "");
@@ -96,40 +101,40 @@ public class AgentPerceiver extends Artifact {
 	private void preprocess()
 	{
 		aInfo.clearInventory();
+		aInfo.setLastFacility();
 	}
 
 	private void postprocess()
 	{				
-		String lastAction 			= aInfo.getLastAction();
-		String lastActionResult 	= aInfo.getLastActionResult();
+		String	 lastAction 		= aInfo.getLastAction();
+		String 	 lastActionResult 	= aInfo.getLastActionResult();
 		String[] lastActionParams 	= aInfo.getLastActionParams();
 		
-		if (lastAction		.equals("deliver_job") &&
-			lastActionResult.equals("successful")) 
+			 if (lastAction.equals("deliver_job") 	&&	lastActionResult.equals("successful")) 
 		{
 			DynamicInfo.get().incJobsCompleted();
 		}
-
-		if (lastAction		.equals("charge") &&
-			lastActionResult.equals("failed_facility_state")) 
+		else if (lastAction.equals("charge") 		&& lastActionResult.equals("failed_facility_state")) 
 		{
-			((ChargingStation) FacilityInfo.get().getFacility(aInfo.getFacility())).blackout();
+			((ChargingStation) fInfo.getFacility(aInfo.getFacility())).blackout();
+		}		
+		else if (lastAction.equals("buy") 			&& lastActionResult.equals("successful"))
+		{
+			((Shop) fInfo.getFacility(aInfo.getLastFacility())).remReserved(lastActionParams[0], Integer.parseInt(lastActionParams[1]));
+		}		
+		else if (lastAction.equals("bid_for_job") 	&& lastActionResult.equals("successful"))
+		{
+			String 	id 	= lastActionParams[0]; 
+			int 	bid = Integer.parseInt(lastActionParams[1]);
+			
+			AuctionJob auction = (AuctionJob) jInfo.getJob(id);
+			auction.setIsHighestBidder(true);
+			auction.setBid(bid);
 		}
 		
 		if (lastActionResult.startsWith("failed"))
 		{
 			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
-		}
-		
-		if (lastAction		.equals("bid_for_job") &&
-			lastActionResult.equals("successful"))
-		{
-			String id 	= lastActionParams[0]; 
-			int bid 	= Integer.parseInt(lastActionParams[1]);
-			
-			AuctionJob auction = (AuctionJob) JobInfo.get().getJob(id);
-			auction.setIsHighestBidder(true);
-			auction.setBid(bid);
 		}
 		
 		execInternalOp("update");

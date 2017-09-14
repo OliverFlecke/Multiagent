@@ -89,9 +89,7 @@ public class FacilityInfo {
 	}
 	
 	public void setShop(Shop f) {
-		Shop shop = shops.get	(f.getName	());
-		shop.setAmount			(f.getAmount());
-		shop.setPrice			(f.getPrice	());
+		shops.get(f.getName()).update(f);
 	}
 	
 	public void clearFacilities() {

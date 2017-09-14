@@ -31,16 +31,15 @@ public class ShoppingList extends HashMap<String, ItemList> {
 	 */
 	public static ShoppingList getShoppingList(Map<String, Integer> items)
 	{	
-		ShoppingList shoppingList = new ShoppingList();
-		
-		ItemInfo iInfo = ItemInfo.get();
+		ShoppingList shoppingList 	= new ShoppingList();
+		ItemInfo 	 iInfo 			= ItemInfo.get();
 		
 		for (Entry<String, Integer> entry : iInfo.getBaseItems(items).entrySet())
-		{
-			Collection<Shop> shops = iInfo.getItemLocations(entry.getKey());
-			
+		{			
 			String 	item 	= entry.getKey();
 			int 	amount 	= entry.getValue();
+			
+			Collection<Shop> shops = iInfo.getItemLocations(item);
 			
 			Optional<Shop> shop = shops.stream()
 					.filter(x -> x.getAmount(item) > amount).findAny();

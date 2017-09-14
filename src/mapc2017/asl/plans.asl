@@ -33,9 +33,9 @@
 // Post-condition: Items in inventory.
 +!buyItems(Items) 		 : hasItems(Items).
 +!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
-+!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) 
-	& getAlternativeShop(Item, Amount, Shop) <- 
-	!retrieveItems(Shop, [map(Item, Amount)|Items]).
+//+!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) 
+//	& getAlternativeShop(Item, Amount, Shop) <- 
+//	!retrieveItems(Shop, [map(Item, Amount)|Items]).
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) <- 
 	!doAction(recharge); 
 	!buyItems([map(Item, Amount)|Items]).
@@ -57,6 +57,7 @@
 // Pre-condition: In workshop and base items available.
 // Post-condition: Amount of Item with Name in inventory.
 +!assembleItem(Item, _) : hasItems([Item]).
++!assembleItem(   _, _) : lastActionResult("failed_location") <- .fail.
 +!assembleItem(map(Name, Amount), ReqItems) : hasItems(ReqItems) <- 
 	!doAction(assemble(Name));
 	!assembleItem(map(Name, Amount), ReqItems).
@@ -67,7 +68,8 @@
 
 // Post-condition: Empty inventory or -assemble.
 +!assistAssemble(Agent) :         not assemble[source(Agent)].
-//+!assistAssemble(Agent) : load(0) <- -assemble[source(Agent)].
++!assistAssemble(Agent) : load(0) <- -assemble[source(Agent)].
++!assistAssemble(    _) : lastActionResult("failed_location") <- .fail.
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	.wait(200); // Allow assembler to remove assemble in time.
@@ -81,18 +83,19 @@
 
 // Prevents checking enoughCharge multiple times.
 +!goToFacility(F) : facility(F).
-+!goToFacility(F) : lastActionResult("failed_no_route") <- !goToRandom; !getToFacility(F).
-//+!goToFacility(F) : lastActionResult("failed_no_route") <- 
++!goToFacility(_) : lastActionResult("failed_no_route") <- fail.
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).
 
 // Does not check charge, use with care.
-+!goToLocation(F) : getFacilityLocation(F, Lat, Lon) <- !goToLocation(Lat, Lon).
++!goToLocation(F) 		 : getFacilityLocation(F, Lat, Lon) <- !goToLocation(Lat, Lon).
 +!goToLocation(Lat, Lon) : atLocation(Lat, Lon).
-+!goToLocation(Lat, Lon)							 <- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
++!goToLocation(  _,   _) : lastActionResult("failed_no_route")  <- fail.
++!goToLocation(Lat, Lon)							 			<- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
 
 // Post-condition: At random location.
 +!goToRandom : getRandomLocation(Lat, Lon) <- !goToLocation(Lat, Lon).
+-!goToRandom.
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
@@ -104,8 +107,8 @@
 +!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
 +!gather  			 							 <- !goToRandom; !charge; !gather.
 
-+!bidForJob(_, _) 		: lastAction("bid_for_job").
-+!bidForJob(Id, Bid) 	<- 
++!bidForJob( _,   _) : lastAction("bid_for_job").
++!bidForJob(Id, Bid) <- 
 	!doAction(bid_for_job(Id, Bid)); 
 	!bidForJob(Id, Bid).
 

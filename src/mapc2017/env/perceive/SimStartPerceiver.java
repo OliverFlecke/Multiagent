@@ -11,6 +11,7 @@ import mapc2017.data.item.Item;
 import mapc2017.env.EISHandler;
 import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
+import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
@@ -99,6 +100,7 @@ public class SimStartPerceiver extends Artifact {
 		Logger.reset();
 		fInfo.clearFacilities();
 		iInfo.clearItems();
+		DynamicInfo.get().resetJobsCompleted();
 	}
 
 	private void postprocess()
