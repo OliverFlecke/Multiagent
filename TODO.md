@@ -3,13 +3,14 @@
 * Job contraint
 * Local item amounts
 * Correctly estimate steps
+* Inventory of all agents at the end
 
 ## Stats
-* Jobs started
-* Jobs completed
-* Auctions bid on
-* Auctions won
-* Auctions completed
-* Missions completed
-* Missions failed
-* Total jobs by type
+[x] Jobs started
+[x] Jobs completed
+[x] Auctions bid on
+[x] Auctions won
+[x] Auctions completed
+[x] Missions completed
+[x] Missions failed
+[x] Total jobs by type

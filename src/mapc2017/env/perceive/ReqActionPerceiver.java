@@ -5,10 +5,10 @@ import java.util.Collection;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
+import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.facility.Shop;
 import mapc2017.data.job.Job;
-import mapc2017.env.Logger;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
@@ -17,6 +17,8 @@ import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobDelegator;
 import mapc2017.env.job.JobEvaluator;
 import mapc2017.env.parse.IILParser;
+import mapc2017.logging.Logger;
+import mapc2017.logging.StatsLogger;
 
 public class ReqActionPerceiver extends Artifact {
 
@@ -123,10 +125,18 @@ public class ReqActionPerceiver extends Artifact {
 	private void postprocess()
 	{
 		if (dInfo.getStep() % 25 == 0) 
+		{
 			Logger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+
+			StatsLogger.printStats();
+		}
 		
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
+		{
 			Logger.get().println(dInfo.getJobsCompleted());
+			
+			StatsLogger.printStats();
+		}
 		
 		for (Shop shop : fInfo.getShops())
 			for (String item : shop.getItems())
@@ -138,6 +148,8 @@ public class ReqActionPerceiver extends Artifact {
 		for (Job job : jInfo.getNewJobs())
 		{
 			evaluator.evaluate(job);
+			
+			JobStatistics.addJob(job);
 		}
 		
 		for (Job job : jInfo.getRemovedJobs()) 

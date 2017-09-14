@@ -3,6 +3,7 @@ package mapc2017.data.job;
 import java.util.Map;
 
 import mapc2017.data.item.ItemList;
+import mapc2017.env.info.DynamicInfo;
 
 public class Job {
 	
@@ -45,6 +46,11 @@ public class Job {
 
 	public int getEnd() {
 		return end;
+	}
+
+	public boolean deadlinePassed()
+	{
+		return DynamicInfo.get().getStep() > this.getEnd();
 	}
 
 	public ItemList getItems() {
