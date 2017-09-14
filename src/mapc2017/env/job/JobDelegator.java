@@ -14,6 +14,7 @@ import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
+import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.Facility;
 import mapc2017.data.item.ItemList;
 import mapc2017.data.item.ShoppingList;
@@ -81,6 +82,7 @@ public class JobDelegator extends Artifact {
 					
 					if (auction.hasWon())
 					{
+						JobStatistics.auctionWon(auction);
 						if (!delegate(eval)) return;
 					}
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
@@ -170,6 +172,8 @@ public class JobDelegator extends Artifact {
 		
 		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
+		JobStatistics.startJob(job);
+		
 		return true;
 	}
 	
@@ -233,6 +237,8 @@ public class JobDelegator extends Artifact {
 		AgentInfo agent = freeAgents.removeFirst();
 		
 		signal(agentIds.get(agent), "task", auction.getId(), bid);
+		
+		JobStatistics.bidOnAuction(auction);
 	}
 	
 	@INTERNAL_OPERATION

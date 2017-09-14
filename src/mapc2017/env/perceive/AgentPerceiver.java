@@ -8,14 +8,15 @@ import java.util.Map;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import eis.iilang.Percept;
+import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.job.AuctionJob;
-import mapc2017.env.Logger;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.JobInfo;
 import mapc2017.env.parse.IILParser;
+import mapc2017.logging.Logger;
 
 public class AgentPerceiver extends Artifact {
 	
@@ -108,6 +109,8 @@ public class AgentPerceiver extends Artifact {
 			lastActionResult.equals("successful")) 
 		{
 			DynamicInfo.get().incJobsCompleted();
+			
+			JobStatistics.completeJob(JobInfo.get().getJob(lastActionParams[0]));
 		}
 
 		if (lastAction		.equals("charge") &&
