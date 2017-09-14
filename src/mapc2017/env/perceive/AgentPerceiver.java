@@ -116,7 +116,7 @@ public class AgentPerceiver extends Artifact {
 			((ChargingStation) FacilityInfo.get().getFacility(aInfo.getFacility())).blackout();
 		}
 		
-		if (!lastAction.isEmpty() && !lastActionResult.equals("successful") && !lastAction.equals("gather"))
+		if (lastActionResult.startsWith("failed"))
 		{
 			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
 		}
@@ -130,8 +130,6 @@ public class AgentPerceiver extends Artifact {
 			AuctionJob auction = (AuctionJob) JobInfo.get().getJob(id);
 			auction.setIsHighestBidder(true);
 			auction.setBid(bid);
-			
-			System.out.println("We have the highest bid on " + lastActionParams[0]);
 		}
 		
 		execInternalOp("update");

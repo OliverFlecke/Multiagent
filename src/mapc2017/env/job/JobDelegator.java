@@ -57,6 +57,9 @@ public class JobDelegator extends Artifact {
 		if (evals.isEmpty()) return;
 		
 		Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));
+		removeDuplicatesFromSortedList(freeAgents);
+		
+		System.out.println(freeAgents);
 		
 		int maxSteps 	= sInfo.getSteps();
 		int currentStep = dInfo.getStep();
@@ -180,13 +183,7 @@ public class JobDelegator extends Artifact {
 		return agents.getLast();
 	}
 	
-//	private AgentInfo getAssembler(List<AgentInfo> agents, int volume) {
-//		return agents.stream().max(Comparator.comparingDouble(a -> {
-//			return Math.min(volume, a.getCapacity()) - volume;
-//		})).get();
-//	}
-	
-	private AgentInfo getRetriever(List<AgentInfo> agents, String shop, Map<String, Integer> items) {
+	private AgentInfo getRetriever(LinkedList<AgentInfo> agents, String shop, Map<String, Integer> items) {
 		Facility facility = fInfo.getFacility(shop);
 		return agents.stream().min(Comparator.comparingInt(agent -> {
 			int steps = sInfo.getRouteDuration(agent, facility.getLocation());
@@ -251,5 +248,23 @@ public class JobDelegator extends Artifact {
 	
 	public void releaseAgents(Job job) {
 		execInternalOp("release", job.getId());
+	}
+	
+	private static <E> void removeDuplicatesFromSortedList(List<E> list) 
+	{
+		Iterator<E> it = list.iterator();
+		
+		if (!it.hasNext()) return;
+		
+		E prev = it.next();
+		
+		while (it.hasNext())
+		{
+			E next = it.next();
+			
+			if (next.equals(prev)) it.remove();
+			
+			prev = next;
+		}
 	}
 }
