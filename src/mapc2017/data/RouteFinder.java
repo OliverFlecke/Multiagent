@@ -19,7 +19,7 @@ public class RouteFinder extends CityMap {
 			double minLat, double maxLat, double minLon, double maxLon,
 			Location center, int proximity) 
 	{
-		super(mapName, cellSize, minLat, maxLat, minLon, maxLon, center);
+		super(mapName, (int) cellSize, minLat, maxLat, minLon, maxLon, center);
 		
 		Location.setProximity(proximity);
 		
