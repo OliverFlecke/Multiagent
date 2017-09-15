@@ -17,23 +17,34 @@ import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.JobInfo;
 import mapc2017.env.parse.IILParser;
-import mapc2017.logging.Logger;
+import mapc2017.logging.ErrorLogger;
 
 public class AgentPerceiver extends Artifact {
 	
 	// AGENT
-	private static final String ACTION_ID			= "actionID";
-	private static final String CHARGE 				= "charge";
-	private static final String FACILITY			= "facility";
-	private static final String HAS_ITEM			= "hasItem";
-	private static final String LAST_ACTION 		= "lastAction";
-	private static final String LAST_ACTION_PARAMS 	= "lastActionParams";
-	private static final String LAST_ACTION_RESULT 	= "lastActionResult";
-	private static final String LAT 				= "lat";
-	private static final String LON 				= "lon";
-	private static final String LOAD				= "load";
-	private static final String ROUTE 				= "route";
-	private static final String ROUTE_LENGTH 		= "routeLength";	
+	private static final String ACTION_ID				= "actionID";
+	private static final String CHARGE 					= "charge";
+	private static final String FACILITY				= "facility";
+	private static final String HAS_ITEM				= "hasItem";
+	private static final String LAST_ACTION 			= "lastAction";
+	private static final String LAST_ACTION_PARAMS 		= "lastActionParams";
+	private static final String LAST_ACTION_RESULT 		= "lastActionResult";
+	private static final String LAT 					= "lat";
+	private static final String LON 					= "lon";
+	private static final String LOAD					= "load";
+	private static final String ROUTE 					= "route";
+	private static final String ROUTE_LENGTH 			= "routeLength";
+	
+	// ACTION
+	private static final String BID_FOR_JOB				= "bid_for_job";
+	private static final String BUY						= "buy";
+//	private static final String CHARGE 					= "charge";
+	private static final String DELIVER_JOB				= "deliver_job";
+	
+	// ACTION RESULT
+	private static final String SUCCESSFUL				= "sucecssful";
+	private static final String FAILED					= "failed";
+	private static final String FAILED_FACILITY_STATE	= "failed_facility_state";
 	
 	// The artifact's observable properties
 	private static final String[] PROPERTIES = new String[] {
@@ -45,11 +56,10 @@ public class AgentPerceiver extends Artifact {
 			LAST_ACTION_PARAMS
 	};
 	
-	// Adopts the singleton pattern
 	private static Map<String, AgentPerceiver> instances = new HashMap<>();
 	
-	// Holds agent related info
 	private AgentInfo 		aInfo;
+	private DynamicInfo		dInfo;
 	private FacilityInfo 	fInfo;
 	private JobInfo			jInfo;
 
@@ -58,6 +68,7 @@ public class AgentPerceiver extends Artifact {
 		instances.put(getId().getName(), this);
 		
 		aInfo = AgentInfo	.get(getId().getName());
+		dInfo = DynamicInfo	.get();
 		fInfo = FacilityInfo.get();
 		jInfo = JobInfo		.get();
 		
@@ -111,21 +122,19 @@ public class AgentPerceiver extends Artifact {
 		String 	 lastActionResult 	= aInfo.getLastActionResult();
 		String[] lastActionParams 	= aInfo.getLastActionParams();
 		
-			 if (lastAction.equals("deliver_job") 	&&	lastActionResult.equals("successful")) 
+			 if (lastAction.equals(DELIVER_JOB) &&	lastActionResult.equals(SUCCESSFUL)) 
 		{
-			DynamicInfo.get().incJobsCompleted();
-			
-			JobStatistics.completeJob(JobInfo.get().getJob(lastActionParams[0]));
+			JobStatistics.completeJob(jInfo.getJob(lastActionParams[0]), dInfo.getStep() - 1);
 		}
-		else if (lastAction.equals("charge") 		&& lastActionResult.equals("failed_facility_state")) 
+		else if (lastAction.equals(CHARGE) 		&& lastActionResult.equals(FAILED_FACILITY_STATE)) 
 		{
 			((ChargingStation) fInfo.getFacility(aInfo.getFacility())).blackout();
 		}		
-		else if (lastAction.equals("buy") 			&& lastActionResult.equals("successful"))
+		else if (lastAction.equals(BUY) 		&& lastActionResult.equals(SUCCESSFUL))
 		{
 			((Shop) fInfo.getFacility(aInfo.getLastFacility())).remReserved(lastActionParams[0], Integer.parseInt(lastActionParams[1]));
 		}		
-		else if (lastAction.equals("bid_for_job") 	&& lastActionResult.equals("successful"))
+		else if (lastAction.equals(BID_FOR_JOB) && lastActionResult.equals(SUCCESSFUL))
 		{
 			String 	id 	= lastActionParams[0]; 
 			int 	bid = Integer.parseInt(lastActionParams[1]);
@@ -135,9 +144,11 @@ public class AgentPerceiver extends Artifact {
 			auction.setBid(bid);
 		}
 		
-		if (lastActionResult.startsWith("failed"))
+		if (lastActionResult.startsWith(FAILED))
 		{
-			Logger.get().println(String.format("%s\t%12s, %12s(%s)", aInfo.getName(), lastActionResult, lastAction, Arrays.toString(aInfo.getLastActionParams())));
+			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
+					aInfo.getName(), lastActionResult, lastAction, 
+					Arrays.toString(aInfo.getLastActionParams())));
 		}
 		
 		execInternalOp("update");

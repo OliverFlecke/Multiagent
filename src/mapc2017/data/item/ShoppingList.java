@@ -1,7 +1,10 @@
 package mapc2017.data.item;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,43 +42,60 @@ public class ShoppingList extends HashMap<String, ItemList> {
 			String 	item 	= entry.getKey();
 			int 	amount 	= entry.getValue();
 			
-			Collection<Shop> shops = iInfo.getItemLocations(item);
+			LinkedList<Shop> shops = new LinkedList<>(iInfo.getItemLocations(item));
+			Collections.sort(shops, Comparator.comparingInt(s -> s.getAvailableAmount(item)));
 			
-			Optional<Shop> shop = shops.stream()
-					.filter(x -> x.getAmount(item) > amount).findAny();
-			
-			if (shop.isPresent())
+			while (amount > 0)
 			{
-				shoppingList.put(shop.get().getName(), item, amount);
-			}
-			else 
-			{
-				int amountRemaining = amount;
-				do
+				if (shops.size() == 1) 
 				{
-					// If there is only one shop remaining, it should buy the rest
-					if (shops.size() == 1)
-					{
-						shoppingList.put(shops.stream().findAny().get().getName(), item, amountRemaining);
-						break;
-					}
-					
-					// Find the shop with the largest number of the item
-					shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
-					
-					if (shop.isPresent())
-					{
-						shops.remove(shop.get());
-						
-						int amountToBuy = Math.min(shop.get().getAmount(item), amountRemaining);
-						
-						amountRemaining -= amountToBuy;
-						
-						shoppingList.put(shop.get().getName(), item, amountToBuy);
-					}
+					shoppingList.put(shops.getFirst().getName(), item, amount);
+					break;
 				}
-				while (amountRemaining > 0);
+				Shop shop = getShop(shops, item, amount);
+				shops.remove(shop);
+				int buyAmount = Math.min(amount, shop.getAvailableAmount(item));
+				shoppingList.put(shop.getName(), item, buyAmount);
+				amount -= buyAmount;
 			}
+			
+//			Collection<Shop> shops = iInfo.getItemLocations(item);
+//			
+//			Optional<Shop> shop = shops.stream()
+//					.filter(x -> x.getAmount(item) > amount).findAny();
+//			
+//			if (shop.isPresent())
+//			{
+//				shoppingList.put(shop.get().getName(), item, amount);
+//			}
+//			else 
+//			{
+//				int amountRemaining = amount;
+//				do
+//				{
+//					// If there is only one shop remaining, it should buy the rest
+//					if (shops.size() == 1)
+//					{
+//						shoppingList.put(shops.stream().findAny().get().getName(), item, amountRemaining);
+//						break;
+//					}
+//					
+//					// Find the shop with the largest number of the item
+//					shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
+//					
+//					if (shop.isPresent())
+//					{
+//						shops.remove(shop.get());
+//						
+//						int amountToBuy = Math.min(shop.get().getAmount(item), amountRemaining);
+//						
+//						amountRemaining -= amountToBuy;
+//						
+//						shoppingList.put(shop.get().getName(), item, amountToBuy);
+//					}
+//				}
+//				while (amountRemaining > 0);
+//			}
 		}		
 		
 		for (String tool : iInfo.getBaseTools(items))
@@ -92,6 +112,13 @@ public class ShoppingList extends HashMap<String, ItemList> {
 		}
 		
 		return shoppingList;
+	}
+	
+	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) {
+		for (Shop shop : shops)
+			if (amount < shop.getAvailableAmount(item))
+				return shop;		
+		return shops.getLast();
 	}
 
 }

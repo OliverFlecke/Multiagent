@@ -108,7 +108,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 	
 	private Role getReqRole(int volume) {
 		for (Role role : roles)
-			if (volume < role.getLoad())
+			if (volume <= role.getLoad())
 				return role;		
 		return roles.getLast();
 	}

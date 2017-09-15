@@ -17,7 +17,7 @@ import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobDelegator;
 import mapc2017.env.job.JobEvaluator;
 import mapc2017.env.parse.IILParser;
-import mapc2017.logging.Logger;
+import mapc2017.logging.ErrorLogger;
 import mapc2017.logging.StatsLogger;
 
 public class ReqActionPerceiver extends Artifact {
@@ -63,8 +63,6 @@ public class ReqActionPerceiver extends Artifact {
 		sInfo		= StaticInfo	.get();
 		evaluator 	= JobEvaluator	.get();
 		delegator 	= JobDelegator	.get();
-		
-//		defineObsProperty(STEP, "");
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
@@ -126,16 +124,18 @@ public class ReqActionPerceiver extends Artifact {
 	{
 		if (dInfo.getStep() % 25 == 0) 
 		{
-			Logger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
 
 			StatsLogger.printStats();
 		}
 		
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
-		{
-			Logger.get().println(dInfo.getJobsCompleted());
-			
+		{			
 			StatsLogger.printStats();
+			StatsLogger.printJobStepStats();
+			StatsLogger.printAgentInventoryStats();			
+			StatsLogger.reset();
+			ErrorLogger.reset();
 		}
 		
 		for (Shop shop : fInfo.getShops())
@@ -168,7 +168,6 @@ public class ReqActionPerceiver extends Artifact {
 	private void update()
 	{
 		signal("step", dInfo.getStep());
-//		getObsProperty(STEP).updateValue(dInfo.getStep());
 	}
 
 }

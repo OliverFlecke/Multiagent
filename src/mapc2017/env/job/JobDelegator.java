@@ -71,7 +71,7 @@ public class JobDelegator extends Artifact {
 		
 		while (it.hasNext())
 		{
-			JobEvaluation 	eval = it.next();	
+			JobEvaluation 	eval = it.next();
 			Job				job	 = eval.getJob();
 			
 			int stepComplete = eval.getSteps() + currentStep;
@@ -99,6 +99,7 @@ public class JobDelegator extends Artifact {
 				}
 				else if (!delegate(eval)) continue;
 			}
+			JobStatistics.addJobEvaluation(eval);
 			it.remove();				
 		}
 	}
@@ -108,7 +109,7 @@ public class JobDelegator extends Artifact {
 		Job job = eval.getJob();
 		
 		// Make a copy of freeAgents to prevent removing agents before assigning them
-		LinkedList<AgentInfo> 			agents 		= new LinkedList<>(freeAgents);		
+		LinkedList<AgentInfo> 			agents 		= new LinkedList<>(freeAgents);	// ArrayOutOfBounds addAll()
 		Map<AgentInfo, ItemList> 		assemblers 	= new HashMap<>();
 		Map<AgentInfo, ShoppingList> 	retrievers 	= new HashMap<>();
 		// Maps retrievers to the name of the assembler
@@ -182,7 +183,7 @@ public class JobDelegator extends Artifact {
 		
 		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
-		JobStatistics.startJob(job);
+		JobStatistics.startJob(job, dInfo.getStep());
 		
 		return true;
 	}

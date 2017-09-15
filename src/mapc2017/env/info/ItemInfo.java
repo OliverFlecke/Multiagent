@@ -33,12 +33,16 @@ public class ItemInfo {
 		else						 return items.get(name);
 	}
 	
+	public Collection<Item> getItems() {
+		return items.values();
+	}
+	
 	public Tool getTool(String name) {
 		return tools.get(name);
 	}
 	
-	public Collection<Item> getItems() {
-		return items.values();
+	public Collection<Tool> getTools() {
+		return tools.values();
 	}
 	
 	public Map<String, Map<String, Shop>> getAllItemLocations() {

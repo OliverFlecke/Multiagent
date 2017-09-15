@@ -31,6 +31,10 @@ public class Job {
 	public String getId() {
 		return id;
 	}
+	
+	public int getNumber() {
+		return Integer.parseInt(id.replaceAll("job", ""));
+	}
 
 	public String getStorage() {
 		return storage;
@@ -48,7 +52,7 @@ public class Job {
 		return end;
 	}
 
-	public boolean deadlinePassed()
+	public boolean isDeadlinePassed()
 	{
 		return DynamicInfo.get().getStep() > this.getEnd();
 	}

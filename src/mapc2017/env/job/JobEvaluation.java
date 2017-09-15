@@ -5,14 +5,13 @@ import mapc2017.data.job.AuctionJob;
 import mapc2017.data.job.Job;
 import mapc2017.data.job.MissionJob;
 
-class JobEvaluation {
+public class JobEvaluation {
 	
 	private Job 			job;
 	private int 			profit, 
 							steps, 
 							value, 
-							reqAgents,
-							freeAgents;
+							reqAgents;
 	private String 			workshop;
 	private ShoppingList 	shoppingList;
 	
@@ -22,9 +21,7 @@ class JobEvaluation {
 		this.profit 	= profit;
 		this.steps		= steps;
 		this.value 		= profit / steps;
-//		this.value 		= profit;
 		this.reqAgents 	= reqAgents;
-		this.freeAgents = 0;
 		this.workshop 	= workshop;
 		
 		if (job instanceof MissionJob) value += 1000;
@@ -51,20 +48,12 @@ class JobEvaluation {
 		return reqAgents;
 	}
 	
-	public int getFreeAgents() {
-		return freeAgents;
-	}
-	
 	public String getWorkshop() {
 		return workshop;
 	}
 	
 	public ShoppingList getShoppingList() {
 		return shoppingList;
-	}
-	
-	public void setFreeAgents(int freeAgents) {
-		this.freeAgents = freeAgents;
 	}
 	
 	@Override

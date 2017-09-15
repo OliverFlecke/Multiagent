@@ -11,6 +11,10 @@ public class Tool extends Item {
 	public Tool(String name, int volume) {
 		super(name, volume, Collections.emptySet(), Collections.emptyMap());
 	}
+
+	public int getNumber() {
+		return Integer.parseInt(getName().replace("tool", ""));
+	}
 	
 	public void addRole(String role) {
 		roles.add(role);

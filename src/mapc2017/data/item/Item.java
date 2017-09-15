@@ -33,6 +33,10 @@ public class Item {
 		return name;
 	}
 	
+	public int getNumber() {
+		return Integer.parseInt(getName().replace("item", ""));
+	}
+	
 	public int getVolume() {
 		return volume;
 	}
