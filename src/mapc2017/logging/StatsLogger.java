@@ -138,9 +138,12 @@ public class StatsLogger extends Logger {
 	{
 		Logger logger = StatsLogger.get();
 		
+		List<AgentInfo> sortedAgents = new ArrayList<>(AgentInfo.get());
+		Collections.sort(sortedAgents, Comparator.comparingInt(AgentInfo::getNumber));
+		
 		logger.println(String.format("%-8s%6s%6s %s", "Agent", "Load", "Max", "Inventory"));
 		
-		for (AgentInfo agent : AgentInfo.get())
+		for (AgentInfo agent : sortedAgents)
 		{
 			logger.println(String.format("%-8s%6d%6d %s", agent, agent.getLoad(), agent.getRole().getLoad(), agent.getInventory()));
 		}

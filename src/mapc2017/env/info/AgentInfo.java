@@ -46,6 +46,10 @@ public class AgentInfo {
 	public String getName() {
 		return name;
 	}
+	
+	public int getNumber() {
+		return Integer.parseInt(getName().replace("agent", ""));
+	}
 
 	public Location getLocation() {
 		return new Location(lon, lat);

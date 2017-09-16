@@ -3,9 +3,9 @@ package mapc2017.env.job;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -59,10 +59,16 @@ public class JobDelegator extends Artifact {
 	{
 		if (evals.isEmpty() || freeAgents.isEmpty()) return;
 		
-		Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));
-		removeDuplicatesFromSortedList(freeAgents);
+		synchronized (freeAgents) 
+		{
+			// Removes duplicates
+			Set<AgentInfo> 	distinctAgents 	= new HashSet<>(freeAgents);			
+							freeAgents 		= new LinkedList<>(distinctAgents);
+			// Sort agents by capacity
+			Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));			
+		}
 		
-		System.out.println(freeAgents);
+		System.out.println("[JobDelegator] Free: " + freeAgents);
 		
 		int maxSteps 	= sInfo.getSteps();
 		int currentStep = dInfo.getStep();
@@ -267,23 +273,5 @@ public class JobDelegator extends Artifact {
 	
 	public void releaseAgents(Job job) {
 		execInternalOp("release", job.getId());
-	}
-	
-	private static <E> void removeDuplicatesFromSortedList(List<E> list) 
-	{
-		Iterator<E> it = list.iterator();
-		
-		if (!it.hasNext()) return;
-		
-		E prev = it.next();
-		
-		while (it.hasNext())
-		{
-			E next = it.next();
-			
-			if (next.equals(prev)) it.remove();
-			
-			prev = next;
-		}
 	}
 }
