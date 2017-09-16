@@ -109,11 +109,14 @@ public class JobDelegator extends Artifact {
 		Job job = eval.getJob();
 		
 		// Make a copy of freeAgents to prevent removing agents before assigning them
-		LinkedList<AgentInfo> 			agents 		= new LinkedList<>(freeAgents);	// ArrayOutOfBounds addAll()
+		LinkedList<AgentInfo> 			agents 		= new LinkedList<>();
+		// To prevent ArrayOutOfBounds addAll
+		synchronized (freeAgents) {	agents.addAll(freeAgents); }
+		// Maps agents to their workload
 		Map<AgentInfo, ItemList> 		assemblers 	= new HashMap<>();
 		Map<AgentInfo, ShoppingList> 	retrievers 	= new HashMap<>();
 		// Maps retrievers to the name of the assembler
-		Map<AgentInfo, String>			assistants 	= new HashMap<>();
+		Map<AgentInfo, String>			assistants 	= new HashMap<>();		
 		
 		ItemList itemsToAssemble = job.getItems();		
 		

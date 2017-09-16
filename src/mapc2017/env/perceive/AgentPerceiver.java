@@ -42,7 +42,7 @@ public class AgentPerceiver extends Artifact {
 	private static final String DELIVER_JOB				= "deliver_job";
 	
 	// ACTION RESULT
-	private static final String SUCCESSFUL				= "sucecssful";
+	private static final String SUCCESSFUL				= "successful";
 	private static final String FAILED					= "failed";
 	private static final String FAILED_FACILITY_STATE	= "failed_facility_state";
 	

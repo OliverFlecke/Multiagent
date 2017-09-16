@@ -44,58 +44,19 @@ public class ShoppingList extends HashMap<String, ItemList> {
 			
 			LinkedList<Shop> shops = new LinkedList<>(iInfo.getItemLocations(item));
 			Collections.sort(shops, Comparator.comparingInt(s -> s.getAvailableAmount(item)));
-			
+
 			while (amount > 0)
 			{
-				if (shops.size() == 1) 
-				{
-					shoppingList.put(shops.getFirst().getName(), item, amount);
-					break;
-				}
 				Shop shop = getShop(shops, item, amount);
+				
 				shops.remove(shop);
-				int buyAmount = Math.min(amount, shop.getAvailableAmount(item));
+				
+				int buyAmount = shops.isEmpty() ? amount : Math.min(amount, shop.getAmount(item));
+				
 				shoppingList.put(shop.getName(), item, buyAmount);
+				
 				amount -= buyAmount;
 			}
-			
-//			Collection<Shop> shops = iInfo.getItemLocations(item);
-//			
-//			Optional<Shop> shop = shops.stream()
-//					.filter(x -> x.getAmount(item) > amount).findAny();
-//			
-//			if (shop.isPresent())
-//			{
-//				shoppingList.put(shop.get().getName(), item, amount);
-//			}
-//			else 
-//			{
-//				int amountRemaining = amount;
-//				do
-//				{
-//					// If there is only one shop remaining, it should buy the rest
-//					if (shops.size() == 1)
-//					{
-//						shoppingList.put(shops.stream().findAny().get().getName(), item, amountRemaining);
-//						break;
-//					}
-//					
-//					// Find the shop with the largest number of the item
-//					shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
-//					
-//					if (shop.isPresent())
-//					{
-//						shops.remove(shop.get());
-//						
-//						int amountToBuy = Math.min(shop.get().getAmount(item), amountRemaining);
-//						
-//						amountRemaining -= amountToBuy;
-//						
-//						shoppingList.put(shop.get().getName(), item, amountToBuy);
-//					}
-//				}
-//				while (amountRemaining > 0);
-//			}
 		}		
 		
 		for (String tool : iInfo.getBaseTools(items))
@@ -114,11 +75,23 @@ public class ShoppingList extends HashMap<String, ItemList> {
 		return shoppingList;
 	}
 	
-	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) {
-		for (Shop shop : shops)
-			if (amount < shop.getAvailableAmount(item))
-				return shop;		
-		return shops.getLast();
+//	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) {
+//		for (Shop shop : shops)
+//			if (amount < shop.getAvailableAmount(item))
+//				return shop;		
+//		return shops.getLast();
+//	}
+	
+	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) 
+	{
+		Optional<Shop> shop = shops.stream()
+				.filter(s -> s.getAmount(item) > amount)
+				.findAny();		
+		
+		if (!shop.isPresent()) 
+			shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
+		
+		return shop.get();
 	}
 
 }

@@ -125,7 +125,6 @@ public class ReqActionPerceiver extends Artifact {
 		if (dInfo.getStep() % 25 == 0) 
 		{
 			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-
 			StatsLogger.printStats();
 		}
 		
@@ -133,9 +132,12 @@ public class ReqActionPerceiver extends Artifact {
 		{			
 			StatsLogger.printStats();
 			StatsLogger.printJobStepStats();
-			StatsLogger.printAgentInventoryStats();			
+			StatsLogger.printAgentInventoryStats();
+			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
+			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
 			StatsLogger.reset();
 			ErrorLogger.reset();
+			JobStatistics.resetStats();
 		}
 		
 		for (Shop shop : fInfo.getShops())

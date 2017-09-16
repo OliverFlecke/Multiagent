@@ -195,5 +195,26 @@ public class JobStatistics
 		missionsFailed.removeIf(m -> !m.isDeadlinePassed());
 		return missionsFailed.size();
 	}
+	
+	public static void resetStats()
+	{
+		jobStepEstimate		.clear();
+		jobStepStarted      .clear();
+		jobStepComplete     .clear();
+
+		jobsTotal 			.clear();
+		jobsStarted 		.clear();
+		jobsCompleted 		.clear();
+
+		auctionsTotal 		.clear();
+		auctionsStarted 	.clear();
+		auctionsCompleted   .clear();
+		auctionsBidOn 		.clear();
+		auctionsWon			.clear();
+
+		missionsTotal		.clear();
+		missionsStarted 	.clear();
+		missionsCompleted   .clear();
+	}
 
 }

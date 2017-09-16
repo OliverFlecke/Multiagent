@@ -206,7 +206,7 @@ public class AgentInfo {
 			if (this.hasItem(item.getName()))
 			{
 				int hasAmount 	= this.getAmount(item.getName());
-				toCarry 	   += itemVolume * hasAmount + 20 * hasAmount;
+				toCarry 	   += itemVolume * hasAmount + 200 * hasAmount;
 				needAmount 	   -= hasAmount;		
 			}				
 				
