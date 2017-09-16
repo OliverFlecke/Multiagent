@@ -19,7 +19,7 @@ public class getClosestFacility extends DefaultInternalAction {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception 
+	public Object execute(TransitionSystem ts, Unifier un, Term[] args) 
 	{
 		int i = 0;
 		
