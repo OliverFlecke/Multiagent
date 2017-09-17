@@ -91,6 +91,12 @@ public class AgentInfo {
 		return role.getTools();
 	}
 	
+	public synchronized Set<String> getUsableTools(Set<String> tools) {
+		Set<String> usableTools = new HashSet<>(tools);
+		usableTools.retainAll(getTools());
+		return usableTools;
+	}
+	
 	public String getPermission() {
 		return permission;
 	}
@@ -108,7 +114,7 @@ public class AgentInfo {
 	}
 	
 	public int getCapacity() {
-		return role.getLoad() - load;
+		return role.getLoad() - load - 30;
 	}
 	
 	/////////////

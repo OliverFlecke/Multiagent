@@ -26,29 +26,17 @@ public class getClosestFacility extends DefaultInternalAction {
 		String from 	= ASLParser.parseFunctor(args[i++]);
 		String type 	= ASLParser.parseString	(args[i++]);
 		
-		Collection<? extends Facility> facilities;
+		FacilityInfo 	fInfo = FacilityInfo.get();
+		StaticInfo		sInfo = StaticInfo	.get();
 		
-		if (type.equals("chargingStation"))
-		{
-			facilities = FacilityInfo.get().getActiveChargingStations();
-		}
-		else
-		{
-			facilities = FacilityInfo.get().getFacilities(type);
-		}
+		Collection<? extends Facility> facilities = type.equals("chargingStation") ?
+				fInfo.getActiveChargingStations() : fInfo.getFacilities(type);
 		
-		Optional<? extends Facility> opt;
-		
-		if (from.startsWith("agent"))
-		{
-			opt = facilities.stream().min(Comparator.comparingInt(f -> StaticInfo.get()
-					.getRouteDuration(AgentInfo.get(from), f.getLocation())));
-		}
-		else
-		{
-			opt = facilities.stream().min(Comparator.comparingInt(f -> StaticInfo.get()
-					.getRouteLength(FacilityInfo.get().getFacility(from).getLocation(), f.getLocation())));
-		}
+		Optional<? extends Facility> opt = from.startsWith("agent") ?
+				facilities.stream().min(Comparator.comparingInt(f -> sInfo
+						.getRouteDuration(AgentInfo.get(from), f.getLocation()))) :
+				facilities.stream().min(Comparator.comparingInt(f -> sInfo
+						.getRouteLength(FacilityInfo.get().getFacility(from).getLocation(), f.getLocation())));
 		
 		if (!opt.isPresent()) return false;
 		

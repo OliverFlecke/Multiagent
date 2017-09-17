@@ -28,8 +28,7 @@ public class AuctionJob extends Job {
 		return bid;
 	}
 	
-	public void setBid(int bid)
-	{
+	public void setBid(int bid) {
 		this.bid = bid;
 	}
 

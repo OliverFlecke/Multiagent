@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import mapc2017.data.facility.Shop;
 import mapc2017.data.item.Item;
+import mapc2017.data.item.ItemList;
 import mapc2017.data.item.Tool;
 
 public class ItemInfo {
@@ -49,7 +50,7 @@ public class ItemInfo {
 		return itemLocations;
 	}
 	
-	public Collection<Shop> getItemLocations(String item) {
+	public synchronized Collection<Shop> getItemLocations(String item) {
 		return itemLocations.get(item).values();
 	}
 	
@@ -84,12 +85,12 @@ public class ItemInfo {
 	// METHODS //
 	/////////////
 	
-	public Map<String, Integer> getBaseItems(Map<String, Integer> items) {
-		return stringToItemMap(items).entrySet().stream()
+	public ItemList getBaseItems(Map<String, Integer> items) {
+		return new ItemList(stringToItemMap(items).entrySet().stream()
 				.map(item -> item.getKey().getReqBaseItems().entrySet().stream()
 						.collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue() * item.getValue())).entrySet())
 				.flatMap(Collection::stream)
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum));
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, Integer::sum)));
 	}
 	
 	public Set<String> getBaseTools(Map<String, Integer> items) {

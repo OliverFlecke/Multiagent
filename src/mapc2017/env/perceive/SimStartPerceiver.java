@@ -15,7 +15,6 @@ import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobEvaluator;
 import mapc2017.env.parse.IILParser;
-import mapc2017.logging.StatsLogger;
 
 public class SimStartPerceiver extends Artifact {
 
@@ -121,8 +120,6 @@ public class SimStartPerceiver extends Artifact {
 			item.calculateBaseRequirements();
 		
 		JobEvaluator.get().init();
-		
-		StatsLogger.printItemStats();
 		
 		hasPerceived = true;
 		

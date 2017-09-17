@@ -127,7 +127,7 @@ public class EISHandler extends Artifact implements AgentListener {
     }
 	
 	@INTERNAL_OPERATION
-	void perceive(boolean initial)
+	void perceive()
 	{
 		Set<Percept> allPercepts = new HashSet<>();
 
@@ -149,7 +149,6 @@ public class EISHandler extends Artifact implements AgentListener {
 			SimStartPerceiver .perceive		  (allPercepts);
 			ReqActionPerceiver.perceiveInitial(allPercepts);
 		}
-		
 		ReqActionPerceiver.perceive(allPercepts);
 	}
     
@@ -233,7 +232,7 @@ public class EISHandler extends Artifact implements AgentListener {
 	{
 		if (arg1.getName().equals("step"))
 		{
-			execInternalOp("perceive", IILParser.parseInt(arg1) == 0);
+			execInternalOp("perceive");
 		}
 		else if (arg1.getName().equals("simEnd"))
 		{

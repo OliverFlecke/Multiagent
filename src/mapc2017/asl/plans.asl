@@ -83,14 +83,20 @@
 
 // Prevents checking enoughCharge multiple times.
 +!goToFacility(F) : facility(F).
-+!goToFacility(_) : lastActionResult("failed_no_route") <- fail.
++!goToFacility(F) : lastActionResult("failed_no_route") <- 
+	?getRandomLocation(Lat, Lon); 
+	!doAction(goto(Lat, Lon)); 
+	!goToFacility(F).
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).
 
 // Does not check charge, use with care.
 +!goToLocation(F) 		 : getFacilityLocation(F, Lat, Lon) <- !goToLocation(Lat, Lon).
 +!goToLocation(Lat, Lon) : atLocation(Lat, Lon).
-+!goToLocation(  _,   _) : lastActionResult("failed_no_route")  <- fail.
++!goToLocation(Lat, Lon) : lastActionResult("failed_no_route")  <- 
+	?getRandomLocation(Lat2, Lon2); 
+	!doAction(goto(Lat2, Lon2)); 
+	!goToLocation(Lat, Lon).
 +!goToLocation(Lat, Lon)							 			<- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
 
 // Post-condition: At random location.
@@ -104,7 +110,8 @@
 
 +!gather : capacity(C) & maxLoad(L) & C <= 0.8 * L.
 +!gather : inResourceNode 						 <- !doAction(gather);    !gather.
-+!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
+//+!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
++!gather : getResourceNode(F) 					 <- !goToLocation(F);  	  !gather.
 +!gather  			 							 <- !goToRandom; !charge; !gather.
 
 +!bidForJob( _,   _) : lastAction("bid_for_job").

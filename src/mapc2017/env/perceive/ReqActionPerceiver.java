@@ -8,6 +8,7 @@ import eis.iilang.Percept;
 import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.item.Item;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
@@ -83,6 +84,15 @@ public class ReqActionPerceiver extends Artifact {
 			case WORKSHOP 		    : fInfo.putFacility	(IILParser.parseWorkshop        (p)); break;
 			}
 		}
+		
+		for (Shop shop : fInfo.getShops())
+			for (String item : shop.getItems())
+				iInfo.addItemLocation(item, shop);
+		
+		for (Item item : iInfo.getItems())
+			item.calculateItemAvailability();
+		
+		StatsLogger.printItemStats();
 	}
 	
 	public static void perceive(Collection<Percept> percepts) 
@@ -143,6 +153,9 @@ public class ReqActionPerceiver extends Artifact {
 		for (Shop shop : fInfo.getShops())
 			for (String item : shop.getItems())
 				iInfo.addItemLocation(item, shop);
+		
+		for (Item item : iInfo.getItems())
+			item.calculateItemAvailability();
 		
 		for (ChargingStation chargingStation : fInfo.getChargingStations())
 			chargingStation.step();

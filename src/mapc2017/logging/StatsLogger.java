@@ -64,20 +64,20 @@ public class StatsLogger extends Logger {
 
 		logger.printSeparator();
 		
-		logger.println(String.format("%-6s%4s\t%s", "Tool", "Vol", "Roles"));
+		logger.println(String.format("%-6s%4s%7s %s", "Tool", "Vol", "Avail.", "Roles"));
 		
 		for (Tool tool : sortedTools)
 		{
-			logger.println(String.format("%-6s%4d\t%s", tool.getName(), tool.getVolume(), tool.getRoles()));
+			logger.println(String.format("%-6s%4d%7.3f %s", tool.getName(), tool.getVolume(), tool.getAvailability(), tool.getRoles()));
 		}
 		
 		logger.printSeparator();
 		
-		logger.println(String.format("%-6s%4s\t%s", "Item", "Vol", "Requirements"));
+		logger.println(String.format("%-6s%4s%7s %s", "Item", "Vol", "Avail.", "Requirements"));
 		
 		for (Item item : sortedItems)
 		{
-			logger.println(String.format("%-6s%4d\t%-24s %s", item.getName(), item.getVolume(), item.getReqTools(), item.getReqItems()));
+			logger.println(String.format("%-6s%4d%7.3f %-24s %s", item.getName(), item.getVolume(), item.getAvailability(), item.getReqTools(), item.getReqItems()));
 		}
 		
 		logger.printSeparator();

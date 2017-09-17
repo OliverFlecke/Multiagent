@@ -39,6 +39,7 @@ getClosestFacility(T, C)		:- .my_name(Me) & mapc2017.jia.facility.getClosestFaci
 getClosestShopSelling(I, S)		:- .my_name(Me) & mapc2017.jia.facility.getClosestShopSelling	(Me, I, S).
 getDurationToFacility(F, D)		:- .my_name(Me) & mapc2017.jia.facility.getDurationToFacility	(Me, F, D).
 getFacilityLocation(F, Lat, Lon):- 				  mapc2017.jia.facility.getFacilityLocation		(F, Lat, Lon).
+getResourceNode(F)				:- .my_name(Me) & mapc2017.jia.facility.getResourceNode			(Me, F).
 // Items
 getBaseItems	(L, B)			:- .list(L)   & mapc2017.jia.items.getBaseItems	(L, B).
 getLoadReq		(L, R)			:- .list(L)   & mapc2017.jia.items.getLoadReq	(L, R).

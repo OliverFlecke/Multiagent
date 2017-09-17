@@ -65,10 +65,9 @@ public class JobDelegator extends Artifact {
 			Set<AgentInfo> 	distinctAgents 	= new HashSet<>(freeAgents);			
 							freeAgents 		= new LinkedList<>(distinctAgents);
 			// Sort agents by capacity
-			Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));			
+			Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));	
+			System.out.println("[JobDelegator] Free: " + freeAgents);		
 		}
-		
-		System.out.println("[JobDelegator] Free: " + freeAgents);
 		
 		int maxSteps 	= sInfo.getSteps();
 		int currentStep = dInfo.getStep();
