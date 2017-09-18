@@ -25,8 +25,9 @@ public class AgentInfo {
 	private int 		charge, 
 						load;
 	private String		name,
-						facility,
 						permission,
+						facility,
+						lastFacility,
 						lastAction,
 						lastActionResult;
 	private String[]	lastActionParams;
@@ -45,6 +46,10 @@ public class AgentInfo {
 	public String getName() {
 		return name;
 	}
+	
+	public int getNumber() {
+		return Integer.parseInt(getName().replace("agent", ""));
+	}
 
 	public Location getLocation() {
 		return new Location(lon, lat);
@@ -60,6 +65,10 @@ public class AgentInfo {
 	
 	public String getFacility() {
 		return facility;
+	}
+	
+	public String getLastFacility() {
+		return lastFacility;
 	}
 	
 	public String getLastAction() {
@@ -82,6 +91,12 @@ public class AgentInfo {
 		return role.getTools();
 	}
 	
+	public synchronized Set<String> getUsableTools(Set<String> tools) {
+		Set<String> usableTools = new HashSet<>(tools);
+		usableTools.retainAll(getTools());
+		return usableTools;
+	}
+	
 	public String getPermission() {
 		return permission;
 	}
@@ -99,7 +114,7 @@ public class AgentInfo {
 	}
 	
 	public int getCapacity() {
-		return role.getLoad() - load;
+		return role.getLoad() - load - 30;
 	}
 	
 	/////////////
@@ -124,6 +139,10 @@ public class AgentInfo {
 	
 	public void setFacility(String facility) {
 		this.facility = facility;
+	}
+	
+	public void setLastFacility() {
+		this.lastFacility = this.facility;
 	}
 	
 	public void setLastAction(String lastAction) {
@@ -197,7 +216,7 @@ public class AgentInfo {
 			if (this.hasItem(item.getName()))
 			{
 				int hasAmount 	= this.getAmount(item.getName());
-				toCarry 	   += itemVolume * hasAmount + 20 * hasAmount;
+				toCarry 	   += itemVolume * hasAmount + 200 * hasAmount;
 				needAmount 	   -= hasAmount;		
 			}				
 				

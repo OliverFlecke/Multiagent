@@ -15,7 +15,6 @@ import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobEvaluator;
 import mapc2017.env.parse.IILParser;
-import mapc2017.logging.Logger;
 
 public class SimStartPerceiver extends Artifact {
 
@@ -96,7 +95,6 @@ public class SimStartPerceiver extends Artifact {
 	
 	private void preprocess()
 	{
-		Logger.reset();
 		fInfo.clearFacilities();
 		iInfo.clearItems();
 	}

@@ -5,7 +5,7 @@
 	<classpathentry kind="lib" path="lib/c4jason.jar"/>
 	<classpathentry kind="lib" path="lib/cartago.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.8.2.jar"/>
-	<classpathentry kind="lib" path="lib/jason.jar"/>
+	<classpathentry kind="lib" path="lib/jason.jar" sourcepath="C:/Users/Helge/Downloads/Source/jason-svn-1846-trunk/src"/>
 	<classpathentry kind="lib" path="lib/jade-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/agentcontest/eismassim.jar"/>
 	<classpathentry kind="lib" path="lib/agentcontest/javaagents.jar"/>

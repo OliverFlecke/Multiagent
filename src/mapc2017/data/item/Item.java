@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import mapc2017.data.facility.Shop;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 
 public class Item {
@@ -14,6 +16,7 @@ public class Item {
 	private int						volume;
 	private Set<String> 			reqTools;
 	private Map<String, Integer> 	reqItems;
+	private double					availability = -1;
 	
 	private Map<String, Integer>	reqBaseItems;
 	private Set<String>				reqBaseTools;
@@ -33,6 +36,10 @@ public class Item {
 		return name;
 	}
 	
+	public int getNumber() {
+		return Integer.parseInt(getName().replace("item", ""));
+	}
+	
 	public int getVolume() {
 		return volume;
 	}
@@ -47,6 +54,15 @@ public class Item {
 	
 	public Map<String, Integer> getReqItems() {
 		return new HashMap<>(reqItems);
+	}
+	
+	public double getAvailability() 
+	{
+		if (availability < 0)
+		{
+			calculateItemAvailability();
+		}
+		return availability;
 	}
 	
 	public Map<String, Integer> getReqBaseItems() 
@@ -83,6 +99,23 @@ public class Item {
 			avgPrice = calculateAvgPrice();
 		}
 		return avgPrice;
+	}
+	
+	public void calculateItemAvailability()
+	{
+		ItemInfo iInfo = ItemInfo.get();
+		
+		int availableAmount = 0;
+		
+		if (!reqAssembly())
+		{
+			for (Shop shop : iInfo.getItemLocations(name))
+			{
+				availableAmount += shop.getAvailableAmount(name);
+			}
+		}
+		
+		availability = availableAmount / (double) FacilityInfo.get().getShops().size();
 	}
 	
 	public void calculateBaseRequirements()

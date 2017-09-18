@@ -3,10 +3,11 @@ package mapc2017.env.job;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.Facility;
+import mapc2017.data.facility.Shop;
 import mapc2017.data.item.ItemList;
 import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.AuctionJob;
@@ -55,12 +57,17 @@ public class JobDelegator extends Artifact {
 	
 	public void select(PriorityQueue<JobEvaluation> evals)
 	{
-		if (evals.isEmpty()) return;
+		if (evals.isEmpty() || freeAgents.isEmpty()) return;
 		
-		Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));
-		removeDuplicatesFromSortedList(freeAgents);
-		
-		System.out.println(freeAgents);
+		synchronized (freeAgents) 
+		{
+			// Removes duplicates
+			Set<AgentInfo> 	distinctAgents 	= new HashSet<>(freeAgents);			
+							freeAgents 		= new LinkedList<>(distinctAgents);
+			// Sort agents by capacity
+			Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));	
+			System.out.println("[JobDelegator] Free: " + freeAgents);		
+		}
 		
 		int maxSteps 	= sInfo.getSteps();
 		int currentStep = dInfo.getStep();
@@ -69,7 +76,7 @@ public class JobDelegator extends Artifact {
 		
 		while (it.hasNext())
 		{
-			JobEvaluation 	eval = it.next();	
+			JobEvaluation 	eval = it.next();
 			Job				job	 = eval.getJob();
 			
 			int stepComplete = eval.getSteps() + currentStep;
@@ -97,6 +104,7 @@ public class JobDelegator extends Artifact {
 				}
 				else if (!delegate(eval)) continue;
 			}
+			JobStatistics.addJobEvaluation(eval);
 			it.remove();				
 		}
 	}
@@ -106,11 +114,14 @@ public class JobDelegator extends Artifact {
 		Job job = eval.getJob();
 		
 		// Make a copy of freeAgents to prevent removing agents before assigning them
-		LinkedList<AgentInfo> 			agents 		= new LinkedList<>(freeAgents);		
+		LinkedList<AgentInfo> 			agents 		= new LinkedList<>();
+		// To prevent ArrayOutOfBounds addAll
+		synchronized (freeAgents) {	agents.addAll(freeAgents); }
+		// Maps agents to their workload
 		Map<AgentInfo, ItemList> 		assemblers 	= new HashMap<>();
 		Map<AgentInfo, ShoppingList> 	retrievers 	= new HashMap<>();
 		// Maps retrievers to the name of the assembler
-		Map<AgentInfo, String>			assistants 	= new HashMap<>();
+		Map<AgentInfo, String>			assistants 	= new HashMap<>();		
 		
 		ItemList itemsToAssemble = job.getItems();		
 		
@@ -170,12 +181,17 @@ public class JobDelegator extends Artifact {
 		
 		retrievers.keySet().stream().forEach(freeAgents::remove);
 		retrievers.keySet().stream().forEach(agent -> agentToTask.put(agent, job.getId()));
+		retrievers.values().stream().forEach(shoppingList -> shoppingList.entrySet().forEach(entry -> {
+			Shop shop = (Shop) fInfo.getFacility(entry.getKey());			
+			for (Entry<String, Integer> item : entry.getValue().entrySet())
+				shop.addReserved(item.getKey(), item.getValue());
+		}));
 		
 		taskToAgents.put(job.getId(), retrievers.keySet());
 		
 		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
-		JobStatistics.startJob(job);
+		JobStatistics.startJob(job, dInfo.getStep());
 		
 		return true;
 	}
@@ -233,6 +249,8 @@ public class JobDelegator extends Artifact {
 		
 		AgentInfo agent = freeAgents.removeFirst();
 		
+		agentToTask.put(agent, "bid");
+		
 		signal(agentIds.get(agent), "task", auction.getId(), bid);
 		
 		JobStatistics.bidOnAuction(auction);
@@ -254,23 +272,5 @@ public class JobDelegator extends Artifact {
 	
 	public void releaseAgents(Job job) {
 		execInternalOp("release", job.getId());
-	}
-	
-	private static <E> void removeDuplicatesFromSortedList(List<E> list) 
-	{
-		Iterator<E> it = list.iterator();
-		
-		if (!it.hasNext()) return;
-		
-		E prev = it.next();
-		
-		while (it.hasNext())
-		{
-			E next = it.next();
-			
-			if (next.equals(prev)) it.remove();
-			
-			prev = next;
-		}
 	}
 }

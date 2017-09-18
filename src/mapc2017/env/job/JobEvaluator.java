@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import mapc2017.data.Role;
 import mapc2017.data.facility.Facility;
 import mapc2017.data.item.Item;
+import mapc2017.data.item.ItemList;
 import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.AgentInfo;
@@ -66,8 +67,21 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 		
 		int profit = job.getReward() - price;
 				
-		int 			baseVolume 		= iInfo.getBaseVolume(job.getItems());		
-		ShoppingList 	shoppingList 	= ShoppingList.getShoppingList(job.getItems());
+		int 			baseVolume 		= iInfo.getBaseVolume(job.getItems());
+		ItemList		baseItems		= iInfo.getBaseItems(job.getItems());
+		ShoppingList 	shoppingList 	= ShoppingList.getShoppingList(baseItems);
+		
+//		int baseItemCount	= baseItems.values().stream()
+//								.mapToInt(Integer::intValue)
+//								.sum();
+//		
+//		double avgItemAvail	= baseItems.entrySet().stream()
+//								.mapToDouble(entry -> iInfo
+//										.getItem(entry.getKey())
+//										.getAvailability() * entry.getValue())
+//								.sum() / baseItemCount;
+//		
+//		double difficulty	= (3 - avgItemAvail > 1) ? 3 - avgItemAvail : 1;
 		
 		int reqAssemblers	= getReqAgents(baseVolume);
 		int reqAgents		= shoppingList.values().stream()
@@ -91,7 +105,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 								.mapToInt(e -> iInfo.getItem(e.getKey()).reqAssembly() ? e.getValue() : 0)
 								.sum();
 		
-		int stepEstimate 	= maxDistance / avgSpeed + maxPurchases + reqAssemblies / reqAssemblers;
+		int stepEstimate 	= (int) ((maxDistance / avgSpeed + maxPurchases + reqAssemblies / reqAssemblers) * 1.1);
 		
 		evals.add(new JobEvaluation(job, profit, stepEstimate, reqAgents, workshop.getName(), shoppingList));
 	}
@@ -108,7 +122,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 	
 	private Role getReqRole(int volume) {
 		for (Role role : roles)
-			if (volume < role.getLoad())
+			if (volume <= role.getLoad())
 				return role;		
 		return roles.getLast();
 	}

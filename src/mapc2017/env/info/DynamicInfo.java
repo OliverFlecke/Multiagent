@@ -8,8 +8,7 @@ public class DynamicInfo {
 	private long	money,
 					timestamp,
 					deadline;
-	private int		step,  
-					jobsCompleted;
+	private int		step;
 	
 	public DynamicInfo() {
 		instance = this;
@@ -34,10 +33,6 @@ public class DynamicInfo {
 	public long getMoney() {
 		return money;
 	}
-
-	public int getJobsCompleted() {
-		return jobsCompleted;
-	}
 	
 	/////////////
 	// SETTERS //
@@ -57,10 +52,6 @@ public class DynamicInfo {
 
 	public void setMoney(long money) {
 		this.money = money;
-	}
-
-	public void incJobsCompleted() {
-		this.jobsCompleted++;
 	}
 	
 	/////////////

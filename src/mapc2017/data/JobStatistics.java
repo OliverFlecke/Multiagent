@@ -1,10 +1,23 @@
 package mapc2017.data;
 
-import java.util.*;
-import mapc2017.data.job.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import mapc2017.data.job.AuctionJob;
+import mapc2017.data.job.Job;
+import mapc2017.data.job.MissionJob;
+import mapc2017.env.job.JobEvaluation;
 
 public class JobStatistics 
 {
+	private static Map<Job, Integer> jobStepEstimate	= new HashMap<>();
+	private static Map<Job, Integer> jobStepStarted 	= new HashMap<>();
+	private static Map<Job, Integer> jobStepComplete	= new HashMap<>();
+	
 	private static Set<Job> 		jobsTotal 			= new HashSet<>();
 	private static Set<Job> 		jobsStarted 		= new HashSet<>();
 	private static Set<Job>			jobsCompleted 		= new HashSet<>();
@@ -20,13 +33,39 @@ public class JobStatistics
 	private static Set<MissionJob> 	missionsCompleted	= new HashSet<>();
 
 	/**
-	 * Methods to change the state of jobs. 
+	 * Step specific methods.
 	 */
+	public static void addJobEvaluation(JobEvaluation eval) 
+	{
+		jobStepEstimate.put(eval.getJob(), eval.getSteps());
+	}
+	
+	public static Map<Job, Integer> getJobStepEstimate() {
+		return jobStepEstimate;
+	}
+	
+	public static Map<Job, Integer> getJobStepStarted() {
+		return jobStepStarted;
+	}
+	
+	public static Map<Job, Integer> getJobStepComplete() {
+		return jobStepComplete;
+	}
+	
+	/**
+	 * Methods to change the state of jobs. 
+	 */	
 	public static void addJob(Job job)
 	{
 			 if (job instanceof MissionJob) missionsTotal.add((MissionJob) job);
 		else if (job instanceof AuctionJob) auctionsTotal.add((AuctionJob) job);
 		else 								jobsTotal.add(job);
+	}
+	
+	public static void startJob(Job job, int steps)
+	{
+		jobStepStarted.put(job, steps);
+		startJob(job);
 	}
 
 	public static void startJob(Job job)
@@ -34,6 +73,12 @@ public class JobStatistics
 			 if (job instanceof MissionJob) missionsStarted.add((MissionJob) job);
 		else if (job instanceof AuctionJob) auctionsStarted.add((AuctionJob) job);
 		else 								jobsStarted.add(job);
+	}
+	
+	public static void completeJob(Job job, int steps)
+	{
+		jobStepComplete.put(job, steps);
+		completeJob(job);
 	}
 
 	public static void completeJob(Job job)
@@ -83,7 +128,7 @@ public class JobStatistics
 		active.removeAll(auctionsCompleted);
 		active.removeAll(missionsCompleted);
 
-		active.removeIf(j -> j.deadlinePassed());
+		active.removeIf(j -> j.isDeadlinePassed());
 
 		return active.size();
 	}
@@ -125,7 +170,7 @@ public class JobStatistics
 	{
 		Set<AuctionJob> auctionsFailed = new HashSet<>(auctionsWon);
 		auctionsFailed.removeAll(auctionsCompleted);
-		auctionsFailed.removeIf(a -> !a.deadlinePassed());
+		auctionsFailed.removeIf(a -> !a.isDeadlinePassed());
 		return auctionsFailed.size();
 	}
 
@@ -152,8 +197,29 @@ public class JobStatistics
 	{
 		Set<MissionJob> missionsFailed = new HashSet<>(missionsTotal);
 		missionsFailed.removeAll(missionsCompleted);
-		missionsFailed.removeIf(m -> !m.deadlinePassed());
+		missionsFailed.removeIf(m -> !m.isDeadlinePassed());
 		return missionsFailed.size();
+	}
+	
+	public static void resetStats()
+	{
+		jobStepEstimate		.clear();
+		jobStepStarted      .clear();
+		jobStepComplete     .clear();
+
+		jobsTotal 			.clear();
+		jobsStarted 		.clear();
+		jobsCompleted 		.clear();
+
+		auctionsTotal 		.clear();
+		auctionsStarted 	.clear();
+		auctionsCompleted   .clear();
+		auctionsBidOn 		.clear();
+		auctionsWon			.clear();
+
+		missionsTotal		.clear();
+		missionsStarted 	.clear();
+		missionsCompleted   .clear();
 	}
 
 }

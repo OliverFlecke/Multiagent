@@ -8,6 +8,7 @@ import eis.iilang.Percept;
 import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.item.Item;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
@@ -17,7 +18,7 @@ import mapc2017.env.info.StaticInfo;
 import mapc2017.env.job.JobDelegator;
 import mapc2017.env.job.JobEvaluator;
 import mapc2017.env.parse.IILParser;
-import mapc2017.logging.Logger;
+import mapc2017.logging.ErrorLogger;
 import mapc2017.logging.StatsLogger;
 
 public class ReqActionPerceiver extends Artifact {
@@ -63,8 +64,6 @@ public class ReqActionPerceiver extends Artifact {
 		sInfo		= StaticInfo	.get();
 		evaluator 	= JobEvaluator	.get();
 		delegator 	= JobDelegator	.get();
-		
-//		defineObsProperty(STEP, "");
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
@@ -85,6 +84,15 @@ public class ReqActionPerceiver extends Artifact {
 			case WORKSHOP 		    : fInfo.putFacility	(IILParser.parseWorkshop        (p)); break;
 			}
 		}
+		
+		for (Shop shop : fInfo.getShops())
+			for (String item : shop.getItems())
+				iInfo.addItemLocation(item, shop);
+		
+		for (Item item : iInfo.getItems())
+			item.calculateItemAvailability();
+		
+		StatsLogger.printItemStats();
 	}
 	
 	public static void perceive(Collection<Percept> percepts) 
@@ -126,22 +134,29 @@ public class ReqActionPerceiver extends Artifact {
 	{
 		if (dInfo.getStep() % 25 == 0) 
 		{
-			Logger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-
+			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
 			StatsLogger.printStats();
 		}
 		
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
-		{
-			Logger.get().println(dInfo.getJobsCompleted());
-			
+		{			
 			StatsLogger.printStats();
 			StatsLogger.printOverallStats();
+			StatsLogger.printJobStepStats();
+			StatsLogger.printAgentInventoryStats();
+			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
+			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+			StatsLogger.reset();
+			ErrorLogger.reset();
+			JobStatistics.resetStats();
 		}
 		
 		for (Shop shop : fInfo.getShops())
 			for (String item : shop.getItems())
 				iInfo.addItemLocation(item, shop);
+		
+		for (Item item : iInfo.getItems())
+			item.calculateItemAvailability();
 		
 		for (ChargingStation chargingStation : fInfo.getChargingStations())
 			chargingStation.step();
@@ -169,7 +184,6 @@ public class ReqActionPerceiver extends Artifact {
 	private void update()
 	{
 		signal("step", dInfo.getStep());
-//		getObsProperty(STEP).updateValue(dInfo.getStep());
 	}
 
 }

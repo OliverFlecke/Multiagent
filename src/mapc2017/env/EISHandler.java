@@ -42,7 +42,8 @@ public class EISHandler extends Artifact implements AgentListener {
     private static final String CONFIG = "conf/client/eismassimconfig_A.json";
 //    private static final String CONFIG = "conf/client/eismassimconfig_B.json";
 //    private static final String CONFIG = "conf/client/eismassimconfig_C.json";
-//    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017.json";
+//    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017_ac1.json";
+//    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017_ac2.json";
     
     private Map<String, String> agentsToEntities 	= new HashMap<>();    
     private Set<String> 		hasPerformedAction	= new HashSet<>(),
@@ -126,7 +127,7 @@ public class EISHandler extends Artifact implements AgentListener {
     }
 	
 	@INTERNAL_OPERATION
-	void perceive(boolean initial)
+	void perceive()
 	{
 		Set<Percept> allPercepts = new HashSet<>();
 
@@ -148,7 +149,6 @@ public class EISHandler extends Artifact implements AgentListener {
 			SimStartPerceiver .perceive		  (allPercepts);
 			ReqActionPerceiver.perceiveInitial(allPercepts);
 		}
-		
 		ReqActionPerceiver.perceive(allPercepts);
 	}
     
@@ -232,7 +232,7 @@ public class EISHandler extends Artifact implements AgentListener {
 	{
 		if (arg1.getName().equals("step"))
 		{
-			execInternalOp("perceive", IILParser.parseInt(arg1) == 0);
+			execInternalOp("perceive");
 		}
 		else if (arg1.getName().equals("simEnd"))
 		{
