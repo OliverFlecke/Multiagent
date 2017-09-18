@@ -1,10 +1,7 @@
 package mapc2017.data.item;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,6 +18,13 @@ public class ShoppingList extends HashMap<String, ItemList> {
 	
 	public ShoppingList(String shop, ItemList items) {
 		super();
+		this.put(shop, items);
+	}
+	
+	public ShoppingList(String shop, ItemList items1, ItemList items2) {
+		super();
+		ItemList items = new ItemList(items1);
+		items.add(items2);
 		this.put(shop, items);
 	}
 	
@@ -42,12 +46,13 @@ public class ShoppingList extends HashMap<String, ItemList> {
 			String 	item 	= entry.getKey();
 			int 	amount 	= entry.getValue();
 			
-			LinkedList<Shop> shops = new LinkedList<>(iInfo.getItemLocations(item));
-			Collections.sort(shops, Comparator.comparingInt(s -> s.getAvailableAmount(item)));
+			Collection<Shop> shops = iInfo.getItemLocations(item);
 
 			while (amount > 0)
 			{
-				Shop shop = getShop(shops, item, amount);
+				Shop shop = shops.stream().max((x, y) -> 
+								x.getAvailableAmount(item) - 
+								y.getAvailableAmount(item)).get();
 				
 				shops.remove(shop);
 				
@@ -74,36 +79,4 @@ public class ShoppingList extends HashMap<String, ItemList> {
 		
 		return shoppingList;
 	}
-	
-//	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) {
-//		for (Shop shop : shops)
-//			if (amount < shop.getAvailableAmount(item))
-//				return shop;		
-//		return shops.getLast();
-//	}
-	
-	private static Shop getShop(LinkedList<Shop> shops, String item, int amount)
-	{
-		Optional<Shop> shop = shops.stream()
-				.filter(s -> s.getAvailableAmount(item) > amount)
-				.findAny();		
-		
-		if (!shop.isPresent()) 
-			shop = shops.stream().max((x, y) -> x.getAvailableAmount(item) - y.getAvailableAmount(item));
-		
-		return shop.get();
-	}
-	
-//	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) 
-//	{
-//		Optional<Shop> shop = shops.stream()
-//				.filter(s -> s.getAmount(item) > amount)
-//				.findAny();		
-//		
-//		if (!shop.isPresent()) 
-//			shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
-//		
-//		return shop.get();
-//	}
-
 }

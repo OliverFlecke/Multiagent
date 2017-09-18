@@ -12,7 +12,7 @@
       "id" : "2017-SampleSimulation",
       "scenarioClass" : "city.CitySimulation",
       "steps" : 1000,
-      "map" : "tokyo",
+      "map" : "paris",
       "seedCapital" : 50000,
       "minLon" : 2.26,
       "maxLon" : 2.41,

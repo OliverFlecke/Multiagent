@@ -17,8 +17,8 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import mapc2017.data.JobStatistics;
-import mapc2017.data.facility.Facility;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.item.Item;
 import mapc2017.data.item.ItemList;
 import mapc2017.data.item.ShoppingList;
 import mapc2017.data.job.AuctionJob;
@@ -163,13 +163,40 @@ public class JobDelegator extends Artifact {
 			
 			// Create shopping list for the given items
 			ShoppingList 	shoppingList  = ShoppingList.getShoppingList(toAssemble);
-			String 			assemblerShop = getShop(assembler, shoppingList);
+			String 			assemblerShop = shoppingList.keySet().stream().findAny().get(); //getShop(assembler, shoppingList);
 			
 			ItemList assemblerRetrieve = assembler.getItemsToCarry(shoppingList.get(assemblerShop));
 			
 			shoppingList.get(assemblerShop).subtract(assemblerRetrieve);
 			
 			retrievers.put(assembler, new ShoppingList(assemblerShop, assemblerRetrieve));
+
+			for (AgentInfo agent : agents)
+			{
+				ItemList inventory = agent.getInventory();
+				
+				for (String shop : shoppingList.keySet())
+				{					
+					if (inventory.isEmpty()) break;
+					
+					ItemList itemsToRetrieve = shoppingList.get(shop);
+					
+					if (itemsToRetrieve.isEmpty()) continue;
+					
+					int beforeAmount = itemsToRetrieve.getTotalAmount();
+					
+					ItemList temp = new ItemList(inventory);
+					inventory.subtract(itemsToRetrieve);
+					itemsToRetrieve.subtract(temp);
+					
+					int afterAmount	= itemsToRetrieve.getTotalAmount();
+					
+					if (afterAmount < beforeAmount) {
+						retrievers.put(agent, new ShoppingList());
+						assistants.put(agent, assembler.getName());
+					}
+				}
+			}
 
 			for (String shop : shoppingList.keySet())
 			{
@@ -190,7 +217,7 @@ public class JobDelegator extends Artifact {
 					
 					itemsToRetrieve.subtract(toRetrieve);
 					
-					retrievers.put(retriever, new ShoppingList(shop, toRetrieve));
+					retrievers.put(retriever, new ShoppingList(shop, toRetrieve, retriever.getInventory()));
 					
 					assistants.put(retriever, assembler.getName());
 				}
@@ -222,21 +249,25 @@ public class JobDelegator extends Artifact {
 	}
 	
 	private AgentInfo getRetriever(LinkedList<AgentInfo> agents, String shop, Map<String, Integer> items) {
-		Facility facility = fInfo.getFacility(shop);
-		return agents.stream().min(Comparator.comparingInt(agent -> {
-			int steps = sInfo.getRouteDuration(agent, facility.getLocation());
-			int volume = agent.getVolumeToCarry(items);
-			return steps - volume;
-		})).get();
+		Map<Item, Integer> itemMap = iInfo.stringToItemMap(items);
+		return agents.stream().max(Comparator.comparingInt(agent -> agent.getVolumeToCarry(itemMap)
+//		{
+//			int steps = sInfo.getRouteDuration(agent, facility.getLocation());
+//			int volume = agent.getVolumeToCarry(items);
+//			return volume - steps;
+//		}
+		)).get();
 	}
 	
-	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
-		return shoppingList.entrySet().stream().min(Comparator.comparingInt(e -> {
-			int steps = sInfo.getRouteDuration(agent, fInfo.getFacility(e.getKey()).getLocation());
-			int volume = agent.getVolumeToCarry(e.getValue());
-			return steps - volume;
-		})).get().getKey();
-	}
+//	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
+//		return shoppingList.entrySet().stream().max(Comparator.comparingInt(e -> agent.getVolumeToCarry(e.getValue())
+//		{
+//			int steps = sInfo.getRouteDuration(agent, fInfo.getFacility(e.getKey()).getLocation());
+//			int volume = agent.getVolumeToCarry(e.getValue());
+//			return volume - steps;
+//		}
+//		)).get().getKey();
+//	}
 	
 	@OPERATION
 	void free()
@@ -288,7 +319,7 @@ public class JobDelegator extends Artifact {
 	@INTERNAL_OPERATION
 	void bidForAuction(AgentInfo agent, AuctionJob auction) 
 	{
-		int bid = auction.getReward() - 1;
+		int bid = auction.getReward() - 2;
 		
 		assign(agent, auction.getId(), bid);
 		

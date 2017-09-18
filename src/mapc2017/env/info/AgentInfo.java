@@ -101,8 +101,8 @@ public class AgentInfo {
 		return permission;
 	}
 
-	public synchronized Map<String, Integer> getInventory() {
-		return new HashMap<>(inventory);
+	public synchronized ItemList getInventory() {
+		return new ItemList(inventory);
 	}
 	
 	public synchronized boolean hasItem(String item) {
@@ -178,7 +178,7 @@ public class AgentInfo {
 	
 	public boolean canUseTool(String tool) 
 	{
-		return this.getTools().contains(tool);
+		return getRole().canUseTool(tool);
 	}
 
 	public ItemList getMissingItems(Map<String, Integer> items) 
@@ -199,12 +199,12 @@ public class AgentInfo {
 		return missing;
 	}
 	
-	public int getVolumeToCarry(Map<String, Integer> items)
+	public int getVolumeToCarry(Map<Item, Integer> items)
 	{		
 		int toCarry	 = 0;
 		int capacity = this.getCapacity();
 
-		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(items).entrySet())
+		for (Entry<Item, Integer> entry : items.entrySet())
 		{
 			Item 	item 		= entry.getKey();
 			
@@ -234,15 +234,11 @@ public class AgentInfo {
 
 	public ItemList getItemsToCarry(Map<String, Integer> items)
 	{		
-		ItemList missing = new ItemList(items);
-		missing.subtract(this.getInventory());
-		
-		ItemList itemsToCarry = new ItemList(items);
-		itemsToCarry.subtract(missing);
+		ItemList itemsToCarry = new ItemList();
 		
 		int capacity = this.getCapacity();
 
-		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(missing).entrySet())
+		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(items).entrySet())
 		{
 			Item 	item 	= entry.getKey();
 			

@@ -20,6 +20,10 @@ public class ItemList extends HashMap<String, Integer> {
 		super(items);
 	}
 	
+	public int getTotalAmount() {
+		return this.values().stream().mapToInt(Integer::intValue).sum();
+	}
+	
 	public void add(String item, int amount) {		
 		if (this.containsKey(item))	this.put(item, this.get(item) + amount);
 		else 						this.put(item, amount);		

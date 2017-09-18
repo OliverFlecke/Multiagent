@@ -39,6 +39,10 @@ public class Role {
 		return new HashSet<>(tools);
 	}
 	
+	public boolean canUseTool(String tool) {
+		return tools.contains(tool);
+	}
+	
 	public Object[] getData()
 	{
 		return new Object[] {
