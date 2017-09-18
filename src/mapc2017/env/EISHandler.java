@@ -33,17 +33,18 @@ import mapc2017.env.parse.IILTranslator;
 import mapc2017.env.perceive.AgentPerceiver;
 import mapc2017.env.perceive.ReqActionPerceiver;
 import mapc2017.env.perceive.SimStartPerceiver;
+import mapc2017.logging.ErrorLogger;
 import massim.eismassim.EnvironmentInterface;
 
 public class EISHandler extends Artifact implements AgentListener {
 
     private static final Logger logger = Logger.getLogger(EISHandler.class.getName());
 	    
-//    private static final String CONFIG = "conf/client/eismassimconfig_A.json";
+    private static final String CONFIG = "conf/client/eismassimconfig_A.json";
 //    private static final String CONFIG = "conf/client/eismassimconfig_B.json";
 //    private static final String CONFIG = "conf/client/eismassimconfig_C.json";
 //    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017_ac1.json";
-    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017_ac2.json";
+//    private static final String CONFIG = "conf/client/eismassimconfig_mapc2017_ac2.json";
     
     private Map<String, String> agentsToEntities 	= new HashMap<>();    
     private Set<String> 		hasPerformedAction	= new HashSet<>(),
@@ -149,7 +150,15 @@ public class EISHandler extends Artifact implements AgentListener {
 			SimStartPerceiver .perceive		  (allPercepts);
 			ReqActionPerceiver.perceiveInitial(allPercepts);
 		}
-		ReqActionPerceiver.perceive(allPercepts);
+		
+		try
+		{
+			ReqActionPerceiver.perceive(allPercepts);			
+		}
+		catch (Throwable e) 
+		{
+			ErrorLogger.get().println("*********** Failure in perceive: " + e.getMessage());
+		}
 	}
     
     @OPERATION

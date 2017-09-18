@@ -107,7 +107,7 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 		
 		int stepEstimate 	= (int) ((maxDistance / avgSpeed + maxPurchases + reqAssemblies / reqAssemblers) * 1.1);
 		
-		evals.add(new JobEvaluation(job, profit, stepEstimate, reqAgents, workshop.getName(), shoppingList));
+		evals.add(new JobEvaluation(job, profit, stepEstimate, reqAgents, workshop.getName(), baseItems));
 	}
 	
 	private int getReqAgents(int volume) {

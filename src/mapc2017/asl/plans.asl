@@ -116,6 +116,7 @@
 
 +!bidForJob( _,   _) : lastAction("bid_for_job").
 +!bidForJob(Id, Bid) <- 
+	.print("Bidding!");
 	!doAction(bid_for_job(Id, Bid)); 
 	!bidForJob(Id, Bid).
 

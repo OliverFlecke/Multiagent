@@ -85,7 +85,7 @@ public class JobDelegator extends Artifact {
 
 			if (stepComplete < maxSteps && stepComplete < job.getEnd())
 			{
-				if (eval.getReqAgents() > freeAgents.size()) continue;
+				if (eval.getReqAgents() > freeAgents.size()) 		continue;
 				
 				 	 if (job instanceof MissionJob) { if (!delegate(eval)) continue; }
 				else if (job instanceof AuctionJob) 
@@ -99,20 +99,36 @@ public class JobDelegator extends Artifact {
 					}
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
 					{
-						bidForAuction(auction);
+						if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
+						
+						AgentInfo agent = freeAgents.removeFirst();
+						
+						agentToTask.put(agent, "bid");
+						
+						execInternalOp("bidForAuction", agent, auction);
+						
 						continue;
 					}
 					else continue;
 				}
-				else if (!delegate(eval)) continue;
+				else 
+				{
+					if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
+					
+					if (!delegate(eval)) continue;
+				}
 			}
 			JobStatistics.addJobEvaluation(eval);
-			it.remove();				
+			it.remove();
 		}
 	}
 	
 	private boolean delegate(JobEvaluation eval) 
 	{		
+		// Prevent delegating job twice with the same agents
+		if (eval.getNrAgents() == freeAgents.size()) return false;
+		eval.setNrAgents(freeAgents.size());
+		
 		Job job = eval.getJob();
 		
 		// Make a copy of freeAgents to prevent removing agents before assigning them
@@ -184,7 +200,7 @@ public class JobDelegator extends Artifact {
 		retrievers.keySet().stream().forEach(freeAgents::remove);
 		retrievers.keySet().stream().forEach(agent -> agentToTask.put(agent, job.getId()));
 		retrievers.values().stream().forEach(shoppingList -> shoppingList.entrySet().forEach(entry -> {
-			Shop shop = (Shop) fInfo.getFacility(entry.getKey());			
+			Shop shop = (Shop) fInfo.getFacility(entry.getKey());
 			for (Entry<String, Integer> item : entry.getValue().entrySet())
 				shop.addReserved(item.getKey(), item.getValue());
 		}));
@@ -234,7 +250,6 @@ public class JobDelegator extends Artifact {
 		agentIds.put(agent, getOpUserId());
 	}
 	
-	@INTERNAL_OPERATION
 	void assign(AgentInfo agent, Object... args)
 	{
 		ErrorLogger.get().println(String.format("%s task(%s)", agent, Arrays.toString(args)));
@@ -270,15 +285,12 @@ public class JobDelegator extends Artifact {
 		execInternalOp("release", job.getId());
 	}
 	
-	private void bidForAuction(AuctionJob auction) 
+	@INTERNAL_OPERATION
+	void bidForAuction(AgentInfo agent, AuctionJob auction) 
 	{
 		int bid = auction.getReward() - 1;
 		
-		AgentInfo agent = freeAgents.removeFirst();
-		
-		agentToTask.put(agent, "bid");
-		
-		execInternalOp("assign", agent, auction.getId(), bid);
+		assign(agent, auction.getId(), bid);
 		
 		JobStatistics.bidOnAuction(auction);
 	}

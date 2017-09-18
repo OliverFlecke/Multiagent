@@ -161,18 +161,18 @@ public class ReqActionPerceiver extends Artifact {
 		for (ChargingStation chargingStation : fInfo.getChargingStations())
 			chargingStation.step();
 		
-		for (Job job : jInfo.getNewJobs())
-		{
-			evaluator.evaluate(job);
-			
-			JobStatistics.addJob(job);
-		}
-		
 		for (Job job : jInfo.getRemovedJobs()) 
 		{
 			jInfo.removeJob(job);
 			evaluator.removeEvaluation(job);
 			delegator.releaseAgents(job);
+		}
+		
+		for (Job job : jInfo.getNewJobs())
+		{
+			evaluator.evaluate(job);
+			
+			JobStatistics.addJob(job);
 		}
 		
 		delegator.select(evaluator.getEvaluations());
