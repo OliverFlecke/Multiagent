@@ -55,13 +55,14 @@ public class StatsLogger extends Logger
 		Logger logger = StatsLogger.get();
 		
 		logger.println("--- Statistics --- Step "	+ DynamicInfo.get().getStep());
+		logger.println("Money:					" 	+ DynamicInfo.get().getMoney());
 		logger.println("Total jobs:             "  	+ JobStatistics.getTotalJobs());
 		logger.println("Total jobs started:     "	+ JobStatistics.getTotalJobsStarted());
 		logger.println("Total jobs completed:   " 	+ JobStatistics.getTotalJobsCompleted());
 		logger.println("Currently active jobs:  "	+ JobStatistics.getActiveJobs());
 
 		logger.println("Total auctions:			"	+ JobStatistics.getTotalAuctions());
-		logger.println("Bids:					"	+ JobStatistics.getAuctionsBidOn());
+		logger.println("Unique bids/Bids:		"	+ JobStatistics.getAuctionsBidOnUnique() + "/" + JobStatistics.getAuctionsBidOn());
 		logger.println("Auctions won:			"	+ JobStatistics.getAuctionsWon());
 		logger.println("Auctions completed:		"	+ JobStatistics.getAuctionsCompleted());
 		logger.println("Auctions failed:		"	+ JobStatistics.getAuctionsFailed());
@@ -74,6 +75,20 @@ public class StatsLogger extends Logger
 		
 		printSeparator();
 		logger.println();
+	}
+
+	public static void printOverallStats()
+	{
+		Logger logger = StatsLogger.get();
+
+		logger.println("--- Overall Performance ---");
+		logger.println("Money:    					" + DynamicInfo.get().getMoney());
+		logger.println("Jobs completed: 			" + JobStatistics.getTotalJobsCompleted());
+		logger.println(String.format("Missions: %03d %%, \tAuctions: %03d %%", 
+			JobStatistics.getMissionsCompleted() * 100 / (JobStatistics.getTotalMissions() == 0 ? 1 : JobStatistics.getTotalMissions()),
+			JobStatistics.getAuctionsCompleted() * 100 / (JobStatistics.getAuctionsWon() == 0 ? 1 : JobStatistics.getAuctionsWon())
+			));
+		printSeparator();
 	}
 
 	private static void printSeparator()

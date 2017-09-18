@@ -2,7 +2,6 @@ package mapc2017.data;
 
 import java.util.*;
 import mapc2017.data.job.*;
-import mapc2017.env.info.DynamicInfo;
 
 public class JobStatistics 
 {
@@ -100,6 +99,11 @@ public class JobStatistics
 	public static int getAuctionsBidOn()
 	{
 		return auctionsBidOn.size();
+	}
+
+	public static int getAuctionsBidOnUnique()
+	{
+		return (new HashSet<AuctionJob>(auctionsBidOn)).size();
 	}
 
 	public static int getAuctionsWon()

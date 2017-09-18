@@ -136,6 +136,7 @@ public class ReqActionPerceiver extends Artifact {
 			Logger.get().println(dInfo.getJobsCompleted());
 			
 			StatsLogger.printStats();
+			StatsLogger.printOverallStats();
 		}
 		
 		for (Shop shop : fInfo.getShops())
