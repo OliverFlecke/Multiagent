@@ -31,7 +31,7 @@
 -!task(Task) <- .print("Failed"); !task(Task).
 
 +!stop  <- .drop_all_desires; .drop_all_intentions.
-+!free  <- !stop; free; !charge; !gather; !goToRandom; !skip.
++!free  <- !stop; free; !charge; !gather; !goToCenter; !skip.
 +!reset <- !stop; .drop_all_events;
 	for (assemble	   [source(A)]) { -assemble      [source(A)] };
 	for (assistant     [source(A)]) { -assistant     [source(A)] };

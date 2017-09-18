@@ -36,10 +36,17 @@ public class AgentPerceiver extends Artifact {
 	private static final String ROUTE_LENGTH 			= "routeLength";
 	
 	// ACTION
+//	private static final String ASSEMBLE				= "assemble";
+	private static final String ASSIST_ASSEMBLE			= "assist_assemble";
 	private static final String BID_FOR_JOB				= "bid_for_job";
 	private static final String BUY						= "buy";
 //	private static final String CHARGE 					= "charge";
 	private static final String DELIVER_JOB				= "deliver_job";
+	private static final String GATHER					= "gather";
+	private static final String GOTO					= "goto";
+//	private static final String NO_ACTION				= "noAction";
+	private static final String RECHARGE				= "recharge";
+	private static final String SKIP					= "skip";
 	
 	// ACTION RESULT
 	private static final String SUCCESSFUL				= "successful";
@@ -54,6 +61,15 @@ public class AgentPerceiver extends Artifact {
 			LAST_ACTION,
 			LAST_ACTION_RESULT,
 			LAST_ACTION_PARAMS
+	};
+	
+	private static final String[] NOT_LOGGED = new String[] {
+			ASSIST_ASSEMBLE,
+			CHARGE,
+			GATHER,
+			GOTO,
+			RECHARGE,
+			SKIP
 	};
 	
 	private static Map<String, AgentPerceiver> instances = new HashMap<>();
@@ -144,14 +160,24 @@ public class AgentPerceiver extends Artifact {
 			auction.setBid(bid);
 		}
 		
+		execInternalOp("update");
+		
 		if (lastActionResult.startsWith(FAILED))
 		{
 			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
 					aInfo.getName(), lastActionResult, lastAction, 
 					Arrays.toString(aInfo.getLastActionParams())));
 		}
-		
-		execInternalOp("update");
+		else 
+		{
+			for (String action : NOT_LOGGED)
+				if (lastAction.equals(action))
+					return;
+			
+			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
+					aInfo.getName(), lastActionResult, lastAction, 
+					Arrays.toString(aInfo.getLastActionParams())));
+		}
 	}
 	
 	@INTERNAL_OPERATION
