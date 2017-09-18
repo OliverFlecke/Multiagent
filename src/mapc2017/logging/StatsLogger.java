@@ -83,6 +83,20 @@ public class StatsLogger extends Logger {
 		logger.printSeparator();
 		logger.println();
 	}
+
+	public static void printOverallStats()
+	{
+		Logger logger = StatsLogger.get();
+
+		logger.println("--- Overall Performance ---");
+		logger.println("Money:    					" + DynamicInfo.get().getMoney());
+		logger.println("Jobs completed: 			" + JobStatistics.getTotalJobsCompleted());
+		logger.println(String.format("Missions: %03d %%, \tAuctions: %03d %%", 
+			JobStatistics.getMissionsCompleted() * 100 / (JobStatistics.getTotalMissions() == 0 ? 1 : JobStatistics.getTotalMissions()),
+			JobStatistics.getAuctionsCompleted() * 100 / (JobStatistics.getAuctionsWon() == 0 ? 1 : JobStatistics.getAuctionsWon())
+			));
+		logger.printSeparator();
+	}
 	
 	public static void printStats() 
 	{
