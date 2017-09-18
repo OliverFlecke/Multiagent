@@ -85,6 +85,22 @@ public class ItemInfo {
 	// METHODS //
 	/////////////
 	
+	public boolean isItemsAvailable(Map<String, Integer> items) 
+	{
+		for (Entry<String, Integer> entry : items.entrySet())
+		{
+			String 	item 	= entry.getKey();
+			int 	amount	= entry.getValue();
+			
+			Collection<Shop> shops = getItemLocations(item);
+			
+			int availableAmount = shops.stream().mapToInt(s -> s.getAvailableAmount(item)).sum();
+			
+			if (availableAmount < amount) return false;
+		}
+		return true;
+	}
+	
 	public ItemList getBaseItems(Map<String, Integer> items) {
 		return new ItemList(stringToItemMap(items).entrySet().stream()
 				.map(item -> item.getKey().getReqBaseItems().entrySet().stream()

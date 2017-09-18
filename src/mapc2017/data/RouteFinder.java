@@ -39,4 +39,8 @@ public class RouteFinder extends CityMap {
 				minCenterLat, maxCenterLat, 
 				minCenterLon, maxCenterLon);
 	}
+	
+	public Location getRandomLocation() {
+		return super.getRandomLocation(Collections.emptySet(), 10);
+	}
 }

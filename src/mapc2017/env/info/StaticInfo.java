@@ -85,8 +85,12 @@ public class StaticInfo {
 		return r != null ? r.getRouteDuration(agent.getRole().getSpeed()) : 10000;
 	}
 	
-	public Location getRandomLocation() {
+	public Location getRandomCenterLocation() {
 		return routeFinder.getRandomCenterLocation();
+	}
+	
+	public Location getRandomLocation() {
+		return routeFinder.getRandomLocation();
 	}
 	
 	/////////////

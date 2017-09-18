@@ -51,9 +51,9 @@ public class ShoppingList extends HashMap<String, ItemList> {
 				
 				shops.remove(shop);
 				
-				int buyAmount = shops.isEmpty() ? amount : Math.min(amount, shop.getAmount(item));
+				int buyAmount = shops.isEmpty() ? amount : Math.min(amount, shop.getAvailableAmount(item));
 				
-				shoppingList.put(shop.getName(), item, buyAmount);
+				if (buyAmount > 0) shoppingList.put(shop.getName(), item, buyAmount);
 				
 				amount -= buyAmount;
 			}
@@ -82,16 +82,28 @@ public class ShoppingList extends HashMap<String, ItemList> {
 //		return shops.getLast();
 //	}
 	
-	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) 
+	private static Shop getShop(LinkedList<Shop> shops, String item, int amount)
 	{
 		Optional<Shop> shop = shops.stream()
-				.filter(s -> s.getAmount(item) > amount)
+				.filter(s -> s.getAvailableAmount(item) > amount)
 				.findAny();		
 		
 		if (!shop.isPresent()) 
-			shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
+			shop = shops.stream().max((x, y) -> x.getAvailableAmount(item) - y.getAvailableAmount(item));
 		
 		return shop.get();
 	}
+	
+//	private static Shop getShop(LinkedList<Shop> shops, String item, int amount) 
+//	{
+//		Optional<Shop> shop = shops.stream()
+//				.filter(s -> s.getAmount(item) > amount)
+//				.findAny();		
+//		
+//		if (!shop.isPresent()) 
+//			shop = shops.stream().max((x, y) -> x.getAmount(item) - y.getAmount(item));
+//		
+//		return shop.get();
+//	}
 
 }

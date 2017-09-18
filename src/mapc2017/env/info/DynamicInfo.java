@@ -61,5 +61,9 @@ public class DynamicInfo {
 	public static boolean isDeadlinePassed() {
 		return System.currentTimeMillis() > instance.getDeadline();
 	}
+	
+	public static boolean isLastStep() {
+		return instance.getStep() == StaticInfo.get().getSteps() - 1;
+	}
 
 }

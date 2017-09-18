@@ -100,8 +100,8 @@
 +!goToLocation(Lat, Lon)							 			<- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
 
 // Post-condition: At random location.
-+!goToRandom : getRandomLocation(Lat, Lon) <- !goToLocation(Lat, Lon).
--!goToRandom.
++!goToRandom : getRandomLocation		(Lat, Lon) <- !goToLocation(Lat, Lon).
++!goToCenter : getRandomCenterLocation	(Lat, Lon) <- !goToLocation(Lat, Lon).
 
 // Post-condition: Full charge.
 +!charge : charge(X) & maxCharge(X).
