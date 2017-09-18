@@ -141,6 +141,7 @@ public class ReqActionPerceiver extends Artifact {
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
 		{			
 			StatsLogger.printStats();
+			StatsLogger.printOverallStats();
 			StatsLogger.printJobStepStats();
 			StatsLogger.printAgentInventoryStats();
 			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));

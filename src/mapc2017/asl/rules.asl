@@ -47,4 +47,5 @@ getBaseVolume	(L, V)			:- .list(L)   & mapc2017.jia.items.getBaseVolume(L, V).
 getReqItems		(I, R)			:- .string(I) & mapc2017.jia.items.getReqItems	(I, R).
 getVolume		(I, V)			:- .string(I) & mapc2017.jia.items.getVolume	(I, V).
 // Util
-getRandomLocation(Lat, Lon)		:- 				  mapc2017.jia.util.getRandomLocation(Lat, Lon).
+getRandomLocation		(Lat, Lon)	:- 			mapc2017.jia.util.getRandomLocation(Lat, Lon).
+getRandomCenterLocation	(Lat, Lon)	:- 			mapc2017.jia.util.getRandomCenterLocation(Lat, Lon).

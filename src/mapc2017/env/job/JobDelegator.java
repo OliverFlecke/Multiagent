@@ -1,5 +1,6 @@
 package mapc2017.env.job;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
+import mapc2017.logging.ErrorLogger;
 
 public class JobDelegator extends Artifact {
 	
@@ -97,7 +99,7 @@ public class JobDelegator extends Artifact {
 					}
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
 					{
-						execInternalOp("bidForAuction", auction);
+						bidForAuction(auction);
 						continue;
 					}
 					else continue;
@@ -233,27 +235,21 @@ public class JobDelegator extends Artifact {
 	}
 	
 	@INTERNAL_OPERATION
-	void assign(Map<AgentInfo, ItemList> assemblers, Map<AgentInfo, ShoppingList> retrievers, Map<AgentInfo, String> assistants, Job job, JobEvaluation eval)
+	void assign(AgentInfo agent, Object... args)
 	{
-		for (AgentInfo agent : assemblers.keySet())
-			signal(agentIds.get(agent), "task", job.getId(), assemblers.get(agent), job.getStorage(), retrievers.get(agent), eval.getWorkshop());
-
-		for (AgentInfo agent : assistants.keySet())
-			signal(agentIds.get(agent), "task", assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
+		ErrorLogger.get().println(String.format("%s task(%s)", agent, Arrays.toString(args)));
+		
+		signal(agentIds.get(agent), "task", args);
 	}
 	
 	@INTERNAL_OPERATION
-	private void bidForAuction(AuctionJob auction) 
+	void assign(Map<AgentInfo, ItemList> assemblers, Map<AgentInfo, ShoppingList> retrievers, Map<AgentInfo, String> assistants, Job job, JobEvaluation eval)
 	{
-		int bid = auction.getReward() - 1;
-		
-		AgentInfo agent = freeAgents.removeFirst();
-		
-		agentToTask.put(agent, "bid");
-		
-		signal(agentIds.get(agent), "task", auction.getId(), bid);
-		
-		JobStatistics.bidOnAuction(auction);
+		for (AgentInfo agent : assemblers.keySet())
+			assign(agent, job.getId(), assemblers.get(agent), job.getStorage(), retrievers.get(agent), eval.getWorkshop());
+
+		for (AgentInfo agent : assistants.keySet())
+			assign(agent, assistants.get(agent), retrievers.get(agent), eval.getWorkshop());
 	}
 	
 	@INTERNAL_OPERATION
@@ -265,12 +261,25 @@ public class JobDelegator extends Artifact {
 		{
 			if (agentToTask.get(agent).equals(job)) 
 			{
-				signal(agentIds.get(agent), "task", "release");
+				assign(agent, "release");
 			}
 		}
 	}
 	
 	public void releaseAgents(Job job) {
 		execInternalOp("release", job.getId());
+	}
+	
+	private void bidForAuction(AuctionJob auction) 
+	{
+		int bid = auction.getReward() - 1;
+		
+		AgentInfo agent = freeAgents.removeFirst();
+		
+		agentToTask.put(agent, "bid");
+		
+		execInternalOp("assign", agent, auction.getId(), bid);
+		
+		JobStatistics.bidOnAuction(auction);
 	}
 }

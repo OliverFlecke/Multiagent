@@ -146,6 +146,11 @@ public class JobStatistics
 		return auctionsBidOn.size();
 	}
 
+	public static int getAuctionsBidOnUnique()
+	{
+		return (new HashSet<AuctionJob>(auctionsBidOn)).size();
+	}
+
 	public static int getAuctionsWon()
 	{
 		return auctionsWon.size();
