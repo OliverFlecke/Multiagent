@@ -162,7 +162,7 @@ public class EISHandler extends Artifact implements AgentListener {
 			System.out.println(String.format("[%s] Has queued action: %s", agent, action));
 			return;
 		}		
-		else if (DynamicInfo.isDeadlinePassed())
+		else if (DynamicInfo.isDeadlinePassed() && !DynamicInfo.isLastStep())
 		{
 			System.out.println(String.format("[%s] Queued action: %s", agent, action));
 			hasQueuedAction.add(agent);
