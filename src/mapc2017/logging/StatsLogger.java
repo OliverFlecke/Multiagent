@@ -108,11 +108,12 @@ public class StatsLogger extends Logger {
 		logger.println(String.format( "%s%3d", "Total jobs completed:   ", JobStatistics.getTotalJobsCompleted()));
 		logger.println(String.format( "%s%3d", "Currently active jobs:  ", JobStatistics.getActiveJobs()		));
 		logger.println(String.format( "%s%3d", "Total auctions:			", JobStatistics.getTotalAuctions()		));
+		logger.println(String.format( "%s%3d", "Auctions active:		", JobStatistics.getAuctionsActive()	));
 		logger.println(String.format( "%s%3d", "Bids:					", JobStatistics.getAuctionsBidOn()		));
 		logger.println(String.format( "%s%3d", "Auctions won:			", JobStatistics.getAuctionsWon()		));
+		logger.println(String.format( "%s%3d", "Auctions started:		", JobStatistics.getAuctionsStarted()	));
 		logger.println(String.format( "%s%3d", "Auctions completed:		", JobStatistics.getAuctionsCompleted()	));
 		logger.println(String.format( "%s%3d", "Auctions failed:		", JobStatistics.getAuctionsFailed()	));
-		logger.println(String.format( "%s%3d", "Auctions started:		", JobStatistics.getAuctionsStarted()	));
 		logger.println(String.format( "%s%3d", "Total missions:			", JobStatistics.getTotalMissions()		));
 		logger.println(String.format( "%s%3d", "Missions started:		", JobStatistics.getMissionsStarted()	));
 		logger.println(String.format( "%s%3d", "Missions completed:		", JobStatistics.getMissionsCompleted()	));

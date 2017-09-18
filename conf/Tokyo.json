@@ -1,29 +1,36 @@
 {
-  "server" : "$(server/server.json)",
-
-  "manual-mode" : [
-    ["A", "B", "C"],
-    ["B", "C", "D"],
-    ["C", "D", "E"]
-  ],
+  "server" : {
+    "tournamentMode" : "round-robin",
+    "teamsPerMatch" : 1,
+    "teamSize" : 28,
+    "launch" : "key",
+    "port" : 12300,
+    "backlog" : 10000,
+    "agentTimeout" : 4000,
+    "resultPath" : "results",
+    "logLevel" : "normal",
+    "logPath" : "logs",
+    "replayPath" : "replays",
+    "maxPacketLength" : 65536
+  },
 
   "match" : [
     {
-      "id" : "2017-SampleSimulation",
+      "id" : "2017-TokyoTest",
       "scenarioClass" : "city.CitySimulation",
       "steps" : 1000,
       "map" : "tokyo",
       "seedCapital" : 50000,
-      "minLon" : 2.26,
-      "maxLon" : 2.41,
-      "minLat" : 48.82,
-      "maxLat" : 48.90,
-      "centerLat" : 48.8424,
-      "centerLon" : 2.3209,
+      "minLat" : 35.59,
+      "maxLat" : 35.71,
+      "minLon" : 139.26,
+      "maxLon" : 139.44,
+      "centerLat" : 35.65,
+      "centerLon" : 139.35,
       "proximity" : 5,
-      "cellSize" : 200,
+      "cellSize" : 500,
       "randomSeed" : 17,
-      "randomFail" : 0,
+      "randomFail" : 1,
       "postJobLimit": 10,
       "gotoCost" : 10,
       "rechargeRate" : 5,

@@ -9,7 +9,9 @@ public class Runner {
 	{
 		new Thread(new Runnable() {
 			public void run() {
-				Server.main(new String[] { "-conf", "conf/SampleConfig.json", "--monitor" });
+				// Server.main(new String[] { "-conf", "conf/SampleConfig.json", "--monitor" });
+				// Server.main(new String[] { "-conf", "conf/Tokyo.json", "--monitor" });
+				Server.main(new String[] { "-conf", "conf/Mexico-City.json", "--monitor" });
 			}
 		}).start();
 				

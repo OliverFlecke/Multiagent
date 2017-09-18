@@ -174,6 +174,13 @@ public class JobStatistics
 		return auctionsFailed.size();
 	}
 
+	public static int getAuctionsActive()
+	{
+		Set<AuctionJob> auctionsActive = new HashSet<>(auctionsStarted);
+		auctionsActive.removeAll(auctionsCompleted);
+		return auctionsActive.size();
+	}
+
 	/**
 	 * Mission specific statistics
 	 */
