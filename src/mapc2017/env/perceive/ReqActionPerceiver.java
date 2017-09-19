@@ -77,6 +77,8 @@ public class ReqActionPerceiver extends Artifact {
 	
 	private void processInitial(Collection<Percept> percepts)
 	{
+		iInfo.clearItemLocations();
+		
 		for (Percept p : percepts)
 		{
 			switch (p.getName())
@@ -96,8 +98,8 @@ public class ReqActionPerceiver extends Artifact {
 		for (Item item : iInfo.getItems())
 			item.calculateItemAvailability();
 		
-		StatsLogger.printItemStats();		
-		StatsLogger.printShopStats();
+//		StatsLogger.printItemStats();		
+//		StatsLogger.printShopStats();
 	}
 	
 	public static void perceive(Collection<Percept> percepts) 
@@ -137,24 +139,26 @@ public class ReqActionPerceiver extends Artifact {
 
 	private void postprocess()
 	{
-		if (dInfo.getStep() % 25 == 0) 
-		{
-			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-			StatsLogger.printStats();
-			StatsLogger.printShopStats();
-		}
+//		if (dInfo.getStep() % 25 == 0) 
+//		{
+//			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+//			StatsLogger.printStats();
+//			StatsLogger.printShopStats();
+//		}
 		
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
 		{			
-			StatsLogger.printStats();
-			StatsLogger.printOverallStats();
-			StatsLogger.printJobStepStats();
-			StatsLogger.printAgentInventoryStats();
-			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
-			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-			StatsLogger.reset();
-			ErrorLogger.reset();
-			JobStatistics.resetStats();
+//			StatsLogger.printStats();
+//			StatsLogger.printOverallStats();
+//			StatsLogger.printJobStepStats();
+//			StatsLogger.printAgentInventoryStats();
+//			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
+//			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+//			StatsLogger.reset();
+//			ErrorLogger.reset();
+//			JobStatistics.resetStats();
+			delegationThread.interrupt();
+			SimStartPerceiver.setPerceived(false);
 		}
 		
 //		for (Shop shop : fInfo.getShops())
@@ -178,7 +182,7 @@ public class ReqActionPerceiver extends Artifact {
 		{
 			evaluator.evaluate(job);
 			
-			JobStatistics.addJob(job);
+//			JobStatistics.addJob(job);
 		}
 		
 //		delegator.select(evaluator.getEvaluations());

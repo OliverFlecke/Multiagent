@@ -96,7 +96,7 @@ public class JobDelegator extends Artifact implements Runnable {
 					
 					if (auction.hasWon())
 					{
-						JobStatistics.auctionWon(auction);
+//						JobStatistics.auctionWon(auction);
 						if (!delegate(eval)) return;
 					}
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
@@ -115,12 +115,12 @@ public class JobDelegator extends Artifact implements Runnable {
 				}
 				else 
 				{
-					if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
+//					if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
 					
 					if (!delegate(eval)) continue;
 				}
 			}
-			JobStatistics.addJobEvaluation(eval);
+//			JobStatistics.addJobEvaluation(eval);
 			evaluator.removeEvaluation(eval);
 		}
 	}
@@ -148,6 +148,26 @@ public class JobDelegator extends Artifact implements Runnable {
 		while (!itemsToAssemble.isEmpty())
 		{
 			if (agents.isEmpty()) return false;
+
+			for (AgentInfo agent : agents)
+			{
+				ItemList inventory = agent.getInventory();
+				
+				if (inventory.isEmpty()) break;
+				
+				int beforeAmount = itemsToAssemble.getTotalAmount();
+				
+				ItemList temp = new ItemList(inventory);
+				inventory.subtract(itemsToAssemble);
+				itemsToAssemble.subtract(temp);
+				
+				int afterAmount	= itemsToAssemble.getTotalAmount();
+				
+				if (afterAmount < beforeAmount) {
+					retrievers.put(agent, new ShoppingList("shop0", agent.getInventory()));
+					assemblers.put(agent, new ItemList()); 
+				}
+			}
 			
 			// Find best suited agent to assemble items based on their volume
 			AgentInfo assembler = getAssembler(agents, iInfo.getBaseVolume(itemsToAssemble));
@@ -238,7 +258,7 @@ public class JobDelegator extends Artifact implements Runnable {
 		
 		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
-		JobStatistics.startJob(job, dInfo.getStep());
+//		JobStatistics.startJob(job, dInfo.getStep());
 		
 		return true;
 	}
@@ -250,30 +270,34 @@ public class JobDelegator extends Artifact implements Runnable {
 		return agents.getLast();
 	}
 	
-	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
-		return shoppingList.keySet().stream().findAny().get();
-	}
-
 //	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
-//		return shoppingList.entrySet().stream().max(Comparator.comparingInt(e -> {
+//		return shoppingList.keySet().stream().findAny().get();
+//	}
+
+	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
+		return shoppingList.entrySet().stream().max(Comparator.comparingInt(e -> agent.getVolumeToCarry(iInfo.stringToItemMap(e.getValue()))
+//		{
 //			int steps = sInfo.getRouteDuration(agent, fInfo.getFacility(e.getKey()).getLocation());
 //			int volume = agent.getVolumeToCarry(iInfo.stringToItemMap(e.getValue()));
 //			return volume - steps;
-//		})).get().getKey();
-//	}
+//		}
+		)).get().getKey();
+	}
 	
 //	private AgentInfo getRetriever(LinkedList<AgentInfo> agents, String shop, Map<String, Integer> items) {
 //		return agents.stream().findAny().get();
 //	}
 	
 	private AgentInfo getRetriever(LinkedList<AgentInfo> agents, String shop, Map<String, Integer> items) {
-		Facility facility = fInfo.getFacility(shop);
+//		Facility facility = fInfo.getFacility(shop);
 		Map<Item, Integer> itemMap = iInfo.stringToItemMap(items);
-		return agents.stream().max(Comparator.comparingInt(agent ->	{
-			int steps = sInfo.getRouteDuration(agent, facility.getLocation());
-			int volume = agent.getVolumeToCarry(itemMap);
-			return volume - steps;
-		})).get();
+		return agents.stream().max(Comparator.comparingInt(agent -> agent.getVolumeToCarry(itemMap)	
+//		{
+//			int steps = sInfo.getRouteDuration(agent, facility.getLocation());
+//			int volume = agent.getVolumeToCarry(itemMap);
+//			return volume - steps;
+//		}
+		)).get();
 	}
 	
 	@OPERATION

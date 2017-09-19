@@ -28,7 +28,7 @@
 	
 +!task(Task) : .print(Task) & false.
 +!task(Task) <-	!stop; !Task; !!free.
--!task(Task) <- .print("Failed"); !task(Task).
+-!task(Task) <- .print("Failed"); .wait(1000); !task(Task).
 
 +!stop  <- .drop_all_desires; .drop_all_intentions.
 +!free  <- !stop; free; !charge; !gather; !goToCenter; !skip.
