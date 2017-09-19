@@ -27,7 +27,7 @@
 	!reset; !free.
 	
 +!task(Task) : .print(Task) & false.
-+!task(Task) <-	!stop; !Task; !free.
++!task(Task) <-	!stop; !Task; !!free.
 -!task(Task) <- .print("Failed"); !task(Task).
 
 +!stop  <- .drop_all_desires; .drop_all_intentions.

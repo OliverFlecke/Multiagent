@@ -157,6 +157,7 @@ public class EISHandler extends Artifact implements AgentListener {
 		}
 		catch (Throwable e) 
 		{
+			e.printStackTrace();
 			ErrorLogger.get().println("*********** Failure in perceive: " + e.getMessage());
 		}
 	}

@@ -22,6 +22,10 @@ public class Facility {
 		return this.name;
 	}
 	
+	public int getNumber() {
+		return Integer.parseInt(getName().replaceFirst("[a-zA-Z]+", ""));
+	}
+	
 	public Location getLocation() {
 		return new Location(lon, lat);
 	}

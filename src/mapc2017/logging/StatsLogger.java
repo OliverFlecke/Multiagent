@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 import mapc2017.data.JobStatistics;
+import mapc2017.data.facility.Shop;
 import mapc2017.data.item.Item;
 import mapc2017.data.item.Tool;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 
 public class StatsLogger extends Logger {
@@ -78,6 +80,25 @@ public class StatsLogger extends Logger {
 		for (Item item : sortedItems)
 		{
 			logger.println(String.format("%-6s%4d%7.3f %-24s %s", item.getName(), item.getVolume(), item.getAvailability(), item.getReqTools(), item.getReqItems()));
+		}
+		
+		logger.printSeparator();
+		logger.println();
+	}
+	
+	public static void printShopStats()
+	{
+		Logger logger = StatsLogger.get();
+		
+		List<Shop> sortedShops = new ArrayList<>(FacilityInfo.get().getShops());	
+		
+		Collections.sort(sortedShops, Comparator.comparingInt(Shop::getNumber));
+		
+		logger.println(String.format("%-6s %s", "Name", "Items"));
+		
+		for (Shop shop : sortedShops)
+		{
+			logger.println(String.format("%-6s %s", shop.getName(), shop.getItems()));
 		}
 		
 		logger.printSeparator();

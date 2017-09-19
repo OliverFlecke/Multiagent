@@ -127,11 +127,15 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 		return roles.getLast();
 	}
 	
-	public PriorityQueue<JobEvaluation> getEvaluations() {
-		return evals;
+	public LinkedList<JobEvaluation> getEvaluations() {
+		return new LinkedList<>(evals);
 	}
 	
-	public void removeEvaluation(Job job) 
+	public synchronized void removeEvaluation(JobEvaluation eval) {
+		evals.remove(eval);
+	}
+	
+	public synchronized void removeEvaluation(Job job) 
 	{
 		Iterator<JobEvaluation> it = evals.iterator();
 		

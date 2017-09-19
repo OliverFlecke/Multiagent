@@ -49,7 +49,7 @@ public class JobInfo {
 	/////////////
 
 	public void addJob(Job job) {
-		if (job.getItems().isEmpty()) return;	
+		if (job instanceof PostedJob) return;
 		
 		Job existing = getJob(job.getId());		
 		

@@ -2,6 +2,7 @@ package mapc2017.env.info;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -50,8 +51,8 @@ public class ItemInfo {
 		return itemLocations;
 	}
 	
-	public synchronized Collection<Shop> getItemLocations(String item) {
-		return itemLocations.get(item).values();
+	public Set<Shop> getItemLocations(String item) {
+		return new HashSet<>(getAllItemLocations().get(item).values());
 	}
 	
 	/////////////
