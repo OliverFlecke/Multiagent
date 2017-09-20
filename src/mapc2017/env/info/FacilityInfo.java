@@ -92,6 +92,10 @@ public class FacilityInfo {
 		shops.get(f.getName()).update(f);
 	}
 	
+	public void setStorage(Storage f) {
+		storages.get(f.getName()).update(f);
+	}
+	
 	public void clearFacilities() {
 		chargingStations.clear();
 		dumps 			.clear();

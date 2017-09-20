@@ -121,6 +121,7 @@ public class ReqActionPerceiver extends Artifact {
 			case TIMESTAMP 		    : dInfo.setTimestamp(IILParser.parseLong			(p)); break;
 			case RESOURCE_NODE	    : fInfo.putFacility	(IILParser.parseResourceNode    (p)); break;
 			case SHOP 			    : fInfo.setShop		(IILParser.parseShop            (p)); break;
+			case STORAGE			: fInfo.setStorage	(IILParser.parseStorage			(p)); break;
 			case AUCTION 		    : jInfo.addJob		(IILParser.parseAuction			(p)); break;
 			case JOB 			    : jInfo.addJob		(IILParser.parseSimple			(p)); break;
 			case MISSION 		    : jInfo.addJob		(IILParser.parseMission			(p)); break;
@@ -133,21 +134,13 @@ public class ReqActionPerceiver extends Artifact {
 	
 	private void preprocess()
 	{
-//		iInfo.clearItemLocations();
 		jInfo.setRemovedJobs();
 	}
 
 	private void postprocess()
-	{
-//		if (dInfo.getStep() % 25 == 0) 
-//		{
-//			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-//			StatsLogger.printStats();
-//			StatsLogger.printShopStats();
-//		}
-		
-		if (dInfo.getStep() == sInfo.getSteps() - 1)
-		{			
+	{		
+//		if (dInfo.getStep() == sInfo.getSteps() - 1)
+//		{			
 //			StatsLogger.printStats();
 //			StatsLogger.printOverallStats();
 //			StatsLogger.printJobStepStats();
@@ -157,12 +150,12 @@ public class ReqActionPerceiver extends Artifact {
 //			StatsLogger.reset();
 //			ErrorLogger.reset();
 //			JobStatistics.resetStats();
-			delegationThread.interrupt();
-		}
-		
-//		for (Shop shop : fInfo.getShops())
-//			for (String item : shop.getItems())
-//				iInfo.addItemLocation(item, shop);
+//		}
+//		else if (dInfo.getStep() % 25 == 0) 
+//		{
+//			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+//			StatsLogger.printStats();
+//		}
 		
 		for (Item item : iInfo.getItems())
 			item.calculateItemAvailability();
@@ -186,7 +179,11 @@ public class ReqActionPerceiver extends Artifact {
 		
 //		delegator.select(evaluator.getEvaluations());
 		
-		if (!delegationThread.isAlive()) 
+		if (dInfo.getStep() == sInfo.getSteps() - 1)
+		{
+			delegationThread.interrupt();
+		}		
+		else if (!delegationThread.isAlive()) 
 		{
 			delegationThread = new Thread(delegator);
 			delegationThread.start();

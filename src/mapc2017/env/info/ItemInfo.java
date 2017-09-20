@@ -113,11 +113,11 @@ public class ItemInfo {
 		if (!opt.isPresent()) return null;
 		
 		Item 	item 	 = opt.get();
-		int 	avaiable = shop.getAvailableAmount(item.getName());
+		int 	available = Math.min(10, shop.getAvailableAmount(item.getName()));
 		
-		int amount = Math.min(avaiable, agent.getCapacity() / item.getVolume());
+		int amount = Math.min(available, agent.getCapacity() / item.getVolume());
 		
-		if (amount <= 1) return null;
+		if (amount <= 3) return null;
 		
 		shop.addReserved(item.getName(), amount);
 		

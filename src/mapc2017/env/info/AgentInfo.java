@@ -237,6 +237,8 @@ public class AgentInfo {
 		ItemList itemsToCarry = new ItemList();
 		
 		int capacity = this.getCapacity();
+		
+		if (capacity > 100) capacity -= 30;
 
 		for (Entry<Item, Integer> entry : ItemInfo.get().stringToItemMap(items).entrySet())
 		{

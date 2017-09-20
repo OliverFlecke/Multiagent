@@ -17,18 +17,29 @@
 // Bid job
 +!doTask(Id, Bid) <- !bidForJob(Id, Bid).
 
+// Retrieve storage
++!doTask(Storage) : getDeliveredItems(Storage, Items) <-
+	!getToFacility(Storage);
+	!retrieveItems(Items);
+	!doTask(Storage).
+	
++!retrieveItems(_) : lastActionResult("failed_capacity").
++!retrieveItems([map(Item, Amount)|Items]) <-
+	!doAction(retrieve_delivered(Item, Amount));
+	!retrieveItems(Items).
+
 +!deliverJob( _) : lastAction("deliver_job").
 +!deliverJob(Id) <- !doAction(deliver_job(Id)); !deliverJob(Id).
 
 +!acquireItems([]).
 +!acquireItems([map(Shop, Items)|ShoppingList]) <- 
-	!retrieveItems(Shop, Items);
+	!buyItems(Shop, Items);
 	!acquireItems(ShoppingList).
 
-+!retrieveItems(   _, Items) : hasItems(Items).
-+!retrieveItems(Shop, Items) : facility(Shop) <- 
++!buyItems(   _, Items) : hasItems(Items).
++!buyItems(Shop, Items) : facility(Shop) <- 
 	!buyItems(Items).
-+!retrieveItems(Shop, Items) <- 
++!buyItems(Shop, Items) <- 
 	!getToFacility(Shop); 
 	!buyItems(Items).
 	
@@ -41,17 +52,19 @@
 //	!retrieveItems(Shop, [map(Item, Amount)|Items]).
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) <- 
 	!doAction(recharge); 
-	!buyItems([map(Item, Amount)|Items]).
+	!buyItems(Items);
+	!buyItems([map(Item, Amount)]).
 +!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, BuyAmount) <- 
 	!doAction(buy(Item, BuyAmount));
 	!buyItems(Items);
 	!buyItems([map(Item, Amount)]).
 	
-+!buyLeastAvailableItems : getClosestFacility("shop", Shop)
-						 & getLeastAvailableItems(Shop, Items) <-
++!buyAvailable : getClosestFacility("shop", Shop)
+						 & getLeastAvailableItems(Shop, [map(Item, Amount)]) <-
 	!getToFacility(Shop);
-	!buyItems(Items).
--!buyLeastAvailableItems.
+	?buyAmount(Item, Amount, BuyAmount);
+	!doAction(buy(Item, BuyAmount)).
+-!buyAvailable.
 
 
 // Pre-condition: In workshop and all base items available.
@@ -92,21 +105,15 @@
 
 // Prevents checking enoughCharge multiple times.
 +!goToFacility(F) : facility(F).
-+!goToFacility(F) : lastActionResult("failed_no_route") <- 
-	?getRandomLocation(Lat, Lon); 
-	!doAction(goto(Lat, Lon)); 
-	!goToFacility(F).
 +!goToFacility(F) : not canMove	<- !doAction(recharge); !goToFacility(F).
 +!goToFacility(F) 				<- !doAction(goto(F)); 	!goToFacility(F).
 
 // Does not check charge, use with care.
 +!goToLocation(F) 		 : getFacilityLocation(F, Lat, Lon) <- !goToLocation(Lat, Lon).
 +!goToLocation(Lat, Lon) : atLocation(Lat, Lon).
-+!goToLocation(Lat, Lon) : lastActionResult("failed_no_route")  <- 
-	?getRandomLocation(Lat2, Lon2); 
-	!doAction(goto(Lat2, Lon2)); 
++!goToLocation(Lat, Lon) <- 
+	!doAction(goto(Lat, Lon)); 
 	!goToLocation(Lat, Lon).
-+!goToLocation(Lat, Lon)							 			<- !doAction(goto(Lat, Lon)); !goToLocation(Lat, Lon).
 
 // Post-condition: At random location.
 +!goToRandom : getRandomLocation		(Lat, Lon) <- !goToLocation(Lat, Lon).

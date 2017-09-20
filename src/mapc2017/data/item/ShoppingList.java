@@ -40,6 +40,7 @@ public class ShoppingList extends HashMap<String, ItemList> {
 	{	
 		ShoppingList shoppingList 	= new ShoppingList();
 		ItemInfo 	 iInfo 			= ItemInfo.get();
+//		Workshop	 workshop		= (Workshop) FacilityInfo.get().getFacility(workshopName);
 		
 		for (Entry<String, Integer> entry : iInfo.getBaseItems(items).entrySet())
 		{			
@@ -48,8 +49,10 @@ public class ShoppingList extends HashMap<String, ItemList> {
 			
 			Collection<Shop> shops = iInfo.getItemLocations(item);
 
+//			Optional<Shop> opt = shops.stream().filter(s -> s.getAvailableAmount(item) >= amount).min(Comparator.comparingInt(s -> StaticInfo.get().getRouteLength(s.getLocation(), workshop.getLocation())));
+
 			while (amount > 0)
-			{
+			{				
 				Shop shop = shops.stream().max((x, y) -> 
 								x.getAvailableAmount(item) - 
 								y.getAvailableAmount(item)).get();

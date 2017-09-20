@@ -1,6 +1,5 @@
 package mapc2017.env.job;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,6 +15,7 @@ import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.facility.Storage;
 import mapc2017.data.item.Item;
 import mapc2017.data.item.ItemList;
 import mapc2017.data.item.ShoppingList;
@@ -27,7 +27,6 @@ import mapc2017.env.info.DynamicInfo;
 import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
-import mapc2017.logging.ErrorLogger;
 
 public class JobDelegator extends Artifact implements Runnable {
 	
@@ -63,6 +62,8 @@ public class JobDelegator extends Artifact implements Runnable {
 		
 		if (evals.isEmpty() || freeAgents.isEmpty()) return;
 		
+		Collections.sort(evals, Comparator.comparingInt(JobEvaluation::getValue).reversed());
+		
 		synchronized (freeAgents) 
 		{
 			// Removes duplicates
@@ -70,7 +71,7 @@ public class JobDelegator extends Artifact implements Runnable {
 							freeAgents 		= new LinkedList<>(distinctAgents);
 			// Sort agents by capacity
 			Collections.sort(freeAgents, Comparator.comparingInt(AgentInfo::getCapacity));	
-			System.out.println("[JobDelegator] Free: " + freeAgents);		
+			System.out.println("[JobDelegator] Free: " + freeAgents.size());		
 		}
 		
 		int maxSteps 	= sInfo.getSteps();
@@ -86,7 +87,7 @@ public class JobDelegator extends Artifact implements Runnable {
 
 			if (stepComplete < maxSteps && stepComplete < job.getEnd())
 			{
-				if (eval.getReqAgents() > freeAgents.size()) 		continue;
+				if (eval.getReqAgents() > freeAgents.size()) continue;
 				
 				 	 if (job instanceof MissionJob) { if (!delegate(eval)) continue; }
 				else if (job instanceof AuctionJob) 
@@ -98,11 +99,18 @@ public class JobDelegator extends Artifact implements Runnable {
 //						JobStatistics.auctionWon(auction);
 						if (!delegate(eval)) return;
 					}
+					else if (auction.getReward() > 10000) {
+						// Too difficult to delegate at this point
+					}
 					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
 					{
-						if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
+//						if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
 						
-						AgentInfo agent = freeAgents.removeFirst();
+						AgentInfo agent;
+						
+						synchronized (freeAgents) {
+							agent = freeAgents.removeFirst();
+						}
 						
 						agentToTask.put(agent, "bid");
 						
@@ -142,7 +150,11 @@ public class JobDelegator extends Artifact implements Runnable {
 		// Maps retrievers to the name of the assembler
 		Map<AgentInfo, String>			assistants 	= new HashMap<>();		
 		
-		ItemList itemsToAssemble = job.getItems();		
+		ItemList itemsToAssemble = job.getItems();	
+		
+		Entry<String, Integer> e = itemsToAssemble.entrySet().stream().findAny().get();
+		
+		itemsToAssemble.put(e.getKey(), e.getValue() - 1);
 		
 		while (!itemsToAssemble.isEmpty())
 		{
@@ -157,7 +169,7 @@ public class JobDelegator extends Artifact implements Runnable {
 				int afterAmount	= itemsToAssemble.getTotalAmount();
 				
 				if (afterAmount < beforeAmount) {
-					retrievers.put(agent, new ShoppingList("shop0", agent.getInventory()));
+					retrievers.put(agent, new ShoppingList());
 					assemblers.put(agent, new ItemList()); 
 				}
 			}
@@ -238,8 +250,9 @@ public class JobDelegator extends Artifact implements Runnable {
 				}
 			}
 		}
-		
-		retrievers.keySet().stream().forEach(freeAgents::remove);
+		synchronized (freeAgents) {
+			retrievers.keySet().stream().forEach(freeAgents::remove);			
+		}
 		retrievers.keySet().stream().forEach(agent -> agentToTask.put(agent, job.getId()));
 		retrievers.values().stream().forEach(shoppingList -> shoppingList.entrySet().forEach(entry -> {
 			Shop shop = (Shop) fInfo.getFacility(entry.getKey());
@@ -298,7 +311,7 @@ public class JobDelegator extends Artifact implements Runnable {
 	{
 		AgentInfo agent = AgentInfo.get(getOpUserName());
 		
-		freeAgents.add(agent);
+		synchronized (freeAgents) { freeAgents.add(agent); }
 		
 		agentToTask.put(agent, "");
 		
@@ -307,7 +320,7 @@ public class JobDelegator extends Artifact implements Runnable {
 	
 	void assign(AgentInfo agent, Object... args)
 	{
-		ErrorLogger.get().println(String.format("%s task(%s)", agent, Arrays.toString(args)));
+//		ErrorLogger.get().println(String.format("%s task(%s)", agent, Arrays.toString(args)));
 		
 		signal(agentIds.get(agent), "task", args);
 	}
@@ -323,21 +336,32 @@ public class JobDelegator extends Artifact implements Runnable {
 	}
 	
 	@INTERNAL_OPERATION
-	void release(String job)
+	void release(Job job)
 	{
-		if (taskToAgents.get(job) == null) return;
+		String jobId = job.getId();
 		
-		for (AgentInfo agent : taskToAgents.get(job))
+		if (taskToAgents.get(jobId) == null) return;
+		
+		for (AgentInfo agent : taskToAgents.get(jobId))
 		{
-			if (agentToTask.get(agent).equals(job)) 
+			if (agentToTask.get(agent).equals(jobId)) 
 			{
 				assign(agent, "release");
 			}
 		}
+		
+		Storage storage = (Storage) FacilityInfo.get().getFacility(job.getStorage());
+		
+		if (!storage.getDelivered().isEmpty())
+		{
+//			synchronized (freeAgents) {
+				assign(freeAgents.removeLast(), storage.getName());				
+//			}
+		}
 	}
 	
 	public void releaseAgents(Job job) {
-		execInternalOp("release", job.getId());
+		execInternalOp("release", job);
 	}
 	
 	@INTERNAL_OPERATION
@@ -347,6 +371,6 @@ public class JobDelegator extends Artifact implements Runnable {
 		
 		assign(agent, auction.getId(), bid);
 		
-		JobStatistics.bidOnAuction(auction);
+//		JobStatistics.bidOnAuction(auction);
 	}
 }

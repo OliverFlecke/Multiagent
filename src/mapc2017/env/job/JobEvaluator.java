@@ -2,10 +2,11 @@ package mapc2017.env.job;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import mapc2017.data.Role;
@@ -20,13 +21,13 @@ import mapc2017.env.info.ItemInfo;
 import mapc2017.env.info.StaticInfo;
 import massim.scenario.city.data.Location;
 
-public class JobEvaluator implements Comparator<JobEvaluation> {
+public class JobEvaluator {
 	
 	private static JobEvaluator instance;	
 	public  static JobEvaluator get() { return instance; }
 	
-	private PriorityQueue<JobEvaluation> 	evals 	= new PriorityQueue<>(this);
-	private LinkedList<Role> 				roles;
+	private Set<JobEvaluation> 	evals 	= new HashSet<>();
+	private LinkedList<Role> 	roles;
 	
 	private Collection<AgentInfo> 	aInfos;
 	private FacilityInfo			fInfo;
@@ -149,10 +150,5 @@ public class JobEvaluator implements Comparator<JobEvaluation> {
 				return;
 			}
 		}
-	}
-
-	@Override
-	public int compare(JobEvaluation o1, JobEvaluation o2) {
-		return o1.getValue() - o2.getValue();
 	}
 }

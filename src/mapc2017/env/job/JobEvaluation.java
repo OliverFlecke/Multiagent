@@ -71,4 +71,29 @@ public class JobEvaluation {
 	public String toString() {
 		return job.getId();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((job == null) ? 0 : job.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JobEvaluation other = (JobEvaluation) obj;
+		if (job == null) {
+			if (other.job != null)
+				return false;
+		} else if (!job.equals(other.job))
+			return false;
+		return true;
+	}
 }
