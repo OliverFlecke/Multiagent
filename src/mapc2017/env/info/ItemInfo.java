@@ -1,8 +1,10 @@
 package mapc2017.env.info;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,6 +101,26 @@ public class ItemInfo {
 			if (availableAmount < amount) return false;
 		}
 		return true;
+	}
+	
+	public synchronized ItemList getLeastAvailableItems(AgentInfo agent, Shop shop) 
+	{
+		Optional<Item> opt = shop.getItemsExcludingTools().stream()
+				.map(this::getItem)
+				.min(Comparator.comparingDouble(Item::getAvailability));
+		
+		if (!opt.isPresent()) return null;
+		
+		Item 	item 	 = opt.get();
+		int 	avaiable = shop.getAvailableAmount(item.getName());
+		
+		int amount = Math.min(avaiable, agent.getCapacity() / item.getVolume());
+		
+		if (amount <= 1) return null;
+		
+		shop.addReserved(item.getName(), amount);
+		
+		return new ItemList(item.getName(), amount);
 	}
 	
 	public ItemList getBaseItems(Map<String, Integer> items) {

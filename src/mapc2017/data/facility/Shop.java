@@ -2,6 +2,7 @@ package mapc2017.data.facility;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import mapc2017.data.item.ItemList;
 
@@ -10,7 +11,9 @@ public class Shop extends Facility {
 	private int 		restock;
 	private ItemList 	price;
 	private ItemList 	amount;
-	private ItemList 	local;
+	private ItemList 	reserved;
+	
+	private Set<String> itemsExcludingTools;
 
 	public Shop(Facility facility, int restock, 
 			Map<String, Integer> price, Map<String, Integer> amount) {
@@ -18,7 +21,11 @@ public class Shop extends Facility {
 		this.restock	= restock;
 		this.price		= new ItemList(price);
 		this.amount		= new ItemList(amount);
-		this.local		= new ItemList();
+		this.reserved	= new ItemList();
+		
+		this.itemsExcludingTools = amount.keySet().stream()
+									.filter(s -> s.startsWith("item"))
+									.collect(Collectors.toSet());
 	}
 	
 	public void update(Shop s) {
@@ -39,20 +46,32 @@ public class Shop extends Facility {
 	}
 	
 	public int getAvailableAmount(String item) {
-		Integer reserved = local.get(item);
-		return amount.get(item) - (reserved != null ? reserved : 0);
+		Integer x = reserved.get(item);
+		return amount.get(item) - (x != null ? x : 0);
 	}
 	
 	public Set<String> getItems() {
 		return amount.keySet();
 	}
 	
+	public Set<String> getItemsExcludingTools() {
+		return itemsExcludingTools;
+	}
+	
+	public ItemList getAmount() {
+		return new ItemList(amount);
+	}
+	
+	public ItemList getReserved() {
+		return new ItemList(reserved);
+	}
+	
 	public void addReserved(String item, int amount) {
-		this.local.add(item, amount);
+		this.reserved.add(item, amount);
 	}
 	
 	public void remReserved(String item, int amount) {
-		this.local.subtract(item, amount);
+		this.reserved.subtract(item, amount);
 	}
 
 }

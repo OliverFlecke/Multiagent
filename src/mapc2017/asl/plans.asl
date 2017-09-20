@@ -43,6 +43,12 @@
 	!doAction(buy(Item, BuyAmount));
 	!buyItems(Items);
 	!buyItems([map(Item, Amount)]).
+	
++!buyLeastAvailableItems : getClosestFacility("shop", Shop)
+						 & getLeastAvailableItems(Shop, Items) <-
+	!getToFacility(Shop);
+	!buyItems(Items).
+-!buyLeastAvailableItems.
 
 
 // Pre-condition: In workshop and all base items available.
@@ -116,7 +122,6 @@
 
 +!bidForJob( _,   _) : lastAction("bid_for_job").
 +!bidForJob(Id, Bid) <- 
-	.print("Bidding!");
 	!doAction(bid_for_job(Id, Bid)); 
 	!bidForJob(Id, Bid).
 

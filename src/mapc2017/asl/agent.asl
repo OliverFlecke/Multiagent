@@ -15,7 +15,7 @@
 
 +!doAction(Action) <- performAction(Action); .wait({+step(_)}).
 
-+start <- !reset; !free.
++start <- !start.
 
 +task(Id, Items, Storage, ShoppingList, Workshop) <- 
 	!task(doTask(Id, Items, Storage, ShoppingList, Workshop)).
@@ -30,8 +30,9 @@
 +!task(Task) <-	!stop; !Task; !free.
 -!task(Task) <- .print("Failed"); !task(Task).
 
++!start <- !reset; free; !buyLeastAvailableItems; !charge; !gather; !goToCenter; !skip.
++!free  <- !stop;  free; !charge; !gather; !goToCenter; !skip.
 +!stop  <- .drop_all_desires; .drop_all_intentions.
-+!free  <- !stop; free; !charge; !gather; !goToCenter; !skip.
 +!reset <- !stop; .drop_all_events;
 	for (assemble	   [source(A)]) { -assemble      [source(A)] };
 	for (assistant     [source(A)]) { -assistant     [source(A)] };

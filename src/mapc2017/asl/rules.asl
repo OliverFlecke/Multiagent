@@ -41,11 +41,12 @@ getDurationToFacility(F, D)		:- .my_name(Me) & mapc2017.jia.facility.getDuration
 getFacilityLocation(F, Lat, Lon):- 				  mapc2017.jia.facility.getFacilityLocation		(F, Lat, Lon).
 getResourceNode(F)				:- .my_name(Me) & mapc2017.jia.facility.getResourceNode			(Me, F).
 // Items
-getBaseItems	(L, B)			:- .list(L)   & mapc2017.jia.items.getBaseItems	(L, B).
-getLoadReq		(L, R)			:- .list(L)   & mapc2017.jia.items.getLoadReq	(L, R).
-getBaseVolume	(L, V)			:- .list(L)   & mapc2017.jia.items.getBaseVolume(L, V).
-getReqItems		(I, R)			:- .string(I) & mapc2017.jia.items.getReqItems	(I, R).
-getVolume		(I, V)			:- .string(I) & mapc2017.jia.items.getVolume	(I, V).
+getBaseItems	(L, B)			:- .list(L)   	& mapc2017.jia.items.getBaseItems	(L, B).
+getLoadReq		(L, R)			:- .list(L)   	& mapc2017.jia.items.getLoadReq	(L, R).
+getBaseVolume	(L, V)			:- .list(L)   	& mapc2017.jia.items.getBaseVolume(L, V).
+getReqItems		(I, R)			:- .string(I) 	& mapc2017.jia.items.getReqItems	(I, R).
+getVolume		(I, V)			:- .string(I) 	& mapc2017.jia.items.getVolume	(I, V).
+getLeastAvailableItems(S, I)	:- .my_name(Me) & mapc2017.jia.items.getLeastAvailableItems(Me, S, I).
 // Util
 getRandomLocation		(Lat, Lon)	:- 			mapc2017.jia.util.getRandomLocation(Lat, Lon).
 getRandomCenterLocation	(Lat, Lon)	:- 			mapc2017.jia.util.getRandomCenterLocation(Lat, Lon).
