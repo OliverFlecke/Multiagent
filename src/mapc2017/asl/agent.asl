@@ -27,8 +27,8 @@
 	!reset; !free.
 	
 +!task(Task) : .print(Task) & false.
-+!task(Task) <-	!stop; !Task; !free.
--!task(Task) <- .print("Failed"); !task(Task).
++!task(Task) <-	!stop; !Task; !!free.
+-!task(Task) <- .print("Failed"); .wait(1000); !task(Task).
 
 +!start <- !reset; free; !buyLeastAvailableItems; !charge; !gather; !goToCenter; !skip.
 +!free  <- !stop;  free; !charge; !gather; !goToCenter; !skip.

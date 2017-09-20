@@ -53,6 +53,8 @@ public class ReqActionPerceiver extends Artifact {
 	private JobEvaluator 	evaluator;
 	private JobDelegator	delegator;
 	
+	private Thread delegationThread;
+	
 	void init()
 	{
 		instance = this;
@@ -64,6 +66,8 @@ public class ReqActionPerceiver extends Artifact {
 		sInfo		= StaticInfo	.get();
 		evaluator 	= JobEvaluator	.get();
 		delegator 	= JobDelegator	.get();
+		
+		delegationThread = new Thread(delegator);
 	}
 	
 	public static void perceiveInitial(Collection<Percept> percepts)
@@ -73,6 +77,8 @@ public class ReqActionPerceiver extends Artifact {
 	
 	private void processInitial(Collection<Percept> percepts)
 	{
+		iInfo.clearItemLocations();
+		
 		for (Percept p : percepts)
 		{
 			switch (p.getName())
@@ -92,7 +98,8 @@ public class ReqActionPerceiver extends Artifact {
 		for (Item item : iInfo.getItems())
 			item.calculateItemAvailability();
 		
-		StatsLogger.printItemStats();
+//		StatsLogger.printItemStats();		
+//		StatsLogger.printShopStats();
 	}
 	
 	public static void perceive(Collection<Percept> percepts) 
@@ -100,8 +107,8 @@ public class ReqActionPerceiver extends Artifact {
 		instance.process(percepts);
 	}
 
-	private void process(Collection<Percept> percepts) 
-	{
+	private synchronized void process(Collection<Percept> percepts) 
+	{		
 		preprocess();
 		
 		for (Percept p : percepts)
@@ -120,40 +127,43 @@ public class ReqActionPerceiver extends Artifact {
 			case POSTED 			: jInfo.addJob		(IILParser.parsePosted			(p)); break;
 			}
 		}
-
+	
 		postprocess();
 	}
 	
 	private void preprocess()
 	{
-		iInfo.clearItemLocations();
+//		iInfo.clearItemLocations();
 		jInfo.setRemovedJobs();
 	}
 
 	private void postprocess()
 	{
-		if (dInfo.getStep() % 25 == 0) 
-		{
-			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-			StatsLogger.printStats();
-		}
+//		if (dInfo.getStep() % 25 == 0) 
+//		{
+//			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+//			StatsLogger.printStats();
+//			StatsLogger.printShopStats();
+//		}
 		
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
 		{			
-			StatsLogger.printStats();
-			StatsLogger.printOverallStats();
-			StatsLogger.printJobStepStats();
-			StatsLogger.printAgentInventoryStats();
-			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
-			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-			StatsLogger.reset();
-			ErrorLogger.reset();
-			JobStatistics.resetStats();
+//			StatsLogger.printStats();
+//			StatsLogger.printOverallStats();
+//			StatsLogger.printJobStepStats();
+//			StatsLogger.printAgentInventoryStats();
+//			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
+//			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+//			StatsLogger.reset();
+//			ErrorLogger.reset();
+//			JobStatistics.resetStats();
+			delegationThread.interrupt();
+			SimStartPerceiver.setPerceived(false);
 		}
 		
-		for (Shop shop : fInfo.getShops())
-			for (String item : shop.getItems())
-				iInfo.addItemLocation(item, shop);
+//		for (Shop shop : fInfo.getShops())
+//			for (String item : shop.getItems())
+//				iInfo.addItemLocation(item, shop);
 		
 		for (Item item : iInfo.getItems())
 			item.calculateItemAvailability();
@@ -172,10 +182,16 @@ public class ReqActionPerceiver extends Artifact {
 		{
 			evaluator.evaluate(job);
 			
-			JobStatistics.addJob(job);
+//			JobStatistics.addJob(job);
 		}
 		
-		delegator.select(evaluator.getEvaluations());
+//		delegator.select(evaluator.getEvaluations());
+		
+		if (!delegationThread.isAlive()) 
+		{
+			delegationThread = new Thread(delegator);
+			delegationThread.start();
+		}
 		
 		execInternalOp("update");
 	}

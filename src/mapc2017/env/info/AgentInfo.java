@@ -213,12 +213,12 @@ public class AgentInfo {
 			int 	needAmount 	= entry.getValue();
 			int		itemVolume	= item.getReqBaseVolume();
 			
-			if (this.hasItem(item.getName()))
-			{
-				int hasAmount 	= this.getAmount(item.getName());
-				toCarry 	   += itemVolume * hasAmount + 200 * hasAmount;
-				needAmount 	   -= hasAmount;		
-			}				
+//			if (this.hasItem(item.getName()))
+//			{
+//				int hasAmount 	= this.getAmount(item.getName());
+//				toCarry 	   += itemVolume * hasAmount + 200 * hasAmount;
+//				needAmount 	   -= hasAmount;		
+//			}				
 				
 			int amountToCarry = Math.min(needAmount, capacity / itemVolume);			
 			

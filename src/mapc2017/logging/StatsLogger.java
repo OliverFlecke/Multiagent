@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 import mapc2017.data.JobStatistics;
+import mapc2017.data.facility.Shop;
 import mapc2017.data.item.Item;
 import mapc2017.data.item.Tool;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.AgentInfo;
 import mapc2017.env.info.DynamicInfo;
+import mapc2017.env.info.FacilityInfo;
 import mapc2017.env.info.ItemInfo;
 
 public class StatsLogger extends Logger {
@@ -83,6 +85,25 @@ public class StatsLogger extends Logger {
 		logger.printSeparator();
 		logger.println();
 	}
+	
+	public static void printShopStats()
+	{
+		Logger logger = StatsLogger.get();
+		
+		List<Shop> sortedShops = new ArrayList<>(FacilityInfo.get().getShops());	
+		
+		Collections.sort(sortedShops, Comparator.comparingInt(Shop::getNumber));
+		
+		logger.println(String.format("%-6s %s", "Name", "Items"));
+		
+		for (Shop shop : sortedShops)
+		{
+			logger.println(String.format("%-6s %s", shop.getName(), shop.getItems()));
+		}
+		
+		logger.printSeparator();
+		logger.println();
+	}
 
 	public static void printOverallStats()
 	{
@@ -91,7 +112,7 @@ public class StatsLogger extends Logger {
 		logger.println("--- Overall Performance ---");
 		logger.println("Money:    					" + DynamicInfo.get().getMoney());
 		logger.println("Jobs completed: 			" + JobStatistics.getTotalJobsCompleted());
-		logger.println(String.format("Missions: %03d %%, \tAuctions: %03d %%", 
+		logger.println(String.format("Missions: %d %%, \tAuctions: %d %%", 
 			JobStatistics.getMissionsCompleted() * 100 / (JobStatistics.getTotalMissions() == 0 ? 1 : JobStatistics.getTotalMissions()),
 			JobStatistics.getAuctionsCompleted() * 100 / (JobStatistics.getAuctionsWon() == 0 ? 1 : JobStatistics.getAuctionsWon())
 			));

@@ -4,7 +4,7 @@
 	!getToFacility(Workshop);
 	!initiateAssembleProtocol(Items);
 	!getToFacility(Storage); 
-	!doAction(deliver_job(Id)).
+	!deliverJob(Id).
 	
 // Assist job
 +!doTask(Agent, ShoppingList, Workshop) <-
@@ -16,6 +16,9 @@
 	
 // Bid job
 +!doTask(Id, Bid) <- !bidForJob(Id, Bid).
+
++!deliverJob( _) : lastAction("deliver_job").
++!deliverJob(Id) <- !doAction(deliver_job(Id)); !deliverJob(Id).
 
 +!acquireItems([]).
 +!acquireItems([map(Shop, Items)|ShoppingList]) <- 

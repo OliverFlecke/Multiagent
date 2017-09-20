@@ -138,11 +138,12 @@ public class AgentPerceiver extends Artifact {
 		String 	 lastActionResult 	= aInfo.getLastActionResult();
 		String[] lastActionParams 	= aInfo.getLastActionParams();
 		
-			 if (lastAction.equals(DELIVER_JOB) &&	lastActionResult.equals(SUCCESSFUL)) 
-		{
-			JobStatistics.completeJob(jInfo.getJob(lastActionParams[0]), dInfo.getStep() - 1);
-		}
-		else if (lastAction.equals(CHARGE) 		&& lastActionResult.equals(FAILED_FACILITY_STATE)) 
+//			 if (lastAction.equals(DELIVER_JOB) &&	lastActionResult.equals(SUCCESSFUL)) 
+//		{
+//			JobStatistics.completeJob(jInfo.getJob(lastActionParams[0]), dInfo.getStep() - 1);
+//		}
+//		else 
+			if (lastAction.equals(CHARGE) 		&& lastActionResult.equals(FAILED_FACILITY_STATE)) 
 		{
 			((ChargingStation) fInfo.getFacility(aInfo.getFacility())).blackout();
 		}		
@@ -162,22 +163,22 @@ public class AgentPerceiver extends Artifact {
 		
 		execInternalOp("update");
 		
-		if (lastActionResult.startsWith(FAILED))
-		{
-			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
-					aInfo.getName(), lastActionResult, lastAction, 
-					Arrays.toString(aInfo.getLastActionParams())));
-		}
-		else 
-		{
-			for (String action : NOT_LOGGED)
-				if (lastAction.equals(action))
-					return;
-			
-			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
-					aInfo.getName(), lastActionResult, lastAction, 
-					Arrays.toString(aInfo.getLastActionParams())));
-		}
+//		if (lastActionResult.startsWith(FAILED))
+//		{
+//			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
+//					aInfo.getName(), lastActionResult, lastAction, 
+//					Arrays.toString(aInfo.getLastActionParams())));
+//		}
+//		else 
+//		{
+//			for (String action : NOT_LOGGED)
+//				if (lastAction.equals(action))
+//					return;
+//			
+//			ErrorLogger.get().println(String.format("%-7s %s %s(%s)", 
+//					aInfo.getName(), lastActionResult, lastAction, 
+//					Arrays.toString(aInfo.getLastActionParams())));
+//		}
 	}
 	
 	@INTERNAL_OPERATION
