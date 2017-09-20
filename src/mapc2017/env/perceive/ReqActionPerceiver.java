@@ -158,7 +158,6 @@ public class ReqActionPerceiver extends Artifact {
 //			ErrorLogger.reset();
 //			JobStatistics.resetStats();
 			delegationThread.interrupt();
-			SimStartPerceiver.setPerceived(false);
 		}
 		
 //		for (Shop shop : fInfo.getShops())

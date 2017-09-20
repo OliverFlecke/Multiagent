@@ -15,7 +15,6 @@ import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
 import mapc2017.data.JobStatistics;
-import mapc2017.data.facility.Facility;
 import mapc2017.data.facility.Shop;
 import mapc2017.data.item.Item;
 import mapc2017.data.item.ItemList;
@@ -150,16 +149,10 @@ public class JobDelegator extends Artifact implements Runnable {
 			if (agents.isEmpty()) return false;
 
 			for (AgentInfo agent : agents)
-			{
-				ItemList inventory = agent.getInventory();
-				
-				if (inventory.isEmpty()) break;
-				
+			{				
 				int beforeAmount = itemsToAssemble.getTotalAmount();
 				
-				ItemList temp = new ItemList(inventory);
-				inventory.subtract(itemsToAssemble);
-				itemsToAssemble.subtract(temp);
+				itemsToAssemble.subtract(agent.getInventory());
 				
 				int afterAmount	= itemsToAssemble.getTotalAmount();
 				

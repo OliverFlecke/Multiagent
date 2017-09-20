@@ -24,7 +24,7 @@
 +task(Id, Bid) <-
 	!task(doTask(Id, Bid)).
 +task("release") <-
-	!reset; !free.
+	!reset; !!free.
 	
 +!task(Task) : .print(Task) & false.
 +!task(Task) <-	!stop; !Task; !!free.

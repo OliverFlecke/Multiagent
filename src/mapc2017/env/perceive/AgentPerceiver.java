@@ -143,7 +143,7 @@ public class AgentPerceiver extends Artifact {
 //			JobStatistics.completeJob(jInfo.getJob(lastActionParams[0]), dInfo.getStep() - 1);
 //		}
 //		else 
-			if (lastAction.equals(CHARGE) 		&& lastActionResult.equals(FAILED_FACILITY_STATE)) 
+			 if (lastAction.equals(CHARGE) 		&& lastActionResult.equals(FAILED_FACILITY_STATE)) 
 		{
 			((ChargingStation) fInfo.getFacility(aInfo.getFacility())).blackout();
 		}		
