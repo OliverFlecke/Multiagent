@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -13,7 +14,6 @@ import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
-import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.Shop;
 import mapc2017.data.facility.Storage;
 import mapc2017.data.item.Item;
@@ -136,7 +136,7 @@ public class JobDelegator extends Artifact implements Runnable {
 	{		
 		// Prevent delegating job twice with the same agents
 		if (eval.getNrAgents() == freeAgents.size()) return false;
-		eval.setNrAgents(freeAgents.size());
+		if (freeAgents.size() < 28)	eval.setNrAgents(freeAgents.size());
 		
 		Job job = eval.getJob();
 		
@@ -150,15 +150,13 @@ public class JobDelegator extends Artifact implements Runnable {
 		// Maps retrievers to the name of the assembler
 		Map<AgentInfo, String>			assistants 	= new HashMap<>();		
 		
-		ItemList itemsToAssemble = job.getItems();	
-		
-		Entry<String, Integer> e = itemsToAssemble.entrySet().stream().findAny().get();
-		
-		itemsToAssemble.put(e.getKey(), e.getValue() - 1);
+		ItemList itemsToAssemble = job.getItems();
 		
 		while (!itemsToAssemble.isEmpty())
 		{
 			if (agents.isEmpty()) return false;
+			
+			List<AgentInfo> usedAgents = new LinkedList<>();
 
 			for (AgentInfo agent : agents)
 			{				
@@ -169,6 +167,7 @@ public class JobDelegator extends Artifact implements Runnable {
 				int afterAmount	= itemsToAssemble.getTotalAmount();
 				
 				if (afterAmount < beforeAmount) {
+					usedAgents.add(agent);
 					retrievers.put(agent, new ShoppingList());
 					assemblers.put(agent, new ItemList()); 
 				}
@@ -177,7 +176,9 @@ public class JobDelegator extends Artifact implements Runnable {
 			// Find best suited agent to assemble items based on their volume
 			AgentInfo assembler = getAssembler(agents, iInfo.getBaseVolume(itemsToAssemble));
 			
-			agents.remove(assembler);
+//			agents.remove(assembler);
+			usedAgents.add(assembler);
+			retrievers.put(assembler, new ShoppingList());
 			
 			// Find actual items to deliver
 			ItemList toAssemble = assembler.getItemsToCarry(itemsToAssemble);
@@ -190,13 +191,14 @@ public class JobDelegator extends Artifact implements Runnable {
 			
 			// Create shopping list for the given items
 			ShoppingList 	shoppingList  = ShoppingList.getShoppingList(toAssemble);
-			String 			assemblerShop = getShop(assembler, shoppingList);
 			
-			ItemList assemblerRetrieve = assembler.getItemsToCarry(shoppingList.get(assemblerShop));
-			
-			shoppingList.get(assemblerShop).subtract(assemblerRetrieve);
-			
-			retrievers.put(assembler, new ShoppingList(assemblerShop, assemblerRetrieve));
+//			String 			assemblerShop = getShop(assembler, shoppingList);
+//			
+//			ItemList assemblerRetrieve = assembler.getItemsToCarry(shoppingList.get(assemblerShop));
+//			
+//			shoppingList.get(assemblerShop).subtract(assemblerRetrieve);
+//			
+//			retrievers.put(assembler, new ShoppingList(assemblerShop, assemblerRetrieve));
 
 			for (AgentInfo agent : agents)
 			{
@@ -219,6 +221,7 @@ public class JobDelegator extends Artifact implements Runnable {
 					int afterAmount	= itemsToRetrieve.getTotalAmount();
 					
 					if (afterAmount < beforeAmount) {
+						usedAgents.add(agent);
 						retrievers.put(agent, new ShoppingList("shop0", agent.getInventory()));
 						assistants.put(agent, assembler.getName());
 					}
@@ -246,9 +249,12 @@ public class JobDelegator extends Artifact implements Runnable {
 					
 					retrievers.put(retriever, new ShoppingList(shop, toRetrieve, retriever.getInventory()));
 					
-					assistants.put(retriever, assembler.getName());
+					if (!retriever.equals(assembler)) assistants.put(retriever, assembler.getName());
 				}
 			}
+			
+			// Make sure used agents are removed from available agents
+			for (AgentInfo agent : usedAgents) agents.remove(agent);
 		}
 		synchronized (freeAgents) {
 			retrievers.keySet().stream().forEach(freeAgents::remove);			
@@ -280,15 +286,15 @@ public class JobDelegator extends Artifact implements Runnable {
 //		return shoppingList.keySet().stream().findAny().get();
 //	}
 
-	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
-		return shoppingList.entrySet().stream().max(Comparator.comparingInt(e -> agent.getVolumeToCarry(iInfo.stringToItemMap(e.getValue()))
+//	private String getShop(AgentInfo agent, ShoppingList shoppingList) {
+//		return shoppingList.entrySet().stream().max(Comparator.comparingInt(e -> agent.getVolumeToCarry(iInfo.stringToItemMap(e.getValue()))
 //		{
 //			int steps = sInfo.getRouteDuration(agent, fInfo.getFacility(e.getKey()).getLocation());
 //			int volume = agent.getVolumeToCarry(iInfo.stringToItemMap(e.getValue()));
 //			return volume - steps;
 //		}
-		)).get().getKey();
-	}
+//		)).get().getKey();
+//	}
 	
 //	private AgentInfo getRetriever(LinkedList<AgentInfo> agents, String shop, Map<String, Integer> items) {
 //		return agents.stream().findAny().get();

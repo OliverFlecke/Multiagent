@@ -18,11 +18,19 @@
 +!doTask(Id, Bid) <- !bidForJob(Id, Bid).
 
 // Retrieve storage
-+!doTask(Storage) : getDeliveredItems(Storage, Items) <-
++!doTask(Storage) <- !retrieveDelivered(Storage).
+
++!bidForJob( _,   _) : lastAction("bid_for_job").
++!bidForJob(Id, Bid) <- 
+	!doAction(bid_for_job(Id, Bid)); 
+	!bidForJob(Id, Bid).
+	
++!retrieveDelivered(_) : lastActionResult("failed_capacity").
++!retrieveDelivered(Storage) : getDeliveredItems(Storage, Items) <-
 	!getToFacility(Storage);
 	!retrieveItems(Items);
-	!doTask(Storage).
-	
+	!retrieveDelivered(Storage).
+		
 +!retrieveItems(_) : lastActionResult("failed_capacity").
 +!retrieveItems([map(Item, Amount)|Items]) <-
 	!doAction(retrieve_delivered(Item, Amount));
@@ -31,21 +39,28 @@
 +!deliverJob( _) : lastAction("deliver_job").
 +!deliverJob(Id) <- !doAction(deliver_job(Id)); !deliverJob(Id).
 
+//+!acquireItems([]).
+//+!acquireItems([map(Shop, Items)|ShoppingList]) <- 
+//	!buyItems(Shop, Items);
+//	!acquireItems(ShoppingList).
+	
 +!acquireItems([]).
-+!acquireItems([map(Shop, Items)|ShoppingList]) <- 
-	!buyItems(Shop, Items);
++!acquireItems([map(   _, Items)|ShoppingList]) : hasItems(Items) <-
 	!acquireItems(ShoppingList).
++!acquireItems([map(Shop, Items)|ShoppingList]) <- 
+	!getToFacility(Shop);
+	!buyItems(Items);
+	!acquireItems(ShoppingList);
+	!acquireItems([map(Shop, Items)]).
 
-+!buyItems(   _, Items) : hasItems(Items).
-+!buyItems(Shop, Items) : facility(Shop) <- 
-	!buyItems(Items).
-+!buyItems(Shop, Items) <- 
-	!getToFacility(Shop); 
-	!buyItems(Items).
+//+!buyItems(   _, Items) : hasItems(Items).
+//+!buyItems(Shop, Items) : facility(Shop) <- 	 !buyItems(Items).
+//+!buyItems(Shop, Items) <- !getToFacility(Shop); !buyItems(Items).
 	
 // Pre-condition: In shop and shop selling the items.
 // Post-condition: Items in inventory.
-+!buyItems(Items) 		 : hasItems(Items).
+//+!buyItems(Items) 		 : hasItems(Items). // Is previously checked
++!buyItems([]).
 +!buyItems([Item|Items]) : hasItems([Item]) <- !buyItems(Items).
 //+!buyItems([map(Item, Amount)|Items]) : buyAmount(Item, Amount, 0) 
 //	& getAlternativeShop(Item, Amount, Shop) <- 
@@ -60,7 +75,7 @@
 	!buyItems([map(Item, Amount)]).
 	
 +!buyAvailable : getClosestFacility("shop", Shop)
-						 & getLeastAvailableItems(Shop, [map(Item, Amount)]) <-
+			   & getLeastAvailableItems(Shop, [map(Item, Amount)]) <-
 	!getToFacility(Shop);
 	?buyAmount(Item, Amount, BuyAmount);
 	!doAction(buy(Item, BuyAmount)).
@@ -78,8 +93,8 @@
 
 // Pre-condition: In workshop and base items available.
 // Post-condition: Amount of Item with Name in inventory.
-+!assembleItem(Item, _) : hasItems([Item]).
 +!assembleItem(   _, _) : lastActionResult("failed_location") <- .fail.
++!assembleItem(Item, _) : hasItems([Item]).
 +!assembleItem(map(Name, Amount), ReqItems) : hasItems(ReqItems) <- 
 	!doAction(assemble(Name));
 	!assembleItem(map(Name, Amount), ReqItems).
@@ -89,9 +104,9 @@
 	!assembleItem(map(Name, Amount), ReqItems).
 
 // Post-condition: Empty inventory or -assemble.
++!assistAssemble(    _) : lastActionResult("failed_location") <- .fail.
 +!assistAssemble(Agent) :         not assemble[source(Agent)].
 +!assistAssemble(Agent) : load(0) <- -assemble[source(Agent)].
-+!assistAssemble(    _) : lastActionResult("failed_location") <- .fail.
 +!assistAssemble(Agent) <-
 	!doAction(assist_assemble(Agent));
 	.wait(200); // Allow assembler to remove assemble in time.
@@ -125,15 +140,9 @@
 +!charge : getClosestFacility("chargingStation", F) 						 <- !goToFacility(F);  !charge.
 
 +!gather : capacity(C) & maxLoad(L) & C <= 0.8 * L.
-+!gather : inResourceNode 						 <- !doAction(gather);    !gather.
-//+!gather : getClosestFacility("resourceNode", F) <- !goToLocation(F);  	  !gather.
-+!gather : getResourceNode(F) 					 <- !goToLocation(F);  	  !gather.
-+!gather  			 							 <- !goToRandom; !charge; !gather.
-
-+!bidForJob( _,   _) : lastAction("bid_for_job").
-+!bidForJob(Id, Bid) <- 
-	!doAction(bid_for_job(Id, Bid)); 
-	!bidForJob(Id, Bid).
++!gather : inResourceNode 		<- !doAction(gather);    !gather.
++!gather : getResourceNode(F) 	<- !goToLocation(F);  	 !gather.
++!gather  			 			<- !goToRandom; !charge; !gather.
 
 +!skip 					<- while (true)		   { !doAction(recharge) }.
 +!skip(Literal) 		<- while (not Literal) { !doAction(recharge) }.

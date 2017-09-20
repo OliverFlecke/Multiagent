@@ -26,7 +26,7 @@
 	!task(doTask(Id, Bid)).
 +task("release") <-
 	!reset; !!free.
-+task(Storage) <-
++task(Storage) <- 
 	!task(doTask(Storage)).
 	
 +!task(Task) : .print(Task) & false.

@@ -11,7 +11,7 @@
     {
       "id" : "2017-SampleSimulation",
       "scenarioClass" : "city.CitySimulation",
-      "steps" : 20,
+      "steps" : 1000,
       "map" : "paris",
       "seedCapital" : 50000,
       "minLon" : 2.26,
