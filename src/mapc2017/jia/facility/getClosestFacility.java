@@ -32,11 +32,15 @@ public class getClosestFacility extends DefaultInternalAction {
 		Collection<? extends Facility> facilities = type.equals("chargingStation") ?
 				fInfo.getActiveChargingStations() : fInfo.getFacilities(type);
 		
-		Optional<? extends Facility> opt = from.startsWith("agent") ?
+		Optional<? extends Facility> opt;
+				
+		synchronized (facilities) {
+			opt = from.startsWith("agent") ?
 				facilities.stream().min(Comparator.comparingInt(f -> sInfo
 						.getRouteDuration(AgentInfo.get(from), f.getLocation()))) :
 				facilities.stream().min(Comparator.comparingInt(f -> sInfo
 						.getRouteLength(FacilityInfo.get().getFacility(from).getLocation(), f.getLocation())));
+		}
 		
 		if (!opt.isPresent()) return false;
 		

@@ -10,6 +10,8 @@ public class Storage extends Facility {
 	private ItemList	stored;
 	private ItemList	delivered;
 	
+	private boolean		isRetrieving;
+	
 	public Storage(Facility facility, int cap, int used, 
 			Map<String, Integer> stored, Map<String, Integer> delivered) {
 		super(facility);
@@ -17,12 +19,17 @@ public class Storage extends Facility {
 		this.used		= used;
 		this.stored		= new ItemList(stored);
 		this.delivered	= new ItemList(delivered);
+		
+		this.isRetrieving = false;
 	}
 	
 	public void update(Storage s) {
 		this.used		= s.used;
 		this.stored 	= s.stored;
 		this.delivered	= s.delivered;
+		
+		if (s.delivered.isEmpty()) 
+			this.isRetrieving = false;
 	}
 
 	public int getCap() {
@@ -39,6 +46,14 @@ public class Storage extends Facility {
 
 	public ItemList getDelivered() {
 		return delivered;
+	}
+	
+	public boolean isRetrieving() {
+		return isRetrieving;
+	}
+	
+	public void setRetrieving(boolean isRetrieving) {
+		this.isRetrieving = isRetrieving;
 	}
 
 }

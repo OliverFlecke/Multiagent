@@ -50,7 +50,7 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown facility: " + name);
 	}
 	
-	public Collection<? extends Facility> getFacilities(String type) {
+	public synchronized Collection<? extends Facility> getFacilities(String type) {
 			 if (type.equals(CHARGING_STATION)) return chargingStations.values();	
 		else if (type.equals(DUMP			 ))	return dumps	       .values();        
 		else if (type.equals(SHOP			 ))	return shops	       .values();           
@@ -60,8 +60,15 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unknown type: " + type);
 	}
 	
-	public Collection<Shop> getShops() {
+	public synchronized Collection<Shop> getShops() {
 		return shops.values();
+	}
+	
+	public Collection<Storage> getUnretrievedStorages() {
+		return storages.values().stream()
+				.filter(s -> !s.isRetrieving())
+				.filter(s -> !s.getDelivered().isEmpty())
+				.collect(Collectors.toSet());
 	}
 	
 	public Collection<ChargingStation> getChargingStations() {
@@ -78,7 +85,7 @@ public class FacilityInfo {
 	// SETTERS //
 	/////////////
 
-	public void putFacility(Facility f) {
+	public synchronized void putFacility(Facility f) {
 			 if (f instanceof ChargingStation) chargingStations.put(f.getName(), (ChargingStation) f);
 		else if (f instanceof Dump           ) dumps           .put(f.getName(), (Dump           ) f);
 		else if (f instanceof Shop           ) shops           .put(f.getName(), (Shop           ) f);
@@ -88,11 +95,11 @@ public class FacilityInfo {
 		else throw new UnsupportedOperationException("Unsupported facility: " + f.getName());
 	}
 	
-	public void setShop(Shop f) {
+	public synchronized void setShop(Shop f) {
 		shops.get(f.getName()).update(f);
 	}
 	
-	public void setStorage(Storage f) {
+	public synchronized void setStorage(Storage f) {
 		storages.get(f.getName()).update(f);
 	}
 	

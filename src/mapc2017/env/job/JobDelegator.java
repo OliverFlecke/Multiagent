@@ -97,15 +97,17 @@ public class JobDelegator extends Artifact implements Runnable {
 					if (auction.hasWon())
 					{
 //						JobStatistics.auctionWon(auction);
+						System.out.println("Won auction");
 						if (!delegate(eval)) return;
 					}
 					else if (auction.getReward() > 10000) {
 						// Too difficult to delegate at this point
 					}
-					else if (!auction.isHighestBidder() && eval.getReqAgents() <= freeAgents.size())
+					else if ((auction.isLastStep() || !auction.isHighestBidder()) 
+							&& eval.getReqAgents() <= freeAgents.size())
 					{
 //						if (!iInfo.isItemsAvailable(eval.getBaseItems())) continue;
-						
+												
 						AgentInfo agent;
 						
 						synchronized (freeAgents) {
@@ -152,6 +154,11 @@ public class JobDelegator extends Artifact implements Runnable {
 		
 		ItemList itemsToAssemble = job.getItems();
 		
+//		if (itemsToAssemble.size() > 1) {
+//			String item = itemsToAssemble.keySet().stream().findAny().get();
+//			itemsToAssemble.remove(item);
+//		}
+		
 		while (!itemsToAssemble.isEmpty())
 		{
 			if (agents.isEmpty()) return false;
@@ -172,6 +179,8 @@ public class JobDelegator extends Artifact implements Runnable {
 					assemblers.put(agent, new ItemList()); 
 				}
 			}
+			
+			usedAgents.stream().forEach(agents::remove);
 			
 			// Find best suited agent to assemble items based on their volume
 			AgentInfo assembler = getAssembler(agents, iInfo.getBaseVolume(itemsToAssemble));
@@ -355,15 +364,6 @@ public class JobDelegator extends Artifact implements Runnable {
 				assign(agent, "release");
 			}
 		}
-		
-		Storage storage = (Storage) FacilityInfo.get().getFacility(job.getStorage());
-		
-		if (!storage.getDelivered().isEmpty())
-		{
-//			synchronized (freeAgents) {
-				assign(freeAgents.removeLast(), storage.getName());				
-//			}
-		}
 	}
 	
 	public void releaseAgents(Job job) {
@@ -378,5 +378,30 @@ public class JobDelegator extends Artifact implements Runnable {
 		assign(agent, auction.getId(), bid);
 		
 //		JobStatistics.bidOnAuction(auction);
+	}
+	
+	public void retrieveDelivered(Storage storage) {		
+		execInternalOp("retrieve", storage);
+	}
+
+	@INTERNAL_OPERATION
+	void retrieve(Storage storage) 
+	{	
+		synchronized (freeAgents) 
+		{			
+			if (freeAgents.isEmpty()) return;
+			
+			if (storage.isRetrieving()) return;
+			
+			AgentInfo agent = freeAgents.getLast();
+			
+			if (agent.getCapacity() < iInfo.getVolume(storage.getDelivered())) return;
+			
+			freeAgents.remove(agent);
+			
+			storage.setRetrieving(true);
+			
+			assign(agent, storage.getName());
+		}
 	}
 }

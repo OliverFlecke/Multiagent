@@ -39,6 +39,10 @@ public class AuctionJob extends Job {
 	public boolean hasWon() {
 		return this.getStart() + this.getSteps() < DynamicInfo.get().getStep();
 	}
+	
+	public boolean isLastStep() {
+		return this.getStart() + this.getSteps() == DynamicInfo.get().getStep();
+	}
 
 	public void setIsHighestBidder(boolean state) 
 	{

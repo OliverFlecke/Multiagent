@@ -1,4 +1,7 @@
 // Solve job
++!doTask(Id, [], Storage, [], _) <-
+	!getToFacility(Storage); 
+	!deliverJob(Id).
 +!doTask(Id, Items, Storage, ShoppingList, Workshop) <-
 	!acquireItems(ShoppingList);
 	!getToFacility(Workshop);
@@ -26,6 +29,7 @@
 	!bidForJob(Id, Bid).
 	
 +!retrieveDelivered(_) : lastActionResult("failed_capacity").
++!retrieveDelivered(Storage) : getDeliveredItems(Storage, []).
 +!retrieveDelivered(Storage) : getDeliveredItems(Storage, Items) <-
 	!getToFacility(Storage);
 	!retrieveItems(Items);

@@ -8,6 +8,7 @@ import eis.iilang.Percept;
 import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.ChargingStation;
 import mapc2017.data.facility.Shop;
+import mapc2017.data.facility.Storage;
 import mapc2017.data.item.Item;
 import mapc2017.data.job.Job;
 import mapc2017.env.info.DynamicInfo;
@@ -170,6 +171,11 @@ public class ReqActionPerceiver extends Artifact {
 			delegator.releaseAgents(job);
 		}
 		
+		for (Storage storage : fInfo.getUnretrievedStorages())
+		{			
+			delegator.retrieveDelivered(storage);
+		}
+		
 		for (Job job : jInfo.getNewJobs())
 		{
 			evaluator.evaluate(job);
@@ -188,6 +194,21 @@ public class ReqActionPerceiver extends Artifact {
 			delegationThread = new Thread(delegator);
 			delegationThread.start();
 		}
+		
+//		try 
+//		{			
+//			int count = 0;
+//			
+//			while (delegationThread.isAlive() && count <= 2000)
+//			{
+//				Thread.sleep(100);
+//				count += 100;
+//			}
+//		} 
+//		catch (InterruptedException e) 
+//		{
+//			e.printStackTrace();
+//		}
 		
 		execInternalOp("update");
 	}
