@@ -3,20 +3,20 @@
 The source code contains Jason-DTU's multi-agent system for the Multi-Agent Programming Contest 2017. This has been developed using Jason, CArtAgO, and Java. The contest can be found at https://multiagentcontest.org/2017/.
 
 ## Members 
-Jørgen Villadsen
-Oliver Fleckenstein
-Helge Hatteland
-John Bruntse Larsen
+* Jørgen Villadsen
+* Oliver Fleckenstein
+* Helge Hatteland
+* John Bruntse Larsen
 
 
 ## Dependencies 
 Our system uses CArtAgO and Jason, which is not included in the source files. These can be found at the links below.  
-[Download CArtAgO](https://sourceforge.net/projects/cartago/files/cartago/2.0/cartago-2.0.1.zip/download)
-[Download Jason](https://sourceforge.net/projects/jason/files/)
+* [Download CArtAgO](https://sourceforge.net/projects/cartago/files/cartago/2.0/cartago-2.0.1.zip/download)
+* [Download Jason](https://sourceforge.net/projects/jason/files/)
 
-Get the libraries from https://github.com/agentcontest/massim/releases. (Our system have been tested with version 1.7). These should be put in the libs/agentcontest/ directory, if you want to use our build files. 
+Get the libraries from [official releases](https://github.com/agentcontest/massim/releases). (Our system have been tested with version 1.7). These should be put in the libs/agentcontest/ directory, if you want to use our build files. 
 
-If the osm files for the map are missing from our source code, they can be found at the MAPC 2017's official repository: https://github.com/agentcontest/massim/tree/master/server/osm. These should be put in the osm directory. 
+If the osm files for the map are missing from our source code, they can be found at the MAPC 2017's official repository: [official osm files](https://github.com/agentcontest/massim/tree/master/server/osm). These should be put in the osm directory. 
 
 ## How to build and run
 The project can be build using the provided **ant** build files 
