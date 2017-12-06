@@ -14,6 +14,7 @@ import cartago.AgentId;
 import cartago.Artifact;
 import cartago.INTERNAL_OPERATION;
 import cartago.OPERATION;
+import mapc2017.data.JobStatistics;
 import mapc2017.data.facility.Shop;
 import mapc2017.data.facility.Storage;
 import mapc2017.data.item.Item;
@@ -96,7 +97,7 @@ public class JobDelegator extends Artifact implements Runnable {
 					
 					if (auction.hasWon())
 					{
-//						JobStatistics.auctionWon(auction);
+						JobStatistics.auctionWon(auction);
 						System.out.println("Won auction");
 						if (!delegate(eval)) return;
 					}
@@ -129,7 +130,7 @@ public class JobDelegator extends Artifact implements Runnable {
 					if (!delegate(eval)) continue;
 				}
 			}
-//			JobStatistics.addJobEvaluation(eval);
+			JobStatistics.addJobEvaluation(eval);
 			evaluator.removeEvaluation(eval);
 		}
 	}
@@ -153,11 +154,6 @@ public class JobDelegator extends Artifact implements Runnable {
 		Map<AgentInfo, String>			assistants 	= new HashMap<>();		
 		
 		ItemList itemsToAssemble = job.getItems();
-		
-//		if (itemsToAssemble.size() > 1) {
-//			String item = itemsToAssemble.keySet().stream().findAny().get();
-//			itemsToAssemble.remove(item);
-//		}
 		
 		while (!itemsToAssemble.isEmpty())
 		{
@@ -279,7 +275,7 @@ public class JobDelegator extends Artifact implements Runnable {
 		
 		execInternalOp("assign", assemblers, retrievers, assistants, job, eval);
 		
-//		JobStatistics.startJob(job, dInfo.getStep());
+		JobStatistics.startJob(job, dInfo.getStep());
 		
 		return true;
 	}
@@ -377,7 +373,7 @@ public class JobDelegator extends Artifact implements Runnable {
 		
 		assign(agent, auction.getId(), bid);
 		
-//		JobStatistics.bidOnAuction(auction);
+		JobStatistics.bidOnAuction(auction);
 	}
 	
 	public void retrieveDelivered(Storage storage) {		

@@ -140,23 +140,23 @@ public class ReqActionPerceiver extends Artifact {
 
 	private void postprocess()
 	{		
-//		if (dInfo.getStep() == sInfo.getSteps() - 1)
-//		{			
-//			StatsLogger.printStats();
-//			StatsLogger.printOverallStats();
-//			StatsLogger.printJobStepStats();
-//			StatsLogger.printAgentInventoryStats();
-//			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
-//			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-//			StatsLogger.reset();
-//			ErrorLogger.reset();
-//			JobStatistics.resetStats();
-//		}
-//		else if (dInfo.getStep() % 25 == 0) 
-//		{
-//			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
-//			StatsLogger.printStats();
-//		}
+		if (dInfo.getStep() == sInfo.getSteps() - 1)
+		{			
+			StatsLogger.printStats();
+			StatsLogger.printOverallStats();
+			StatsLogger.printJobStepStats();
+			StatsLogger.printAgentInventoryStats();
+			StatsLogger.get().println(String.format("Final result: %d", dInfo.getMoney()));
+			ErrorLogger.get().println(String.format("Step: %4d Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+			StatsLogger.reset();
+			ErrorLogger.reset();
+			JobStatistics.resetStats();
+		}
+		else if (dInfo.getStep() % 25 == 0) 
+		{
+			ErrorLogger.get().println(String.format("Step: %4d - Money: %6d", dInfo.getStep(), dInfo.getMoney()));
+			StatsLogger.printStats();
+		}
 		
 		for (Item item : iInfo.getItems())
 			item.calculateItemAvailability();
@@ -180,10 +180,8 @@ public class ReqActionPerceiver extends Artifact {
 		{
 			evaluator.evaluate(job);
 			
-//			JobStatistics.addJob(job);
+			JobStatistics.addJob(job);
 		}
-		
-//		delegator.select(evaluator.getEvaluations());
 		
 		if (dInfo.getStep() == sInfo.getSteps() - 1)
 		{
@@ -194,21 +192,6 @@ public class ReqActionPerceiver extends Artifact {
 			delegationThread = new Thread(delegator);
 			delegationThread.start();
 		}
-		
-//		try 
-//		{			
-//			int count = 0;
-//			
-//			while (delegationThread.isAlive() && count <= 2000)
-//			{
-//				Thread.sleep(100);
-//				count += 100;
-//			}
-//		} 
-//		catch (InterruptedException e) 
-//		{
-//			e.printStackTrace();
-//		}
 		
 		execInternalOp("update");
 	}
